@@ -1,4 +1,4 @@
-set(HEADER_LIST "${parflowio_SOURCE_DIR}/include/parflowio/pfio.h")
+set(HEADER_LIST "${parflowio_SOURCE_DIR}/include/parflowio/pfdata.hpp")
 
 # Make an automatic library - will be static or dynamic based on user setting
 add_library(parflowio pfdata.cpp ${HEADER_LIST})

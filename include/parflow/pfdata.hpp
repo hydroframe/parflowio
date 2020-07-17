@@ -1,45 +1,51 @@
 #ifndef PARFLOWIO_PFDATA_HPP
 #define PARFLOWIO_PFDATA_HPP
+#include <stdio.h>
 
+/**
+ * class: PFData
+ * The PFData class refers to the contents of ParflowBinary File. This class provides several methods to read
+ * and write those files as well as export the data.
+ */
 class PFData {
-    char* filename;
-    FILE* fp;
+private:
+    const char* _filename;
+    FILE* _fp;
 
     // The following information is available only after the file is opened
-    size_t size;
-    int nx,ny,nz; // dimensions
-    int rx,ry,rz; // block sizes from header
+    // main header information
+    double _X,_Y,_Z;
+    int _nx,_ny,_nz;
+    double _dX,_dY,_dZ;
+    int _numSubgrids;
     double* data;
 
+public:
+    /**
+     * PFData
+     * Default constructor, useful when storing data that may be written later
+     */
     PFData();
+    /**
+     * PFData
+     * @param const char* filename, a relative filename (this file may or may not exist)
+     */
+    PFData(const char*);
+    /**
+     * loadFile
+     * @retval 0 on success, non 0 on failure (sets errno)
+     */
+    int loadFile();
+
 };
 
-/**
- * get_value
- * @param int x
- * @param int y
- * @param int z
- * @return double value from location in file
- * Looks up a single value from the pfb file.
- */
-#define get_value(x,y,z) get_valueiii(x,y,z)
-/**
- * get_values
- * @param int x
- * @param int y
- * @return double* a pointer to the block data
- */
-#define get_values(x,y) get_valueii(x,y)
-struct pfdata* get_valueii(int x, int y);
-#define get_values() get_data()
-struct pfdata* get_data(int x, int y);
+class PFSubgrid {
+    int ix,iy,iz;
+    int nx,ny,nz;
+    int rx,ry,rz;
 
+    double *data;
 
-/**
- * get_num_blocks
- * @param a relative path to a pfb file
- * @return the number of blocks saved in this file
- */
-int get_num_blocks(const char*);
-
+    PFSubgrid(FILE* file);
+};
 #endif //PARFLOWIO_PFDATA_HPP

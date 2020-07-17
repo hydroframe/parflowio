@@ -7,5 +7,5 @@ include_directories(parflowio PUBLIC ../include)
 
 # 'Google_Tests_run' is the target name
 # 'test1.cpp tests2.cpp' are source files with tests
-add_executable(run_tests Test1.cpp)
+add_executable(run_tests PFData_test.cpp)
 target_link_libraries(run_tests PRIVATE parflowio gtest gtest_main)

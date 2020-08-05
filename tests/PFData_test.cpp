@@ -39,16 +39,9 @@ TEST(Test1, data2){
 
 //TEST(Test1, header1){
     // Let's make sure that we can load the header information from the file
-//<<<<<<< HEAD
-  //  PFData test("tests/var/validfilename.pdb");
-   // int retval = test.loadFile();
-   // int NX = test.getNX();
-   // int NY= test.getNY();
-   // int NZ = test.getNZ();
-   // EXPECT_EQ(41,NX);
-   // EXPECT_EQ(41,NY);
-   // EXPECT_EQ(5,NZ);
-//=======
+
+//removed the issue hopefully
+
 //    PFData test("tests/var/validfilename.pdb");
   //  int retval = test.loadFile();
    // int NX = test.get_NX();

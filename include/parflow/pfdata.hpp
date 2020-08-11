@@ -1,6 +1,8 @@
 #ifndef PARFLOWIO_PFDATA_HPP
 #define PARFLOWIO_PFDATA_HPP
+#include <cstddef>
 #include <stdio.h>
+#include <vector>
 
 /**
  * class: PFData
@@ -18,7 +20,7 @@ private:
     int m_nx,m_ny,m_nz;
     double m_dX,m_dY,m_dZ;
     int m_numSubgrids;
-    double* data;
+    double* m_data;
 
 public:
 
@@ -35,11 +37,18 @@ public:
      */
     PFData(const char*);
     /**
-     * loadFile
+     * loadHeader
      * @retval 0 on success, non 0 on failure (sets errno)
      * This function reads the header of the pfb file, but does not read the data.
      */
-    int loadFile();
+    int loadHeader();
+
+    /**
+     * loadData
+     * @retval 0 on success, non-0 on failure
+     * This function reads all of the data from the pfb file into memory.
+     */
+     int loadData();
 
     /**
      * get[X,Y,Z]
@@ -124,8 +133,21 @@ public:
      * @param int z
      * @param double* value
      * @returns 0 on success, non 0 on failure
+     * These coordinates are an offset from the lower left hand corner.
      */
     int getCoordinateDatum(int x,int y,int z, double* value);
+    double operator()(int,int,int);
+    double* getSubgridData(int grid);
+
+    /**
+     * getData
+     * @return std::vector<double>*
+     * Get a pointer to the raw data as a one dimensional array.
+     */
+    double* getData();
+
+    void close();
+
 
 };
 

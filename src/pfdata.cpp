@@ -203,7 +203,7 @@ int PFData::loadData() {
                 uint64_t* buf = (uint64_t*)&(m_data[index]);
                 int read_count = fread(buf,8,nx,m_fp);
                 if(read_count != nx){
-                    perror("Error Reading Data");
+                    perror("Error Reading Data, File Ended Unexpectedly");
                     return 1;
                 }
                 // handle byte order

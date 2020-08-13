@@ -20,6 +20,7 @@ private:
     int m_nx,m_ny,m_nz;
     double m_dX,m_dY,m_dZ;
     int m_numSubgrids;
+    int m_p,m_q,m_r;
     double* m_data;
 
 public:
@@ -49,6 +50,8 @@ public:
      * This function reads all of the data from the pfb file into memory.
      */
      int loadData();
+     int writeFile(const char* filename);
+     int writeFile();
 
     /**
      * get[X,Y,Z]
@@ -150,14 +153,8 @@ public:
 
 
 };
+int calcOffset(int extent, int block_count, int block_idx);
+int calcExtent(int extent, int block_count, int block_idx);
 
-class PFSubgrid {
-    int ix,iy,iz;
-    int nx,ny,nz;
-    int rx,ry,rz;
 
-    double *data;
-
-    PFSubgrid(FILE* file);
-};
 #endif //PARFLOWIO_PFDATA_HPP

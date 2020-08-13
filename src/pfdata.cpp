@@ -279,12 +279,12 @@ int PFData::writeFile(const char *filename) {
                 WRITEINT(calcExtent(m_ny,m_q,nsg_y), fp);
                 WRITEINT(calcExtent(m_nz,m_r,nsg_z), fp);
                 // subgrid  location in 3D grid
-                WRITEINT(0, fp);
-                WRITEINT(0, fp);
-                WRITEINT(0, fp);
-                //WRITEINT(nsg_x, fp);
-                //WRITEINT(nsg_y, fp);
-                //WRITEINT(nsg_z, fp);
+                //WRITEINT(0, fp);
+                //WRITEINT(0, fp);
+                //WRITEINT(0, fp);
+                WRITEINT(nsg_x, fp);
+                WRITEINT(nsg_y, fp);
+                WRITEINT(nsg_z, fp);
 
                 int  ix,iy,iz;
                 for(iz=calcOffset(m_nz,m_r,nsg_z); iz < calcOffset(m_nz,m_r,nsg_z+1);iz++){
@@ -337,6 +337,16 @@ int PFData::writeFile() {
 
     return 0;
 }
+
+int PFData::distFile(int P, int Q, int R, const char *outFile) {
+    loadHeader();
+    loadData();
+    m_p = P;
+    m_q = Q;
+    m_r = R;
+    return writeFile(outFile);
+}
+
 
 uint64_t pfntohll(uint64_t value) {
     if (htonl(1) != 1){

@@ -52,6 +52,7 @@ public:
      int loadData();
      int writeFile(const char* filename);
      int writeFile();
+     int distFile(int P, int Q, int R, const char* outFile);
 
     /**
      * get[X,Y,Z]

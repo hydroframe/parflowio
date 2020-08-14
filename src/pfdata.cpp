@@ -347,6 +347,10 @@ int PFData::distFile(int P, int Q, int R, const char *outFile) {
     return writeFile(outFile);
 }
 
+const char * PFData::getFilename() {
+    return m_filename;
+}
+
 
 uint64_t pfntohll(uint64_t value) {
     if (htonl(1) != 1){

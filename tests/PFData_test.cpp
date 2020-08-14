@@ -64,6 +64,27 @@ TEST_F(PFData_test, loadData) {
     EXPECT_NEAR(97.30205516102234,test(22,1,0),1E-12);
     test.close();
 }
+TEST_F(PFData_test, loadDataAbs) {
+    // this file needs to exist, and should load
+    char filename[2048];
+    getcwd(filename,2048);
+    strcat(filename,"/tests/inputs/press.init.pfb");
+    PFData test(filename);
+    int retval = test.loadHeader();
+    ASSERT_EQ(0,retval);
+    retval = test.loadData();
+    ASSERT_EQ(0,retval);
+    double* data = test.getData();
+    EXPECT_NE(nullptr, data);
+    EXPECT_NEAR(98.003604098773,test(0,0,0),1E-12);
+    EXPECT_NEAR(97.36460429313328,test(40,0,0),1E-12);
+    EXPECT_NEAR(98.0043134691891,test(0,1,0),1E-12);
+    EXPECT_NEAR(98.00901307022781,test(1,0,0),1E-12);
+    EXPECT_NEAR(92.61370155558751,test(21,1,2),1E-12);
+    EXPECT_NEAR(7.98008728357588,test(0,1,45),1E-12);
+    EXPECT_NEAR(97.30205516102234,test(22,1,0),1E-12);
+    test.close();
+}
 
 TEST_F(PFData_test, readWrite){
     char buf1[1024];

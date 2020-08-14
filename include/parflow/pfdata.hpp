@@ -43,6 +43,7 @@ public:
      * This function reads the header of the pfb file, but does not read the data.
      */
     int loadHeader();
+    const char * getFilename();
 
     /**
      * loadData

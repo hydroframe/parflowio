@@ -27,6 +27,11 @@ public:
 
     /**
      * PFData
+     * Default constructor, useful when storing data that may be written later
+     */
+    PFData();
+    /**
+     * PFData
      * @param const char* filename, a relative filename (this file may or may not exist)
      * The validity of this file is not checked at  this point. Only during the first
      * interaction.

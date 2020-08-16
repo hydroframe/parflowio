@@ -27,8 +27,6 @@ uint64_t pfhtonll(uint64_t value);
 int calcOffset(int extent, int block_count, int block_idx);
 int calcExtent(int extent, int block_count, int block_idx);
 
-PFData::PFData() {
-}
 PFData::PFData(const char * filename) {
     m_filename = filename;
 }

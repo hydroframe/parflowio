@@ -3,6 +3,7 @@ project(parflowio)
 
 set( CMAKE_VERBOSE_MAKEFILE on )
 set(CMAKE_CXX_STANDARD 14)
+set(PROJECT_VERSION 0.0.1)
 # Only do these if this is the main project, and not if it is included through add_subdirectory
 
 if ( ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR} )

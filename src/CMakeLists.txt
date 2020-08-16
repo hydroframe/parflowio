@@ -1,7 +1,9 @@
 set(HEADER_LIST "${parflowio_SOURCE_DIR}/include/parflow/pfdata.hpp")
 
 # Make an automatic library - will be static or dynamic based on user setting
-add_library(parflowio pfdata.cpp ${HEADER_LIST})
+add_library(parflowio OBJECT pfdata.cpp ${HEADER_LIST})
+set_target_properties(parflowio PROPERTIES VERSION ${PROJECT_VERSION})
+set_target_properties(parflowio PROPERTIES SOVERSION 1)
 
 # We need this directory, and users of our library will need it too
 target_include_directories(parflowio PUBLIC ../include)

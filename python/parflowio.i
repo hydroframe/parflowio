@@ -9,11 +9,11 @@
 
 %{
 #define SWIG_FILE_WITH_INIT
-#include "parflowio/pfdata.hpp"
+#include "parflow/pfdata.hpp"
 %} 
 
 %include "numpy.i"
-%include "parflowio/pfdata.hpp"
+%include "parflow/pfdata.hpp"
 %include <typemaps.i>
 
 %init %{

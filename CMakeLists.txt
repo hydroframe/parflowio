@@ -1,9 +1,19 @@
 cmake_minimum_required(VERSION 3.15)
-project(parflowio)
+project(parflowio VERSION 0.0.1 LANGUAGES CXX)
+message(STATUS "project: ${PROJECT_NAME}")
+message(STATUS "version: ${PROJECT_VERSION}")
+
 
 set( CMAKE_VERBOSE_MAKEFILE on )
 set(CMAKE_CXX_STANDARD 14)
 # Only do these if this is the main project, and not if it is included through add_subdirectory
+
+# Force default build type to Release
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING
+    "Choose the type of build, options are: Debug, Release (default), RelWithDebInfo and MinSizeRel."
+    FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
 
 if ( ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR} )
     message( FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. You may need to remove CMakeCache.txt." )
@@ -47,3 +57,13 @@ if(PACKAGE_TESTS)
     add_subdirectory(tests)
 endif()
 
+# By default only the C++ library is built.
+option(BUILD_CXX "Build C++ library" ON)
+option(BUILD_PYTHON "Build Python Library" ON)
+
+message(STATUS "Build C++ library: ${BUILD_CXX}")
+message(STATUS "Build Python: ${BUILD_PYTHON}")
+
+if(BUILD_PYTHON)
+    add_subdirectory(python)
+endif()

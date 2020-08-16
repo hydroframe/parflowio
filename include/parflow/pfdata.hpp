@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <stdio.h>
 #include <vector>
+#include <string>
 
 /**
  * class: PFData
@@ -11,7 +12,7 @@
  */
 class PFData {
 private:
-    const char* m_filename;
+    std::string m_filename;
     FILE* m_fp;
 
     // The following information is available only after the file is opened
@@ -30,20 +31,21 @@ public:
      * Default constructor, useful when storing data that may be written later
      */
     PFData();
+
     /**
      * PFData
      * @param const char* filename, a relative filename (this file may or may not exist)
      * The validity of this file is not checked at  this point. Only during the first
      * interaction.
      */
-    PFData(const char*);
+    PFData(std::string);
     /**
      * loadHeader
      * @retval 0 on success, non 0 on failure (sets errno)
      * This function reads the header of the pfb file, but does not read the data.
      */
     int loadHeader();
-    const char * getFilename();
+    std::string getFilename() const;
 
     /**
      * loadData
@@ -51,9 +53,9 @@ public:
      * This function reads all of the data from the pfb file into memory.
      */
      int loadData();
-     int writeFile(const char* filename);
+     int writeFile(const std::string filename);
      int writeFile();
-     int distFile(int P, int Q, int R, const char* outFile);
+     int distFile(int P, int Q, int R, const std::string outFile);
 
     /**
      * get[X,Y,Z]

@@ -19,11 +19,11 @@ virtual void TearDown() {
 
 };
 
-TEST_F(PFData_test, loadHeader){
-  PFData test;
-  int retval = test.loadHeader();
-  EXPECT_NE(0,retval);
-}
+// TEST_F(PFData_test, loadHeader){
+//   PFData test;
+//   int retval = test.loadHeader();
+//   EXPECT_NE(0,retval);
+// }
 
 TEST_F(PFData_test, data1){
     // this file does not exist, therefore, load should fail

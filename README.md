@@ -3,10 +3,10 @@ This project is meant to replace the existing pfio code used by pftools.
 For now the project is a separate repo, but that will change.
 
 ## Installation
-    git clone <this repo>
+    git clone <this repo>    
     mkdir parflowio-build
     cd parflowio-build
-    cmake ..
+    cmake ../parflowio
     make
     make test
     make docs
@@ -26,8 +26,8 @@ Required packages:
 After performing the steps from [installation](#Installation), do the following steps from the parflowio-build
  directory:
 ```
-    cd python/parflowio
-    python setup.py install
+$ cd python/parflowio
+$ python setup.py install
 ```
 
 Note: Suggest using a conda or other non-system environment for this. 

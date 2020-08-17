@@ -51,5 +51,5 @@ In [5]: data = pfb_data.getDataAsArray()
 
 ## Testing Python Module
 
-After following [install](#Installation) and [python install](#Testing-Python-Module) steps above, cd to
+After following [install](#Installation) and [python install](#Python-Installation) steps above, cd to
 parflowio/python and run `python test.py` 

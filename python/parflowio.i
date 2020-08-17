@@ -27,10 +27,16 @@ import_array();
 
     PyObject * getDataAsArray(){        
         npy_intp dims[3] = {0};
-        dims[0]=$self->getNX();
+        dims[0]=$self->getNZ();
         dims[1]=$self->getNY();
-        dims[2]=$self->getNZ();
-        return PyArray_SimpleNewFromData(3, dims, NPY_DOUBLE, static_cast<void*> ($self->getData()));
+        dims[2]=$self->getNX();
+        npy_intp t_dims[3] = {2,1,0};
+        PyArray_Dims * transpose_dims;
+		transpose_dims->ptr=t_dims;
+		transpose_dims->len=3;
+
+        return PyArray_Transpose((PyArrayObject *)PyArray_SimpleNewFromData(3, dims, NPY_DOUBLE, static_cast<void*>
+                ($self->getData())), transpose_dims);
     }
 
 

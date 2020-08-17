@@ -106,7 +106,8 @@ if(BUILD_PYTHON)
         COMMAND ${VENV_EXECUTABLE} -p ${Python_EXECUTABLE} ${VENV_DIR}
         # Must not call it in a folder containing the setup.py otherwise pip call it
         # (i.e. "python setup.py bdist") while we want to consume the wheel package
-        COMMAND ${VENV_Python_EXECUTABLE} -m pip install --find-links=${CMAKE_CURRENT_BINARY_DIR}/python/dist ${PROJECT_NAME}
+        COMMAND ${VENV_Python_EXECUTABLE} -m pip install --find-links=${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/dist
+        ${PROJECT_NAME}
         BYPRODUCTS ${VENV_DIR}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
       # run the tests within the virtualenv

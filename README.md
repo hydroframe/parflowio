@@ -48,3 +48,8 @@ In [3]: pfb_data.loadHeader()
 In [4]: pfb_data.loadData()
 In [5]: data = pfb_data.getDataAsArray()
 ```
+
+## Testing Python Module
+
+After following [install](#Installation) and [python install](#Testing-Python-Module) steps above, cd to
+parflowio/python and run `python test.py` 

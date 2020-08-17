@@ -3,7 +3,6 @@
 //
 #include "gtest/gtest.h"
 #include "parflow/pfdata.hpp"
-#include <iostream>
 #include <fstream>
 #include <string>
 class PFData_test : public ::testing::Test {
@@ -19,11 +18,11 @@ virtual void TearDown() {
 
 };
 
-// TEST_F(PFData_test, loadHeader){
-//   PFData test;
-//   int retval = test.loadHeader();
-//   EXPECT_NE(0,retval);
-// }
+ TEST_F(PFData_test, loadHeader){
+   PFData test;
+   int retval = test.loadHeader();
+   EXPECT_NE(0,retval);
+ }
 
 TEST_F(PFData_test, data1){
     // this file does not exist, therefore, load should fail

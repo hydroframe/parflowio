@@ -1,7 +1,7 @@
 #ifndef PARFLOWIO_PFDATA_HPP
 #define PARFLOWIO_PFDATA_HPP
 #include <cstddef>
-#include <stdio.h>
+#include <cstdio>
 #include <vector>
 #include <string>
 
@@ -38,7 +38,7 @@ public:
      * The validity of this file is not checked at  this point. Only during the first
      * interaction.
      */
-    PFData(std::string);
+    explicit PFData(std::string);
     /**
      * loadHeader
      * @retval 0 on success, non 0 on failure (sets errno)
@@ -53,9 +53,9 @@ public:
      * This function reads all of the data from the pfb file into memory.
      */
      int loadData();
-     int writeFile(const std::string filename);
+     int writeFile(std::string filename);
      int writeFile();
-     int distFile(int P, int Q, int R, const std::string outFile);
+     int distFile(int P, int Q, int R, std::string outFile);
 
     /**
      * get[X,Y,Z]

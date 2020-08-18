@@ -32,7 +32,7 @@ $ python setup.py install
 
 Note: Suggest using a conda or other non-system environment for this. 
 
-A new conda environment and activate it:
+Create a new conda environment and activate it:
 
 ```
 $ conda create -n parflowio_test ipython numpy pip virtualenv swig -c conda-forge -y`

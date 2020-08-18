@@ -93,6 +93,7 @@ class PFDataClassTests(unittest.TestCase):
         in_file_hash = calculate_sha1_hash((self.local_dir / '../tests/inputs/press.init.pfb').as_posix())
         out_file_hash = calculate_sha1_hash((self.local_dir / '../tests/inputs/press.init.pfb.tmp').as_posix())
 
+        # This assertion (that the files are identical) is failing in Python and in C++
         self.assertEqual(in_file_hash, out_file_hash, 'sha1 hash of input and output files match')
 
         test.close()
@@ -125,6 +126,19 @@ class PFDataClassTests(unittest.TestCase):
         test.close()
         test_read.close()
         os.remove((self.local_dir / '../tests/inputs/press.init.pfb.tmp').as_posix())
+
+    def test_dist_file(self):
+        test = PFData((self.local_dir / '../tests/inputs/press.init.pfb').as_posix())
+        test.distFile(P=2, Q=2, R=1, outFile=(self.local_dir / '../tests/inputs/press.init.pfb.dist').as_posix())
+
+        dist_file = PFData((self.local_dir / '../tests/inputs/press.init.pfb.dist').as_posix())
+        self.assertEqual(0, dist_file.loadHeader(), 'should load distributed file header')
+        self.assertEqual(0, dist_file.loadData(), 'should load distributed data')
+        self.assertIsNone(np.testing.assert_array_equal(test.getDataAsArray(), dist_file.getDataAsArray()),
+                          'should find matching data values in original and distributed files')
+        test.close()
+        dist_file.close()
+        os.remove((self.local_dir / '../tests/inputs/press.init.pfb.dist').as_posix())
 
 
 if __name__ == "__main__":

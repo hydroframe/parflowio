@@ -349,6 +349,11 @@ const char * PFData::getFilename() {
     return m_filename;
 }
 
+void PFData::setData(double *data) {
+    m_data = data;
+
+}
+
 
 uint64_t pfntohll(uint64_t value) {
     if (htonl(1) != 1){

@@ -145,6 +145,7 @@ public:
      * Get a pointer to the raw data as a one dimensional array.
      */
     double* getData();
+    void  setData(double*);
 
     void close();
 

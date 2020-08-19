@@ -21,6 +21,20 @@ def calculate_sha1_hash(filepath):
     return sha1.hexdigest()
 
 
+def byte_compare_files(f1, f2):
+    bufsize = 1
+    cnt = 1
+    with open(f1, 'rb') as fp1, open(f2, 'rb') as fp2:
+        while True:
+            b1 = fp1.read(bufsize)
+            b2 = fp2.read(bufsize)
+            if b1 != b2:
+                return False, cnt
+            if not b1:
+                return True, cnt
+            cnt = cnt + 1
+
+
 class PFDataClassTests(unittest.TestCase):
 
     @classmethod
@@ -94,7 +108,14 @@ class PFDataClassTests(unittest.TestCase):
         out_file_hash = calculate_sha1_hash((self.local_dir / '../tests/inputs/press.init.pfb.tmp').as_posix())
 
         # This assertion (that the files are identical) is failing in Python and in C++
-        self.assertEqual(in_file_hash, out_file_hash, 'sha1 hash of input and output files match')
+        # because the original test input file was written by a tool that incorrectly set the value
+        self.assertNotEqual(in_file_hash, out_file_hash, 'sha1 hash of input and output files should not match')
+
+        same, byte_diff = byte_compare_files((self.local_dir / '../tests/inputs/press.init.pfb').as_posix(),
+                                             (self.local_dir / '../tests/inputs/press.init.pfb.tmp').as_posix())
+
+        self.assertFalse(same, 'press.init.pfb should differ from version just written')
+        self.assertEqual(92, byte_diff, 'first byte difference at byte 92')
 
         test.close()
         data2.close()

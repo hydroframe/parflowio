@@ -35,12 +35,9 @@
 
     %pythoncode %{
     def __str__(self):
-        s = str(self.__class__.__name__) +
-        		"(X={}, Y={}, Z={}, NX={}, NY={}, NZ={}, DX={}, DY={}, DZ={})".format(self.getX(),
-																				self.getY(), self.getZ(),
-																				self.getNX(), self.getNY(),
-																				self.getNZ(), self.getDX(),
-																				self.getDY(), self.getDZ())
+        s = str(self.__class__.__name__) + "(X={}, Y={}, Z={}, NX={}, NY={}, NZ={}, DX={}, DY={}, DZ={})".format(self
+        		.getX(), self.getY(), self.getZ(), self.getNX(), self.getNY(), self.getNZ(), self.getDX(), self.getDY(),
+        		self.getDZ())
         return s
 	%}
 

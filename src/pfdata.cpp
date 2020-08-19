@@ -1,9 +1,8 @@
 #include "parflow/pfdata.hpp"
-#include <stdio.h>
+#include <cstdio>
 #include <arpa/inet.h>
-#include <stdint.h>
+#include <cstdint>
 #include <iostream>
-#include <fstream>
 #include <string>
 #include <unistd.h>
 
@@ -27,12 +26,14 @@ uint64_t pfhtonll(uint64_t value);
 int calcOffset(int extent, int block_count, int block_idx);
 int calcExtent(int extent, int block_count, int block_idx);
 
-PFData::PFData(const char * filename) {
+PFData::PFData() {
+}
+PFData::PFData(std::string filename) {
     m_filename = filename;
 }
 int PFData::loadHeader() {
 
-    m_fp = fopen( m_filename, "rb");
+    m_fp = fopen( m_filename.c_str(), "rb");
     if(m_fp == NULL){
         perror("Error opening pfbfile");
         return 1;
@@ -234,9 +235,9 @@ void PFData::close() {
   return;
 }
 
-int PFData::writeFile(const char *filename) {
+int PFData::writeFile(const std::string filename) {
 
-    FILE *fp = fopen(filename, "wb");
+    FILE *fp = fopen(filename.c_str(), "wb");
     if(fp == nullptr){
         perror("Error Opening File");
         return 1;
@@ -333,7 +334,7 @@ int PFData::writeFile() {
     return 0;
 }
 
-int PFData::distFile(int P, int Q, int R, const char *outFile) {
+int PFData::distFile(int P, int Q, int R, const std::string outFile) {
     loadHeader();
     loadData();
     m_p = P;
@@ -342,7 +343,7 @@ int PFData::distFile(int P, int Q, int R, const char *outFile) {
     return writeFile(outFile);
 }
 
-const char * PFData::getFilename() {
+std::string PFData::getFilename() const{
     return m_filename;
 }
 

@@ -23,18 +23,35 @@
                          V = *(double*)&temp;}
 uint64_t pfntohll(uint64_t value);
 uint64_t pfhtonll(uint64_t value);
-int calcOffset(int extent, int block_count, int block_idx);
-int calcExtent(int extent, int block_count, int block_idx);
+
+
 
 PFData::PFData() {
+    m_fp = nullptr;
+    m_data = nullptr;
 }
+
 PFData::PFData(std::string filename) {
     m_filename = filename;
+    m_fp = nullptr;
+    m_data = nullptr;
 }
+
+PFData::PFData(double *data, int nz, int ny, int nx) {
+    m_data = data;
+    m_nx = nx;
+    m_ny = ny;
+    m_nz = nz;
+    m_X = m_Y = m_Z = 0.0;
+    m_dX = m_dY = m_dZ = 1.0;
+    m_p = m_q = m_r = 1;
+    m_fp = nullptr;
+}
+
 int PFData::loadHeader() {
 
     m_fp = fopen( m_filename.c_str(), "rb");
-    if(m_fp == NULL){
+    if(m_fp == nullptr){
         perror("Error opening pfbfile");
         return 1;
     }
@@ -145,7 +162,7 @@ void PFData::setNumSubgrids(int NumSubgrids) {
 }
 
 double* PFData::getSubgridData(int grid) {
-    return NULL;
+    return nullptr;
 }
 
 int PFData::getCoordinateDatum(int x, int y, int z, double *value) {
@@ -164,11 +181,11 @@ int PFData::loadData() {
     int nsg;
     //subgrid variables
     int x,y,z,nx,ny,nz,rx,ry,rz;
-    if(m_fp  == NULL){
+    if(m_fp  == nullptr){
         return 1;
     }
     m_data = (double*)malloc(sizeof(double)*m_nx*m_ny*m_nz);
-    if(m_data == NULL){
+    if(m_data == nullptr){
         return 2;
     }
     for (nsg = 0;nsg<m_numSubgrids; nsg++){
@@ -227,11 +244,11 @@ int PFData::loadData() {
 }
 
 void PFData::close() {
-  if(m_fp == NULL){
+  if(m_fp == nullptr){
       return;
   }
   fclose(m_fp);
-  m_fp = NULL;
+  m_fp = nullptr;
   return;
 }
 
@@ -349,9 +366,31 @@ std::string PFData::getFilename() const{
 
 void PFData::setData(double *data) {
     m_data = data;
-
 }
 
+int PFData::getP() const {
+    return m_p;
+}
+
+int PFData::getQ() const {
+    return m_q;
+}
+
+int PFData::getR() const {
+    return m_r;
+}
+
+void PFData::setP(int P) {
+    m_p = P;
+}
+
+void PFData::setQ(int Q) {
+    m_q = Q;
+}
+
+void PFData::setR(int R) {
+    m_r = R;
+}
 
 uint64_t pfntohll(uint64_t value) {
     if (htonl(1) != 1){

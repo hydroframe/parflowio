@@ -3,7 +3,6 @@ from pathlib import Path
 from parflowio.pyParflowio import PFData
 import numpy as np
 import os
-import sys
 import hashlib
 
 
@@ -50,6 +49,10 @@ class PFDataClassTests(unittest.TestCase):
         test = PFData('bad_filename_not_exists.pfb')
         retval = test.loadHeader()
         self.assertNotEqual(0, retval, 'Bad filename should error loading header')
+
+    def test_open_close(self):
+        test = PFData()
+        self.assertIsNone(test.close(), 'should be able to open and close an empty object')
 
     def test_good_filename(self):
         test = PFData((self.local_dir / '../tests/inputs/press.init.pfb').as_posix())
@@ -160,6 +163,76 @@ class PFDataClassTests(unittest.TestCase):
         test.close()
         dist_file.close()
         os.remove((self.local_dir / '../tests/inputs/press.init.pfb.dist').as_posix())
+
+    def test_assign_data(self):
+        test = PFData()
+        data = np.random.random_sample((50, 49, 31))
+        test.setDataArray(data)
+        self.assertEqual(31, test.getNX())
+        self.assertEqual(49, test.getNY())
+        self.assertEqual(50, test.getNZ())
+        test.setDX(1)
+        test.setDY(1)
+        test.setDZ(1)
+        test.setX(0)
+        test.setY(0)
+        test.setZ(0)
+        test.setP(1)
+        test.setQ(1)
+        test.setR(1)
+        test.writeFile((self.local_dir / '../tests/inputs/test_write_raw.pfb').as_posix())
+        test_read = PFData((self.local_dir / '../tests/inputs/test_write_raw.pfb').as_posix())
+        test_read.loadHeader()
+        test_read.loadData()
+        self.assertEqual(0, test_read.getX())
+        self.assertEqual(0, test_read.getY())
+        self.assertEqual(0, test_read.getZ())
+        self.assertEqual(31, test_read.getNX())
+        self.assertEqual(49, test_read.getNY())
+        self.assertEqual(50, test_read.getNZ())
+        self.assertEqual(1, test_read.getP())
+        self.assertEqual(1, test_read.getQ())
+        self.assertEqual(1, test_read.getR())
+        test_data = test_read.getDataAsArray()
+        self.assertIsNone(np.testing.assert_array_equal(data, test_data), 'Data written to array should exist in '
+                                                                          'written PFB file.')
+        del data
+        test.close()
+        test_read.close()
+        os.remove((self.local_dir / '../tests/inputs/test_write_raw.pfb').as_posix())
+
+    def test_create_from_data(self):
+        data = np.random.random_sample((50, 49, 31))
+        test = PFData(data)
+        self.assertEqual(31, test.getNX())
+        self.assertEqual(49, test.getNY())
+        self.assertEqual(50, test.getNZ())
+        self.assertEqual(1, test.getP())
+        self.assertEqual(1, test.getQ())
+        self.assertEqual(1, test.getR())
+        self.assertEqual(0, test.getX())
+        self.assertEqual(0, test.getY())
+        self.assertEqual(0, test.getZ())
+        test.writeFile((self.local_dir / '../tests/inputs/test_write_raw.pfb').as_posix())
+        test_read = PFData((self.local_dir / '../tests/inputs/test_write_raw.pfb').as_posix())
+        test_read.loadHeader()
+        test_read.loadData()
+        self.assertEqual(0, test_read.getX())
+        self.assertEqual(0, test_read.getY())
+        self.assertEqual(0, test_read.getZ())
+        self.assertEqual(31, test_read.getNX())
+        self.assertEqual(49, test_read.getNY())
+        self.assertEqual(50, test_read.getNZ())
+        self.assertEqual(1, test_read.getP())
+        self.assertEqual(1, test_read.getQ())
+        self.assertEqual(1, test_read.getR())
+        test_data = test_read.getDataAsArray()
+        self.assertIsNone(np.testing.assert_array_equal(data, test_data), 'Data written to array should exist in '
+                                                                          'written PFB file.')
+        del data
+        test.close()
+        test_read.close()
+        os.remove((self.local_dir / '../tests/inputs/test_write_raw.pfb').as_posix())
 
 
 if __name__ == "__main__":

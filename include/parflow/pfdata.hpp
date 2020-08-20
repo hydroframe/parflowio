@@ -17,11 +17,11 @@ private:
 
     // The following information is available only after the file is opened
     // main header information
-    double m_X,m_Y,m_Z;
-    int m_nx,m_ny,m_nz;
-    double m_dX,m_dY,m_dZ;
-    int m_numSubgrids;
-    int m_p,m_q,m_r;
+    double m_X{},m_Y{},m_Z{};
+    int m_nx{},m_ny{},m_nz{};
+    double m_dX{},m_dY{},m_dZ{};
+    int m_numSubgrids{};
+    int m_p{},m_q{},m_r{};
     double* m_data;
 
 public:
@@ -39,6 +39,17 @@ public:
      * interaction.
      */
     explicit PFData(std::string);
+
+    /**
+     * PFData
+     * @param data array of doubles,
+     * @param nx number of elements in x dimension
+     * @param ny number of elements in y dimension
+     * @param nz number of elements in z direction
+     * This constructor is useful if you have an existing data array you want to make into a PFB file.
+     */
+    PFData(double * data, int nz, int ny, int nx);
+
     /**
      * loadHeader
      * @retval 0 on success, non 0 on failure (sets errno)
@@ -68,6 +79,28 @@ public:
     double getY() const;
     double getZ() const;
 
+    /**
+    * get[P,Q,R]
+     * [P,Q,R] define processor topology for blocking the file
+     * This function is useful either when reading an existing file or when confirming the configuration
+     * of a file that is being created where the computational grid has already been set.
+     * @returns int
+     */
+	int getP() const;
+	int getQ() const;
+	int getR() const;
+
+    /**
+     * set[P,Q,R]
+     * @param int [P,Q,R]
+     * [P,Q,R] define processor topology for blocking the file
+     * This function is useful when creating a new pfb file. It is important to note that you can call this
+     * function on an existing file, but it will invalidate the file and break all subsequent uses of the class
+     * unless you call load_file() again to reset the value back to the one used in the file.
+     */
+    void setP(int P);
+    void setQ(int Q);
+    void setR(int R);
 
     /**
      * set[X,Y,Z]
@@ -80,8 +113,6 @@ public:
     void setX(double X);
     void setY(double Y);
     void setZ(double Z);
-
-
 
     /**
      * getN[X,Y,Z]

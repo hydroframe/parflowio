@@ -5,6 +5,8 @@
 #include "parflow/pfdata.hpp"
 #include <fstream>
 #include <string>
+#include <cstdlib>
+
 class PFData_test : public ::testing::Test {
 
 protected:
@@ -29,6 +31,11 @@ TEST_F(PFData_test, data1){
     PFData test("badname");
     int retval = test.loadHeader();
     EXPECT_NE(0,retval);
+}
+
+TEST_F(PFData_test, openClose){
+    PFData test;
+    test.close();
 }
 
 TEST_F(PFData_test, data2){
@@ -187,6 +194,44 @@ TEST_F(PFData_test, emptyFile){
 	int retval = test.loadHeader();
 	EXPECT_NE(0, retval);
 	std::remove("emptyFile");
+}
+
+TEST_F(PFData_test, fileFromData){
+    int retval = -1;
+    double data[24];
+    for (int i =0; i<24; i++){
+        data[i] = (double) rand() / 1000;
+    }
+    PFData test(data, 1, 4, 6);
+    int p = test.getP();
+    EXPECT_EQ(1, p);
+    int q = test.getQ();
+    EXPECT_EQ(1, q);
+    int r = test.getR();
+    EXPECT_EQ(1, r);
+    retval = test.writeFile("tests/pfb_file_from_data.pfb");
+
+    PFData test_read("tests/pfb_file_from_data.pfb");
+    retval = test_read.loadHeader();
+    EXPECT_EQ(0, retval);
+    retval = test_read.loadData();
+    EXPECT_EQ(0, retval);
+    p = test_read.getP();
+    EXPECT_EQ(1, p);
+    q = test_read.getQ();
+    EXPECT_EQ(1, q);
+    r = test_read.getR();
+    EXPECT_EQ(1, r);
+    EXPECT_EQ(1, test_read.getDX());
+    EXPECT_EQ(1, test_read.getDY());
+    EXPECT_EQ(1, test_read.getDZ());
+    EXPECT_EQ(1, test_read.getNZ());
+    EXPECT_EQ(4, test_read.getNY());
+    EXPECT_EQ(6, test_read.getNX());
+    test_read.close();
+    test.close();
+
+
 }
 
 //TEST_F(PFData_test, readFile){

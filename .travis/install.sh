@@ -24,9 +24,9 @@ function install-swig() {
     # apt-get only have swig 2.0.11
     # Need SWIG >= 3.0.8
     cd /tmp/
-    wget https://github.com/swig/swig/archive/rel-4.0.1.tar.gz
-    tar zxf rel-4.0.1.tar.gz
-    cd swig-rel-4.0.1
+    wget https://github.com/swig/swig/archive/rel-4.0.2.tar.gz
+    tar zxf rel-4.0.2.tar.gz
+    cd swig-rel-4.0.2
     ./autogen.sh
     ./configure --prefix=/usr
     make -j 2
@@ -41,10 +41,11 @@ function install-python(){
     # work around https://github.com/travis-ci/travis-ci/issues/8363
     pyenv global 3.7
     python --version
+    python -m pip install --upgrade pip
     python -m pip --version
-    python -m pip install virtualenv wheel six
+    python -m pip install virtualenv wheel six numpy
   elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
-    python3 -m pip install virtualenv wheel six
+    python3 -m pip install virtualenv wheel six numpy
   fi
 }
 

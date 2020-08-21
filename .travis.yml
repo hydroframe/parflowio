@@ -14,7 +14,7 @@ matrix:
       env: LANGUAGE=python
 
     - os: osx
-      osx_image: xode9.4
+      osx_image: xcode9.4
       language: cpp
       compiler: clang
       env: LANGUAGE=cpp
@@ -23,7 +23,7 @@ matrix:
           update: true
 
     - os: osx
-      osx_image: xode9.4
+      osx_image: xcode9.4
       language: cpp
       compiler: clang
       env: LANGUAGE=python

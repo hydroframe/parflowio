@@ -1,0 +1,31 @@
+language: generic
+
+matrix:
+  include:
+    - os: linux
+      dist: bionic
+      language: cpp
+      compiler: gcc
+      env: LANGUAGE=cpp
+    - os: linux
+      dist: bionic
+      language: cpp
+      compiler: gcc
+      env: LANGUAGE=python
+
+    - os: osx
+      osx_image: xode9.4
+      language: cpp
+      compiler: clang
+      env: LANGUAGE=cpp
+    - os: osx
+      osx_image: xode9.4
+      language: cpp
+      compiler: clang
+      env: LANGUAGE=python
+
+install:
+  - ./.travis/install.sh
+
+script:
+  - ./.travis/script.sh

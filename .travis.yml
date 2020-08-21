@@ -18,11 +18,20 @@ matrix:
       language: cpp
       compiler: clang
       env: LANGUAGE=cpp
+      addons:
+        homebrew:
+          update: true
+
     - os: osx
       osx_image: xode9.4
       language: cpp
       compiler: clang
       env: LANGUAGE=python
+      addons:
+        homebrew:
+          packages:
+            - swig
+          update: true
 
 install:
   - ./.travis/install.sh

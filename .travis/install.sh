@@ -31,8 +31,8 @@ function install-swig() {
     ./configure --prefix=/usr
     make -j 2
     sudo make install
-  elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
-    brew install swig
+  #elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
+    # brew install swig
   fi
 }
 
@@ -53,8 +53,8 @@ eval "${MATRIX_EVAL}"
 
 if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
   /usr/bin/x86_64-linux-gnu-ld --version
-elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
-  brew update
+#elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
+#  brew update
 fi
 
 install-cmake

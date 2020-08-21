@@ -7,11 +7,6 @@
 %}
 
 %include "std_string.i"
-%include "std_list.i"
-%include "std_map.i"
-%include "std_set.i"
-%include "std_vector.i"
-
 %include "numpy.i"
 
 %init %{
@@ -42,10 +37,10 @@
 		pyArrayIn = (PyArrayObject *) PyArray_FromAny(pyObjIn,PyArray_DescrFromType(NPY_DOUBLE),3,3,NPY_ARRAY_IN_ARRAY, nullptr);
     	npy_intp ind[3] = {0,0,0};
     	$self->setData((double *) PyArray_GetPtr(pyArrayIn, ind));
-    	npy_intp * shape = PyArray_SHAPE(pyArrayIn);
-    	$self->setNZ(shape[0]);
-    	$self->setNY(shape[1]);
-    	$self->setNX(shape[2]);
+    	npy_intp * arr_shape = PyArray_SHAPE(pyArrayIn);
+    	$self->setNZ(arr_shape[0]);
+    	$self->setNY(arr_shape[1]);
+    	$self->setNX(arr_shape[2]);
 
     }
 

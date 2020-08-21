@@ -15,6 +15,15 @@ This will build a library file (libparflowio.a). To use this library you will al
 
 The documentation can be found in docs/html/index.html
 
+
+## Building Python Package
+
+From the parflowio-build directory, created in [installation](#Installation) step:
+```
+cmake ../parflowio -DBUILD_PYTHON=ON
+make
+```
+
 ## Python Installation
 Required packages:
 
@@ -22,6 +31,11 @@ Required packages:
 * Numpy
 * pip
 * virtualenv
+
+macOS users should be able to install SWIG using homebrew with the command:
+```
+brew install swig
+```
 
 After performing the steps from [installation](#Installation), do the following steps from the parflowio-build
  directory:

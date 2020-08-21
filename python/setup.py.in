@@ -1,5 +1,6 @@
 from setuptools import find_packages, setup
 from setuptools.dist import Distribution
+import numpy
 
 class BinaryDistribution(Distribution):
   def is_pure(self):
@@ -12,6 +13,7 @@ class InstallPlatlib(install):
     def finalize_options(self):
         install.finalize_options(self)
         self.install_lib=self.install_platlib
+
 
 setup(
   name='parflowio',
@@ -26,5 +28,7 @@ setup(
   'parflowio':[$<$<NOT:$<PLATFORM_ID:Windows>>:'.libs/*'>],
   'parflowio':['$<TARGET_FILE_NAME:pyParflowio>'],
   },
-  include_package_data=True,  
+  include_package_data=True,
+  install_requires=['numpy > 1.6.1'],
+  include_dirs=[numpy.get_include()]
 )

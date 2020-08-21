@@ -23,9 +23,18 @@ fi
 cmake --build build --target all -- VERBOSE=1
 
 ############
-##  TEST  ##got
+##  TEST  ##
 ############
 cmake --build build --target test
 # vim: set tw=0 ts=2 sw=2 expandtab:
 
-cd build/python/parflowio && python setup.py install && cd ../../../python && python test.py
+if [[ "$LANGUAGE" == "python" ]]; then
+  if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+    cd build/python/parflowio && \
+    python -m pip install --find-links=./dist parflowio && \
+    cd ../../../python && \
+    python test.py
+  else
+    cd build/python/parflowio && python3 -m pip install --find-links=./dist parflowio  && cd ../../../python && python3 test.py
+  fi
+fi

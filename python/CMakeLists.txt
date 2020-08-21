@@ -27,9 +27,8 @@ if(BUILD_PYTHON)
       list(APPEND CMAKE_SWIG_FLAGS "-py3;-DPY3")
     endif()
 
-    # Swig wrap libraries    
-    #add_subdirectory(python)
-    
+    list(APPEND CMAKE_SWIG_FLAGS "-I${Python_NumPy_INCLUDE_DIRS}")
+
 
     #######################
     ## Python Packaging  ##
@@ -70,10 +69,7 @@ if(BUILD_PYTHON)
     search_python_module(wheel)
 
     add_custom_target(python_package ALL
-      #COMMAND ${CMAKE_COMMAND} -E copy $<CONFIG>/setup.py setup.py
       COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/python/__init__.py.in ${PROJECT_NAME}/__init__.py
-      #COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/python/__init__.py.in ${PROJECT_NAME}/parflowio/__init__.py
-
       COMMAND ${CMAKE_COMMAND} -E remove_directory dist
       COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_NAME}/.libs
       COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:pyParflowio> ${PROJECT_NAME}
@@ -117,6 +113,7 @@ if(BUILD_PYTHON)
 endif()
 
 set_property(SOURCE parflowio.i PROPERTY CPLUSPLUS ON)
+set_property(SOURCE parflowio.i PROPERTY INCLUDE_DIRECTORIES ${Python_NumPy_INCLUDE_DIRS})
 set_property(SOURCE parflowio.i PROPERTY SWIG_MODULE_NAME pyParflowio)
 swig_add_library(pyParflowio
   TYPE SHARED
@@ -127,7 +124,7 @@ swig_add_library(pyParflowio
 target_include_directories(pyParflowio
   PRIVATE
   ../include
-  ${Python_INCLUDE_DIRS}
+  ${Python_INCLUDE_DIRS} ${Python_NumPy_INCLUDE_DIRS}
   )
 set_property(TARGET pyParflowio PROPERTY SWIG_USE_TARGET_INCLUDE_DIRECTORIES ON)
 

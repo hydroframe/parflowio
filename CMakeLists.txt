@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 3.15)
+
 project(parflowio VERSION 0.0.1 LANGUAGES CXX)
 message(STATUS "project: ${PROJECT_NAME}")
 message(STATUS "version: ${PROJECT_VERSION}")
 
 
 set( CMAKE_VERBOSE_MAKEFILE on )
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 11)
 set(PROJECT_VERSION 0.0.1)
 # Only do these if this is the main project, and not if it is included through add_subdirectory
 
@@ -47,20 +48,15 @@ endif()
 
 add_subdirectory(src)
 
-#if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING) AND BUILD_TESTING)
-    #enable_testing()
-    #add_subdirectory(tests)
-#endif()
 option(PACKAGE_TESTS "Build the tests" ON)
 if(PACKAGE_TESTS)
     #enable_testing()
     #include(Ctest)
     add_subdirectory(tests)
 endif()
-
 # By default only the C++ library is built.
 option(BUILD_CXX "Build C++ library" ON)
-option(BUILD_PYTHON "Build Python Library" ON)
+option(BUILD_PYTHON "Build Python Library" OFF)
 
 message(STATUS "Build C++ library: ${BUILD_CXX}")
 message(STATUS "Build Python: ${BUILD_PYTHON}")

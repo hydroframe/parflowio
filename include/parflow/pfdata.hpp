@@ -17,11 +17,11 @@ private:
 
     // The following information is available only after the file is opened
     // main header information
-    double m_X{},m_Y{},m_Z{};
-    int m_nx{},m_ny{},m_nz{};
-    double m_dX{},m_dY{},m_dZ{};
-    int m_numSubgrids{};
-    int m_p{},m_q{},m_r{};
+    double m_X,m_Y,m_Z;
+    int m_nx,m_ny,m_nz;
+    double m_dX,m_dY,m_dZ;
+    int m_numSubgrids;
+    int m_p,m_q,m_r;
     double* m_data;
 
 public:

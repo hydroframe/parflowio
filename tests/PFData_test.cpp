@@ -7,6 +7,9 @@
 #include <string>
 #include <cstdlib>
 
+
+
+
 class PFData_test : public ::testing::Test {
 
 protected:
@@ -228,10 +231,48 @@ TEST_F(PFData_test, fileFromData){
     EXPECT_EQ(1, test_read.getNZ());
     EXPECT_EQ(4, test_read.getNY());
     EXPECT_EQ(6, test_read.getNX());
+    EXPECT_EQ(0, test_read.getX());
+    EXPECT_EQ(0, test_read.getY());
+    EXPECT_EQ(0, test_read.getZ());
     test_read.close();
     test.close();
+}
 
+TEST_F(PFData_test, setData){
+    PFData test = PFData();
+    double data[24];
+    for (int i =0; i<24; i++){
+        data[i] = (double) rand() / 1000;
+    }
+    test.setP(1);
+    test.setQ(1);
+    test.setR(1);
+    test.setDX(1.0);
+    test.setDY(1.0);
+    test.setDZ(1.0);
+    test.setNX(6);
+    test.setNY(4);
+    test.setNZ(1);
+    test.setData(data);
+    test.writeFile("tests/test_write_file_out.pfb");
+    PFData test_read = PFData("tests/test_write_file_out.pfb");
+    test_read.loadHeader();
+    test_read.loadData();
+    EXPECT_EQ(1, test_read.getP());
+    EXPECT_EQ(1, test_read.getQ());
+    EXPECT_EQ(1, test_read.getR());
+    EXPECT_EQ(1, test_read.getDX());
+    EXPECT_EQ(1, test_read.getDY());
+    EXPECT_EQ(1, test_read.getDZ());
+    EXPECT_EQ(1, test_read.getNZ());
+    EXPECT_EQ(4, test_read.getNY());
+    EXPECT_EQ(6, test_read.getNX());
+    EXPECT_EQ(0, test_read.getX());
+    EXPECT_EQ(0, test_read.getY());
+    EXPECT_EQ(0, test_read.getZ());
 
+    test_read.close();
+    test.close();
 }
 
 //TEST_F(PFData_test, readFile){

@@ -29,12 +29,14 @@ uint64_t pfhtonll(uint64_t value);
 PFData::PFData() {
     m_fp = nullptr;
     m_data = nullptr;
+    m_X = m_Y = m_Z = 0.0;
+    m_dX = m_dY = m_dZ = 1.0;
+    m_p = m_q = m_r = 1;
 }
 
-PFData::PFData(std::string filename) {
+PFData::PFData(std::string filename) : PFData{} {
     m_filename = filename;
-    m_fp = nullptr;
-    m_data = nullptr;
+
 }
 
 PFData::PFData(double *data, int nz, int ny, int nx) {

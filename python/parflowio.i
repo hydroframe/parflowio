@@ -39,8 +39,7 @@
 
     void setDataArray(PyObject * pyObjIn){
 		PyArrayObject *pyArrayIn;
-		pyArrayIn = (PyArrayObject *) PyArray_FromAny(pyObjIn, PyArray_DescrFromType(NPY_DOUBLE), 3, 3,
-												NPY_ARRAY_IN_ARRAY, NULL);
+		pyArrayIn = (PyArrayObject *) PyArray_FromAny(pyObjIn,PyArray_DescrFromType(NPY_DOUBLE),3,3,NPY_ARRAY_IN_ARRAY, nullptr);
     	npy_intp ind[3] = {0,0,0};
     	$self->setData((double *) PyArray_GetPtr(pyArrayIn, ind));
     	npy_intp * shape = PyArray_SHAPE(pyArrayIn);

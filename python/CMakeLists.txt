@@ -21,7 +21,7 @@ if(BUILD_PYTHON)
     endif()
 
     # Find Python
-    find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
+    find_package(Python REQUIRED COMPONENTS Interpreter Development NumPy)
 
     if(Python_VERSION VERSION_GREATER_EQUAL 3)
       list(APPEND CMAKE_SWIG_FLAGS "-py3;-DPY3")
@@ -47,7 +47,7 @@ if(BUILD_PYTHON)
     # if not install it to the Python user install directory.
     function(search_python_module MODULE_NAME)
       execute_process(
-        COMMAND ${Python3_EXECUTABLE} -c "import ${MODULE_NAME}; print(${MODULE_NAME}.__version__)"
+        COMMAND ${Python_EXECUTABLE} -c "import ${MODULE_NAME}; print(${MODULE_NAME}.__version__)"
         RESULT_VARIABLE _RESULT
         OUTPUT_VARIABLE MODULE_VERSION
         ERROR_QUIET
@@ -58,7 +58,7 @@ if(BUILD_PYTHON)
       else()
         message(WARNING "Can't find python module \"${MODULE_NAME}\", user install it using pip...")
         execute_process(
-          COMMAND ${Python3_EXECUTABLE} -m pip install --upgrade --user ${MODULE_NAME}
+          COMMAND ${Python_EXECUTABLE} -m pip install --upgrade --user ${MODULE_NAME}
           OUTPUT_STRIP_TRAILING_WHITESPACE
           )
       endif()
@@ -76,7 +76,7 @@ if(BUILD_PYTHON)
       # Don't need to copy static lib on Windows
       COMMAND ${CMAKE_COMMAND} -E $<IF:$<BOOL:${UNIX}>,copy,true>
       $<TARGET_FILE:parflowio_shared> ${PROJECT_NAME}/.libs
-      COMMAND ${Python3_EXECUTABLE} setup.py bdist_wheel
+      COMMAND ${Python_EXECUTABLE} setup.py bdist_wheel
       BYPRODUCTS
       python/${PROJECT_NAME}
       python/build
@@ -90,7 +90,7 @@ if(BUILD_PYTHON)
       # Look for python module virtualenv
       search_python_module(virtualenv)
       # Testing using a vitual environment
-      set(VENV_EXECUTABLE ${Python3_EXECUTABLE} -m virtualenv)
+      set(VENV_EXECUTABLE ${Python_EXECUTABLE} -m virtualenv)
       set(VENV_DIR ${CMAKE_CURRENT_BINARY_DIR}/venv)
       if(WIN32)
         set(VENV_Python_EXECUTABLE "${VENV_DIR}\\Scripts\\python.exe")
@@ -99,7 +99,7 @@ if(BUILD_PYTHON)
       endif()
       # make a virtualenv to install our python package in it
       add_custom_command(TARGET python_package POST_BUILD
-        COMMAND ${VENV_EXECUTABLE} -p ${Python3_EXECUTABLE} ${VENV_DIR}
+        COMMAND ${VENV_EXECUTABLE} -p ${Python_EXECUTABLE} ${VENV_DIR}
         # Must not call it in a folder containing the setup.py otherwise pip call it
         # (i.e. "python setup.py bdist") while we want to consume the wheel package
         COMMAND ${VENV_Python_EXECUTABLE} -m pip install --find-links=${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/dist
@@ -124,7 +124,7 @@ swig_add_library(pyParflowio
 target_include_directories(pyParflowio
   PRIVATE
   ../include
-  ${Python3_INCLUDE_DIRS}  ${Python3_NumPy_INCLUDE_DIRS}
+  ${Python_INCLUDE_DIRS}  ${Python_NumPy_INCLUDE_DIRS}
   )
 set_property(TARGET pyParflowio PROPERTY SWIG_USE_TARGET_INCLUDE_DIRECTORIES ON)
 
@@ -149,5 +149,5 @@ target_link_libraries(pyParflowio PRIVATE parflowio_shared)
 # i.e. we can't use: $<$<PLATFORM_ID:Windows>:${PYTHON_LIBRARIES}>
 # see: https://cmake.org/cmake/help/git-stage/command/target_link_libraries.html#command:target_link_libraries
 if(MSVC)
-  target_link_libraries(pyParflowio PRIVATE ${Python3_LIBRARIES})
+  target_link_libraries(pyParflowio PRIVATE ${Python_LIBRARIES})
 endif()

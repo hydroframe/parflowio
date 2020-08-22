@@ -31,8 +31,6 @@ function install-swig() {
     ./configure --prefix=/usr
     make -j 2
     sudo make install
-  elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
-    echo 'export PATH="/usr/local/opt/swig@3/bin:$PATH"' >> /Users/travis/.bash_profile
   fi
 }
 

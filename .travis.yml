@@ -30,7 +30,7 @@ matrix:
       addons:
         homebrew:
           packages:
-            - swig@3
+            - swig
           update: true
 
 install:

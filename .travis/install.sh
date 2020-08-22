@@ -37,7 +37,6 @@ function install-swig() {
 function install-python(){
   if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     # work around https://github.com/travis-ci/travis-ci/issues/8363
-    pyenv install 3.7.6
     pyenv global system 3.7.6
     python --version
     python -m pip install --upgrade pip

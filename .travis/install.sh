@@ -24,7 +24,7 @@ function install-swig() {
     # apt-get only have swig 2.0.11
     # Need SWIG >= 3.0.8
     cd /tmp/
-    wget https://github.com/swig/swig/archive/rel-4.0.2.tar.gz
+    wget https://github.com/swig/swig/archive/rel-3.0.12.tar.gz
     tar zxf rel-3.0.12.tar.gz
     cd swig-rel-3.0.12
     ./autogen.sh

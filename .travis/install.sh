@@ -25,14 +25,12 @@ function install-swig() {
     # Need SWIG >= 3.0.8
     cd /tmp/
     wget https://github.com/swig/swig/archive/rel-4.0.2.tar.gz
-    tar zxf rel-4.0.2.tar.gz
-    cd swig-rel-4.0.2
+    tar zxf rel-3.0.12.tar.gz
+    cd swig-rel-3.0.12
     ./autogen.sh
     ./configure --prefix=/usr
     make -j 2
     sudo make install
-  #elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
-    # brew install swig
   fi
 }
 
@@ -53,8 +51,6 @@ eval "${MATRIX_EVAL}"
 
 if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
   /usr/bin/x86_64-linux-gnu-ld --version
-#elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
-#  brew update
 fi
 
 install-cmake
@@ -65,4 +61,3 @@ fi
 if [[ "$LANGUAGE" == "python" ]]; then
   install-python
 fi
-# vim: set tw=0 ts=2 sw=2 expandtab:

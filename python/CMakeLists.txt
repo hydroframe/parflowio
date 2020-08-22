@@ -1,7 +1,7 @@
 
 if(BUILD_PYTHON)
     # Use latest UseSWIG module
-    cmake_minimum_required(VERSION 3.14)
+    cmake_minimum_required(VERSION 3.15)
 
     if(NOT TARGET parflowio)
       message(FATAL_ERROR "Python: missing parflowio TARGET")
@@ -27,7 +27,7 @@ if(BUILD_PYTHON)
       list(APPEND CMAKE_SWIG_FLAGS "-py3;-DPY3")
     endif()
 
-    list(APPEND CMAKE_SWIG_FLAGS "-I${Python_NumPy_INCLUDE_DIRS}")
+    #list(APPEND CMAKE_SWIG_FLAGS "-I${Python_NumPy_INCLUDE_DIRS}")
 
 
     #######################
@@ -113,7 +113,7 @@ if(BUILD_PYTHON)
 endif()
 
 set_property(SOURCE parflowio.i PROPERTY CPLUSPLUS ON)
-set_property(SOURCE parflowio.i PROPERTY INCLUDE_DIRECTORIES ${Python_NumPy_INCLUDE_DIRS})
+#set_property(SOURCE parflowio.i PROPERTY INCLUDE_DIRECTORIES ${Python_NumPy_INCLUDE_DIRS})
 set_property(SOURCE parflowio.i PROPERTY SWIG_MODULE_NAME pyParflowio)
 swig_add_library(pyParflowio
   TYPE SHARED
@@ -124,7 +124,7 @@ swig_add_library(pyParflowio
 target_include_directories(pyParflowio
   PRIVATE
   ../include
-  ${Python_INCLUDE_DIRS} ${Python_NumPy_INCLUDE_DIRS}
+  ${Python_INCLUDE_DIRS}  ${Python_NumPy_INCLUDE_DIRS}
   )
 set_property(TARGET pyParflowio PROPERTY SWIG_USE_TARGET_INCLUDE_DIRECTORIES ON)
 

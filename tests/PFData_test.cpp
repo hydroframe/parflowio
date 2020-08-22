@@ -236,6 +236,7 @@ TEST_F(PFData_test, fileFromData){
     EXPECT_EQ(0, test_read.getZ());
     test_read.close();
     test.close();
+    ASSERT_EQ(0,remove("tests/pfb_file_from_data.pfb"));
 }
 
 TEST_F(PFData_test, setData){
@@ -273,6 +274,7 @@ TEST_F(PFData_test, setData){
 
     test_read.close();
     test.close();
+    ASSERT_EQ(0,remove("tests/test_write_file_out.pfb"));
 }
 
 //TEST_F(PFData_test, readFile){

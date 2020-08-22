@@ -49,8 +49,8 @@ Note: Suggest using a conda or other non-system environment for this.
 Create a new conda environment and activate it:
 
 ```
-$ conda create -n parflowio_test ipython numpy pip virtualenv swig -c conda-forge -y`
-$ conda activate parflowio_test`
+$ conda create -n parflowio_test ipython numpy pip virtualenv swig pydot -y
+$ conda activate parflowio_test
 ```
 
 Start an ipython session and load the PFData class

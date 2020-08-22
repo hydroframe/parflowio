@@ -31,7 +31,7 @@ cmake --build build --target test
 if [[ "$LANGUAGE" == "python" ]]; then
   if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     cd build/python/parflowio && \
-    python -m pip install --find-links=./dist parflowio && \
+    python setup.py install && \
     cd ../../../python && \
     python test.py
   else

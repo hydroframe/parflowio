@@ -1,9 +1,8 @@
 #include "parflow/pfdata.hpp"
-#include <stdio.h>
+#include <cstdio>
 #include <arpa/inet.h>
-#include <stdint.h>
+#include <cstdint>
 #include <iostream>
-#include <fstream>
 #include <string>
 #include <unistd.h>
 
@@ -24,16 +23,37 @@
                          V = *(double*)&temp;}
 uint64_t pfntohll(uint64_t value);
 uint64_t pfhtonll(uint64_t value);
-int calcOffset(int extent, int block_count, int block_idx);
-int calcExtent(int extent, int block_count, int block_idx);
 
-PFData::PFData(const char * filename) {
-    m_filename = filename;
+
+
+PFData::PFData() {
+    m_fp = nullptr;
+    m_data = nullptr;
+    m_X = m_Y = m_Z = 0.0;
+    m_dX = m_dY = m_dZ = 1.0;
+    m_p = m_q = m_r = 1;
 }
+
+PFData::PFData(std::string filename) : PFData{} {
+    m_filename = filename;
+
+}
+
+PFData::PFData(double *data, int nz, int ny, int nx) {
+    m_data = data;
+    m_nx = nx;
+    m_ny = ny;
+    m_nz = nz;
+    m_X = m_Y = m_Z = 0.0;
+    m_dX = m_dY = m_dZ = 1.0;
+    m_p = m_q = m_r = 1;
+    m_fp = nullptr;
+}
+
 int PFData::loadHeader() {
 
-    m_fp = fopen( m_filename, "rb");
-    if(m_fp == NULL){
+    m_fp = fopen( m_filename.c_str(), "rb");
+    if(m_fp == nullptr){
         perror("Error opening pfbfile");
         return 1;
     }
@@ -144,7 +164,7 @@ void PFData::setNumSubgrids(int NumSubgrids) {
 }
 
 double* PFData::getSubgridData(int grid) {
-    return NULL;
+    return nullptr;
 }
 
 int PFData::getCoordinateDatum(int x, int y, int z, double *value) {
@@ -163,11 +183,11 @@ int PFData::loadData() {
     int nsg;
     //subgrid variables
     int x,y,z,nx,ny,nz,rx,ry,rz;
-    if(m_fp  == NULL){
+    if(m_fp  == nullptr){
         return 1;
     }
     m_data = (double*)malloc(sizeof(double)*m_nx*m_ny*m_nz);
-    if(m_data == NULL){
+    if(m_data == nullptr){
         return 2;
     }
     for (nsg = 0;nsg<m_numSubgrids; nsg++){
@@ -226,17 +246,17 @@ int PFData::loadData() {
 }
 
 void PFData::close() {
-  if(m_fp == NULL){
+  if(m_fp == nullptr){
       return;
   }
   fclose(m_fp);
-  m_fp = NULL;
+  m_fp = nullptr;
   return;
 }
 
-int PFData::writeFile(const char *filename) {
+int PFData::writeFile(const std::string filename) {
 
-    FILE *fp = fopen(filename, "wb");
+    FILE *fp = fopen(filename.c_str(), "wb");
     if(fp == nullptr){
         perror("Error Opening File");
         return 1;
@@ -277,12 +297,9 @@ int PFData::writeFile(const char *filename) {
                 WRITEINT(calcExtent(m_ny,m_q,nsg_y), fp);
                 WRITEINT(calcExtent(m_nz,m_r,nsg_z), fp);
                 // subgrid  location in 3D grid
-                //WRITEINT(0, fp);
-                //WRITEINT(0, fp);
-                //WRITEINT(0, fp);
-                WRITEINT(nsg_x, fp);
-                WRITEINT(nsg_y, fp);
-                WRITEINT(nsg_z, fp);
+                WRITEINT(1, fp);
+                WRITEINT(1, fp);
+                WRITEINT(1, fp);
 
                 int  ix,iy,iz;
                 for(iz=calcOffset(m_nz,m_r,nsg_z); iz < calcOffset(m_nz,m_r,nsg_z+1);iz++){
@@ -336,7 +353,7 @@ int PFData::writeFile() {
     return 0;
 }
 
-int PFData::distFile(int P, int Q, int R, const char *outFile) {
+int PFData::distFile(int P, int Q, int R, const std::string outFile) {
     loadHeader();
     loadData();
     m_p = P;
@@ -345,10 +362,37 @@ int PFData::distFile(int P, int Q, int R, const char *outFile) {
     return writeFile(outFile);
 }
 
-const char * PFData::getFilename() {
+std::string PFData::getFilename() const{
     return m_filename;
 }
 
+void PFData::setData(double *data) {
+    m_data = data;
+}
+
+int PFData::getP() const {
+    return m_p;
+}
+
+int PFData::getQ() const {
+    return m_q;
+}
+
+int PFData::getR() const {
+    return m_r;
+}
+
+void PFData::setP(int P) {
+    m_p = P;
+}
+
+void PFData::setQ(int Q) {
+    m_q = Q;
+}
+
+void PFData::setR(int R) {
+    m_r = R;
+}
 
 uint64_t pfntohll(uint64_t value) {
     if (htonl(1) != 1){

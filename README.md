@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/hydroframe/parflowio.svg?branch=master)](https://travis-ci.com/hydroframe/parflowio)
+
 # parflowio
 This project is meant to replace the existing pfio code used by pftools.
 For now the project is a separate repo, but that will change.

@@ -109,9 +109,9 @@ class PFDataClassTests(unittest.TestCase):
 
         arr = test1.getDataAsArray()
         arr[1][2][3] += 1.0
-        ret, xyz = test1.compare(test2)
+        ret, zyx = test1.compare(test2)
         self.assertEqual(PFData.differenceType_data, ret, "The data values differ")
-        self.assertEqual((3, 2, 1), xyz, "The differing data's coordinates are correct")
+        self.assertEqual((1, 2, 3), zyx, "The differing data's coordinates are correct")
         arr[1][2][3] -= 1.0
 
         test1.close()

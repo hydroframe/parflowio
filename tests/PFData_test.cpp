@@ -87,56 +87,54 @@ TEST_F(PFData_test, compareFuncSame){
     EXPECT_EQ(res, PFData::differenceType::none);
 
 
-    //{X,Y,Z}
-    test1.setX(test1.getX()+1.0);
-    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::x);
-    test1.setX(test1.getX()-1.0);
+    //{Z,Y,X}
+    test1.setZ(test1.getZ()+1.0);
+    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::z);
+    test1.setZ(test1.getZ()-1.0);
 
     test1.setY(test1.getY()+1.0);
     EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::y);
     test1.setY(test1.getY()-1.0);
 
-    test1.setZ(test1.getZ()+1.0);
-    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::z);
-    test1.setZ(test1.getZ()-1.0);
+    test1.setX(test1.getX()+1.0);
+    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::x);
+    test1.setX(test1.getX()-1.0);
 
-
-    //D{X,Y,X}
-    test1.setDX(test1.getDX()+1.0);
-    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::dX);
-    test1.setDX(test1.getDX()-1.0);
+    //D{Z,Y,X}
+    test1.setDZ(test1.getDZ()+1.0);
+    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::dZ);
+    test1.setDZ(test1.getDZ()-1.0);
 
     test1.setDY(test1.getDY()+1.0);
     EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::dY);
     test1.setDY(test1.getDY()-1.0);
 
-    test1.setDZ(test1.getDZ()+1.0);
-    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::dZ);
-    test1.setDZ(test1.getDZ()-1.0);
+    test1.setDX(test1.getDX()+1.0);
+    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::dX);
+    test1.setDX(test1.getDX()-1.0);
 
 
-    //N{X,Y,Z}
-    test1.setNX(test1.getNX()+1.0);
-    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::nX);
-    test1.setNX(test1.getNX()-1.0);
+    //N{Z,Y,X}
+    test1.setNZ(test1.getNZ()+1.0);
+    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::nZ);
+    test1.setNZ(test1.getNZ()-1.0);
 
     test1.setNY(test1.getNY()+1.0);
     EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::nY);
     test1.setNY(test1.getNY()-1.0);
 
-    test1.setNZ(test1.getNZ()+1.0);
-    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::nZ);
-    test1.setNZ(test1.getNZ()-1.0);
-
+    test1.setNX(test1.getNX()+1.0);
+    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::nX);
+    test1.setNX(test1.getNX()-1.0);
 
     //data
-    const int mutIdx = (test1.getNX() * test1.getNY() * test1.getNZ() - 1)/3;
-    const auto diffXYZ = test1.unflattenIndex(mutIdx);
+    const int mutIdx = (test1.getNZ() * test1.getNY() * test1.getNX() - 1)/3;
+    const auto diffZYX = test1.unflattenIndex(mutIdx);
     test1.getData()[mutIdx]++;
 
     std::array<int, 3> diffLoc{};
     EXPECT_EQ(test1.compare(test2, &diffLoc), PFData::differenceType::data);
-    EXPECT_EQ(diffLoc, diffXYZ);    //Ensure reported location is correct
+    EXPECT_EQ(diffLoc, diffZYX);    //Ensure reported location is correct
 
     test1.getData()[mutIdx]--;
 
@@ -150,11 +148,11 @@ TEST_F(PFData_test, unflattenIndex){
     test.loadData();
 
     //Small function to reflatten index for easy checking
-    auto flatten = [&](const std::array<int, 3>& xyz){
-        return xyz[0] + xyz[1]*test.getNX() + xyz[2]*test.getNX()*test.getNY();
+    auto flatten = [&](const std::array<int, 3>& zyx){
+        return  zyx[0]*test.getNX()*test.getNY() + zyx[1]*test.getNX() + zyx[2];
     };
 
-    const int maxIdx = test.getNX() * test.getNY() * test.getNZ() - 1;
+    const int maxIdx = test.getNZ() * test.getNY() * test.getNX() - 1;
 
     {
         const int expected = maxIdx;

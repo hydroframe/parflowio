@@ -1,5 +1,6 @@
 #ifndef PARFLOWIO_PFDATA_HPP
 #define PARFLOWIO_PFDATA_HPP
+#include <array>
 #include <cstddef>
 #include <cstdio>
 #include <vector>
@@ -67,6 +68,35 @@ public:
      int writeFile(std::string filename);
      int writeFile();
      int distFile(int P, int Q, int R, std::string outFile);
+
+    //Used for the compare function
+    enum class differenceType {none=0, x, y, z, dX, dY, dZ, nX, nY, nZ, data};
+
+    /** Compares `this` and another PFData object. Comparison is based on `X`, `Y`, `Z`, `DX`, `DY`, `DZ`, and the data.
+     * Note: The behavior is undefined if `this` or `otherObj` is not fully initialized. The return value corresponds to the first difference found.
+     * \param[in]   otherObj        Other object to compare with.
+     * \param[out]  diffIndex       Unused if it is `nullptr` and/or the return values are not `data` Otherwise contains the location where the first difference occurs.
+     * \retval      none            The objects are the same
+     * \retval      x               The `X` values are different
+     * \retval      y               The `Y` values are different
+     * \retval      z               The `Z` values are different
+     * \retval      dX              The `DX` values are different
+     * \retval      dY              The `DY` values are different
+     * \retval      dZ              The `DZ` values are different
+     * \retval      nX              The `NX` values are different (data dimensions)
+     * \retval      nY              The `NY` values are different
+     * \retval      nZ              The `NZ` values are different
+     * \retval      data            The data dimensions are the same, but the values are different. If `diffIndex` is non-null, it will contain the `XYZ` data location  where the (first) difference occurred.
+    */
+    differenceType compare(const PFData& otherObj, std::array<int, 3>* diffIndex) const;
+
+    /** Given a flattened index into `data`, unflatten it into its `XYZ` components.
+     * Note: The behavior is undefined the dimension data is not fully initialized.
+     * \param[int]  index           The flattened index of the `data`
+     * \retval      {X,Y,Z}         Corresponding `XYZ` of the valid `index`
+     * \retval      {-1,-1,-1}      Invalid index @@TODO want?
+     */
+    std::array<int, 3> unflattenIndex(int index) const;
 
     /**
      * get[X,Y,Z]
@@ -305,6 +335,9 @@ public:
      * Get a pointer to the raw data as a one dimensional array.
      */
     double* getData();
+
+    /** \see getData() */
+    const double* getData() const;
     void  setData(double*);
 
     void close();

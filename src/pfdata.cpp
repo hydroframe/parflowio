@@ -1,4 +1,6 @@
 #include "parflow/pfdata.hpp"
+#include <array>
+#include <cassert>
 #include <cstdio>
 #include <arpa/inet.h>
 #include <cstdint>
@@ -176,6 +178,10 @@ double PFData::operator()(int x, int y, int z) {
 }
 
 double* PFData::getData() {
+    return m_data;
+}
+
+const double* PFData::getData() const{
     return m_data;
 }
 
@@ -360,6 +366,64 @@ int PFData::distFile(int P, int Q, int R, const std::string outFile) {
     m_q = Q;
     m_r = R;
     return writeFile(outFile);
+}
+
+PFData::differenceType PFData::compare(const PFData& otherObj, std::array<int, 3>* diffIndex) const{
+    //Check relevant header data
+    if(otherObj.getX()  != getX())  return differenceType::x;
+    if(otherObj.getY()  != getY())  return differenceType::y;
+    if(otherObj.getZ()  != getZ())  return differenceType::z;
+
+    if(otherObj.getDX() != getDX()) return differenceType::dX;
+    if(otherObj.getDY() != getDY()) return differenceType::dY;
+    if(otherObj.getDZ() != getDZ()) return differenceType::dZ;
+
+    if(otherObj.getNX() != getNX()) return differenceType::nX;
+    if(otherObj.getNY() != getNY()) return differenceType::nY;
+    if(otherObj.getNZ() != getNZ()) return differenceType::nZ;
+
+
+    //Check for differences in the data array
+    //@@TODO: Do we want to handle invalid data?
+    assert(otherObj.getData() && getData());
+    assert(getNX() > 0 && getNY() > 0 && getNZ > 0);
+
+    const double* dataOther = otherObj.getData();
+    const double* dataSelf = getData();
+    const int dataSize = getNX() * getNY() * getNZ();
+
+    for(int i = 0; i < dataSize; ++i){
+        if(dataOther[i] != dataSelf[i]){
+            if(diffIndex){  //Only write if not null
+                *diffIndex = unflattenIndex(i);
+            }
+
+            return differenceType::data;
+        }
+    }
+
+    return differenceType::none;
+}
+
+std::array<int, 3> PFData::unflattenIndex(int index) const{
+    if(index >= getNX() * getNY() * getNZ() || index < 0){  //Invalid index, @@TODO assert instead?
+        return {-1, -1, -1};
+    }
+
+    const int z = index / (getNX() * getNY());
+    index -= z * getNX() * getNY();
+
+    const int y = index / getNX();
+    index -= y * getNX();
+
+    const int x = index;    //index remainder is x value
+
+    //Sanity check
+    assert(x < getNX() && x >= 0);
+    assert(y < getNY() && y >= 0);
+    assert(z < getNZ() && z >= 0);
+
+    return {x, y, z};
 }
 
 std::string PFData::getFilename() const{

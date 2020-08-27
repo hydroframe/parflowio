@@ -73,6 +73,123 @@ TEST_F(PFData_test, loadData) {
     EXPECT_NEAR(97.30205516102234,test(22,1,0),1E-12);
     test.close();
 }
+
+TEST_F(PFData_test, compareFuncSame){
+    PFData test1("tests/inputs/press.init.pfb");
+    test1.loadHeader();
+    test1.loadData();
+    PFData test2("tests/inputs/press.init.pfb");
+    test2.loadHeader();
+    test2.loadData();
+
+    //none
+    auto res = test1.compare(test2, nullptr);
+    EXPECT_EQ(res, PFData::differenceType::none);
+
+
+    //{X,Y,Z}
+    test1.setX(test1.getX()+1.0);
+    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::x);
+    test1.setX(test1.getX()-1.0);
+
+    test1.setY(test1.getY()+1.0);
+    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::y);
+    test1.setY(test1.getY()-1.0);
+
+    test1.setZ(test1.getZ()+1.0);
+    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::z);
+    test1.setZ(test1.getZ()-1.0);
+
+
+    //D{X,Y,X}
+    test1.setDX(test1.getDX()+1.0);
+    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::dX);
+    test1.setDX(test1.getDX()-1.0);
+
+    test1.setDY(test1.getDY()+1.0);
+    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::dY);
+    test1.setDY(test1.getDY()-1.0);
+
+    test1.setDZ(test1.getDZ()+1.0);
+    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::dZ);
+    test1.setDZ(test1.getDZ()-1.0);
+
+
+    //N{X,Y,Z}
+    test1.setNX(test1.getNX()+1.0);
+    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::nX);
+    test1.setNX(test1.getNX()-1.0);
+
+    test1.setNY(test1.getNY()+1.0);
+    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::nY);
+    test1.setNY(test1.getNY()-1.0);
+
+    test1.setNZ(test1.getNZ()+1.0);
+    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::nZ);
+    test1.setNZ(test1.getNZ()-1.0);
+
+
+    //data
+    const int mutIdx = (test1.getNX() * test1.getNY() * test1.getNZ() - 1)/3;
+    const auto diffXYZ = test1.unflattenIndex(mutIdx);
+    test1.getData()[mutIdx]++;
+
+    std::array<int, 3> diffLoc{};
+    EXPECT_EQ(test1.compare(test2, &diffLoc), PFData::differenceType::data);
+    EXPECT_EQ(diffLoc, diffXYZ);    //Ensure reported location is correct
+
+    test1.getData()[mutIdx]--;
+
+    test1.close();
+    test2.close();
+}
+
+TEST_F(PFData_test, unflattenIndex){
+    PFData test("tests/inputs/press.init.pfb");
+    test.loadHeader();
+    test.loadData();
+
+    //Small function to reflatten index for easy checking
+    auto flatten = [&](const std::array<int, 3>& xyz){
+        return xyz[0] + xyz[1]*test.getNX() + xyz[2]*test.getNX()*test.getNY();
+    };
+
+    const int maxIdx = test.getNX() * test.getNY() * test.getNZ() - 1;
+
+    {
+        const int expected = maxIdx;
+        const int calculated = flatten(test.unflattenIndex(expected));
+        EXPECT_EQ(expected, calculated);
+    }
+    {
+        const int expected = maxIdx/2;
+        const int calculated = flatten(test.unflattenIndex(expected));
+        EXPECT_EQ(expected, calculated);
+    }
+    {
+        const int expected = maxIdx/3;
+        const int calculated = flatten(test.unflattenIndex(expected));
+        EXPECT_EQ(expected, calculated);
+    }
+    {
+        const int expected = maxIdx/4;
+        const int calculated = flatten(test.unflattenIndex(expected));
+        EXPECT_EQ(expected, calculated);
+    }
+    {
+        const int expected = maxIdx/5;
+        const int calculated = flatten(test.unflattenIndex(expected));
+        EXPECT_EQ(expected, calculated);
+    }
+
+    const std::array<int, 3> invalid = {-1, -1, -1};
+    EXPECT_EQ(invalid, test.unflattenIndex(maxIdx+2));
+    EXPECT_EQ(invalid, test.unflattenIndex(maxIdx+1));
+    EXPECT_EQ(invalid, test.unflattenIndex(-1));
+
+    test.close();
+}
+
 TEST_F(PFData_test, loadDataAbs) {
     // this file needs to exist, and should load
     char filename[2048];

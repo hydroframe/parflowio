@@ -92,6 +92,31 @@ class PFDataClassTests(unittest.TestCase):
         self.assertEqual(test(22, 1, 0), data[0, 1, 22], 'data array and c array match values at (22,1,0)')
         test.close()
 
+    def test_compare(self):
+        test1 = PFData((self.local_dir / '../tests/inputs/press.init.pfb').as_posix())
+        test1.loadHeader()
+        test1.loadData()
+
+        test2 = PFData((self.local_dir / '../tests/inputs/press.init.pfb').as_posix())
+        test2.loadHeader()
+        test2.loadData()
+
+        self.assertEqual(PFData.differenceType_none, test1.compare(test2)[0], "test1 and test2 are the same")
+
+        test1.setX(test1.getX()+1.0)
+        self.assertEqual(PFData.differenceType_x, test1.compare(test2)[0], "The x values differ")
+        test1.setX(test1.getX()-1.0)
+
+        arr = test1.getDataAsArray()
+        arr[1][2][3] += 1.0
+        ret, xyz = test1.compare(test2)
+        self.assertEqual(PFData.differenceType_data, ret, "The data values differ")
+        self.assertEqual((3, 2, 1), xyz, "The differing data's coordinates are correct")
+        arr[1][2][3] -= 1.0
+
+        test1.close()
+        test2.close()
+
     def test_read_write_data(self):
         test = PFData((self.local_dir / '../tests/inputs/press.init.pfb').as_posix())
         retval = test.loadHeader()

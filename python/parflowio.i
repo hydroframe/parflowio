@@ -7,7 +7,9 @@
 %}
 
 %include "std_string.i"
+%include "std_array.i"
 %include "numpy.i"
+%include "typemaps.i"
 
 %init %{
     import_array();
@@ -16,6 +18,15 @@
 %apply (double* IN_ARRAY3, int DIM1, int DIM2, int DIM3) {
     (double* data, int nz, int ny, int nx)
 }
+
+//Instantiate std::array<int, 3> template
+namespace std {
+    %template(IntArray3) array<int, 3>;
+}
+
+//Mark diffIndex as OUTPUT
+%apply std::array<int, 3>* OUTPUT {std::array<int, 3>* diffIndex};
+PFData::differenceType PFData::compare(const PFData& otherObj, std::array<int, 3>* diffIndex);
 
 %include "parflow/pfdata.hpp"
 

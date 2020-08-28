@@ -178,16 +178,41 @@ class PFDataClassTests(unittest.TestCase):
 
     def test_dist_file(self):
         test = PFData((self.local_dir / '../tests/inputs/press.init.pfb').as_posix())
-        test.distFile(P=2, Q=2, R=1, outFile=(self.local_dir / '../tests/inputs/press.init.pfb.dist').as_posix())
+        test.distFile(P=2, Q=2, R=1, outFile=(self.local_dir / '../tests/press.init.pfb').as_posix())
 
-        dist_file = PFData((self.local_dir / '../tests/inputs/press.init.pfb.dist').as_posix())
-        self.assertEqual(0, dist_file.loadHeader(), 'should load distributed file header')
-        self.assertEqual(0, dist_file.loadData(), 'should load distributed data')
-        self.assertIsNone(np.testing.assert_array_equal(test.getDataAsArray(), dist_file.getDataAsArray()),
+        out_file = PFData((self.local_dir / '../tests/press.init.pfb').as_posix())
+        dist_file = open((self.local_dir / '../tests/press.init.pfb.dist').as_posix(), 'r')
+        dist_lines = dist_file.readlines()
+        [self.assertEqual(int(line.rstrip('\n')), val) for line, val in zip(dist_lines, [0, 176500, 344536, 512572,
+                                                                                        672608])]
+        self.assertEqual(0, out_file.loadHeader(), 'should load distributed file header')
+        self.assertEqual(0, out_file.loadData(), 'should load distributed data')
+        self.assertIsNone(np.testing.assert_array_equal(test.getDataAsArray(), out_file.getDataAsArray()),
                           'should find matching data values in original and distributed files')
         test.close()
+        out_file.close()
         dist_file.close()
-        os.remove((self.local_dir / '../tests/inputs/press.init.pfb.dist').as_posix())
+        os.remove((self.local_dir / '../tests/press.init.pfb').as_posix())
+        os.remove((self.local_dir / '../tests/press.init.pfb.dist').as_posix())
+
+    def test_dist_nldas_file(self):
+        test = PFData((self.local_dir / '../tests/inputs/NLDAS.APCP.000001_to_000024.pfb').as_posix())
+        test.distFile(P=2, Q=2, R=1, outFile=(self.local_dir / '../tests/NLDAS.APCP.000001_to_000024.pfb').as_posix())
+
+        out_file = PFData((self.local_dir / '../tests/NLDAS.APCP.000001_to_000024.pfb').as_posix())
+        dist_file = open((self.local_dir / '../tests/NLDAS.APCP.000001_to_000024.pfb.dist').as_posix(), 'r')
+        dist_lines = dist_file.readlines()
+        [self.assertEqual(int(line.rstrip('\n')), val) for line, val in zip(dist_lines, [0, 84772, 165448, 246124,
+                                                                                         322960])]
+        self.assertEqual(0, out_file.loadHeader(), 'should load distributed file header')
+        self.assertEqual(0, out_file.loadData(), 'should load distributed data')
+        self.assertIsNone(np.testing.assert_array_equal(test.getDataAsArray(), out_file.getDataAsArray()),
+                          'should find matching data values in original and distributed files')
+        test.close()
+        out_file.close()
+        dist_file.close()
+        os.remove((self.local_dir / '../tests/NLDAS.APCP.000001_to_000024.pfb').as_posix())
+        os.remove((self.local_dir / '../tests/NLDAS.APCP.000001_to_000024.pfb.dist').as_posix())
 
     def test_assign_data(self):
         test = PFData()

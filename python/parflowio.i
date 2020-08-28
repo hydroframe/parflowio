@@ -10,6 +10,7 @@
 %include "std_array.i"
 %include "numpy.i"
 %include "typemaps.i"
+%include "std_vector.i"
 
 %init %{
     import_array();

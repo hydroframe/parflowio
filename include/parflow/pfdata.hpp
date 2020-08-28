@@ -25,6 +25,8 @@ private:
     int m_p,m_q,m_r;
     double* m_data;
 
+    int writeFile(const std::string filename, std::vector<long> &byte_offsets);
+
 public:
 
     /**

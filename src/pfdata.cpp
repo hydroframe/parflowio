@@ -5,7 +5,9 @@
 #include <arpa/inet.h>
 #include <cstdint>
 #include <iostream>
+#include <fstream>
 #include <string>
+#include <vector>
 #include <unistd.h>
 
 
@@ -260,13 +262,20 @@ void PFData::close() {
   return;
 }
 
+
 int PFData::writeFile(const std::string filename) {
+    std::vector<long> _offsets((m_p*m_q*m_r) + 1);
+    return writeFile(filename, _offsets);
+}
+
+int PFData::writeFile(const std::string filename, std::vector<long> &byte_offsets) {
 
     FILE *fp = fopen(filename.c_str(), "wb");
     if(fp == nullptr){
         perror("Error Opening File");
         return 1;
     }
+
     // calculate the number of subgrids.
     m_numSubgrids = m_p * m_q * m_r;
     WRITEDOUBLE(m_X,fp);
@@ -284,9 +293,12 @@ int PFData::writeFile(const std::string filename) {
     // now write the subgrids one at a time
     // this iterates over the subgrids in order
     int nsg=0;
+    byte_offsets[0] = 0;
+    int sg_count = 1;
     for(int nsg_z=0;nsg_z<m_r;nsg_z++){
         for(int nsg_y=0;nsg_y<m_q;nsg_y++) {
             for (int nsg_x = 0;nsg_x<m_p;nsg_x++) {
+                //Write byte offset of chunk from header
                 // This subgrid starts at x,y,z
                 // The number of items in the x-direction of each block is m_nx/m_p + [1|0]
                 // The 1 is added for the last m_nx%m_p blocks
@@ -324,8 +336,9 @@ int PFData::writeFile(const std::string filename) {
                             return 1;
                         }
                     }
-
                 }
+                byte_offsets[sg_count] = std::ftell(fp);
+                sg_count++;
             }
         }
         nsg++;
@@ -355,7 +368,6 @@ int calcOffset(int extent, int block_count, int block_idx) {
 }
 
 int PFData::writeFile() {
-
     return 0;
 }
 
@@ -365,7 +377,24 @@ int PFData::distFile(int P, int Q, int R, const std::string outFile) {
     m_p = P;
     m_q = Q;
     m_r = R;
-    return writeFile(outFile);
+    // create array to hold byte offset for blocks
+    std::vector<long> offsets((P*Q*R)+1);
+    //create the filestream for the .dist file
+    std::fstream distFile(outFile + ".dist", std::ios::trunc | std::ios::out) ;   //Clear file if it exists
+    if(!distFile){
+        perror("Error creating distfile");
+        return 1;
+    }
+
+    //write the blocked pfb file to disk, collecting the block offsets
+    int rtnVal = writeFile(outFile, offsets);
+
+    //write the block offsets to the .dist file
+    for (int i = 0; i<=P*Q*R; i++){
+        distFile << offsets[i] << "\n";
+    }
+
+    return rtnVal;
 }
 
 PFData::differenceType PFData::compare(const PFData& otherObj, std::array<int, 3>* diffIndex) const{

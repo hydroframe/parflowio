@@ -257,15 +257,15 @@ TEST_F(PFData_test, loadDataAbs) {
 //    ASSERT_EQ(0,remove("tests/press.init.pfb.tmp"));
 //
 //}
-TEST_F(PFData_test, dist){
+TEST_F(PFData_test, dist_press){
     char buf1[1024];
     char buf2[1024];
 
     PFData test("tests/inputs/press.init.pfb");
-    test.distFile(2,2,1,"tests/press.init.pfb.dist");
+    test.distFile(2,2,1,"tests/press.init.pfb");
 
     FILE* f1 = fopen("tests/inputs/press.init.pfb","rb");
-    FILE* f2 = fopen("tests/press.init.pfb.dist","rb");
+    FILE* f2 = fopen("tests/press.init.pfb","rb");
     ASSERT_NE(f1,nullptr);
     ASSERT_NE(f2,nullptr);
     int retval1 = fread(buf1,1,64,f1);
@@ -277,7 +277,35 @@ TEST_F(PFData_test, dist){
     EXPECT_NE(0,result);
     fclose(f1);
     fclose(f2);
-    ASSERT_EQ(0,remove("tests/press.init.pfb.dist"));
+    ASSERT_EQ(0,remove("tests/press.init.pfb"));
+
+}
+
+
+TEST_F(PFData_test, dist_lw_nldas){
+    char buf1[1024];
+    char buf2[1024];
+
+    PFData test("tests/inputs/NLDAS.APCP.000001_to_000024.pfb");
+    test.distFile(2,2,1,"tests/NLDAS.APCP.000001_to_000024.pfb");
+
+    FILE* f1 = fopen("tests/inputs/NLDAS.APCP.000001_to_000024.pfb","rb");
+    FILE* f2 = fopen("tests/NLDAS.APCP.000001_to_000024.pfb","rb");
+    ASSERT_NE(f1,nullptr);
+    ASSERT_NE(f2,nullptr);
+    int retval1 = fread(buf1,1,64,f1);
+    int retval2 = fread(buf2,1,64,f2);
+    EXPECT_EQ(retval1,retval2);
+    int result = memcmp(buf1,buf2,62);
+    EXPECT_EQ(0,result);
+    result = memcmp(buf1,buf2,64);
+    EXPECT_NE(0,result);
+    fclose(f1);
+    fclose(f2);
+
+
+    ASSERT_EQ(0,remove("tests/NLDAS.APCP.000001_to_000024.pfb.dist"));
+    ASSERT_EQ(0,remove("tests/NLDAS.APCP.000001_to_000024.pfb"));
 
 }
 

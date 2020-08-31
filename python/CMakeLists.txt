@@ -21,7 +21,7 @@ if(BUILD_PYTHON)
     endif()
 
     # Find Python
-    find_package(Python REQUIRED COMPONENTS Interpreter Development NumPy)
+    find_package(Python REQUIRED COMPONENTS Interpreter Development.Module NumPy)
 
     if(Python_VERSION VERSION_GREATER_EQUAL 3)
       list(APPEND CMAKE_SWIG_FLAGS "-py3;-DPY3")

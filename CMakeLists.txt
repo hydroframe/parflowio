@@ -9,6 +9,9 @@ set(CMAKE_CXX_STANDARD 11)
 set(PROJECT_VERSION 0.0.1)
 # Only do these if this is the main project, and not if it is included through add_subdirectory
 
+set(parflowio_cmake_dir "${parflowio_SOURCE_DIR}/CMake")
+list(INSERT CMAKE_MODULE_PATH 0 "${parflowio_cmake_dir}")
+
 # Force default build type to Release
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING
@@ -45,6 +48,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     endif()
 endif()
 
+include(parflowioCMakeBackports)
 add_subdirectory(src)
 
 option(PACKAGE_TESTS "Build the tests" ON)

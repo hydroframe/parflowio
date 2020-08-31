@@ -1,0 +1,48 @@
+name: Build Wheels
+
+on: [push, pull_request]
+
+env:
+  # Don't build python 2.7, pypy, or 32-bit Linux wheels
+  CIBW_SKIP: "cp27-* pp* *-manylinux_i686"
+
+  # Run this script before each build...
+  CIBW_BEFORE_BUILD: . ./scripts/github-actions/before_cibuildwheel.sh
+
+  # This has some of the software we need pre-installed on it
+  CIBW_MANYLINUX_X86_64_IMAGE: hydroframebot/parflowio_manylinux2010_x86_64
+
+# Use bash by default for the run command
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-18.04, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        name: Install Python
+        with:
+          python-version: '3.7'
+
+      - name: Install dependencies
+        run: . ./scripts/github-actions/install.sh
+
+      - name: Build
+        run: . ./scripts/github-actions/build.sh
+
+      - name: Build wheels
+        run:  python -m cibuildwheel --output-dir wheelhouse build/python/parflowio
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: ./wheelhouse/*.whl

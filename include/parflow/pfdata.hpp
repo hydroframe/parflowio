@@ -314,7 +314,18 @@ public:
 	 */
     void setDZ(double DZ);
 
+	/**
+	 * getNumSubgrids() const
+	 * @param empty
+	 * @return no return 
+	 */
+
     int getNumSubgrids() const;
+
+	/** setNumSubgrids
+	 * @param int mNumSubgrids
+	 * @return no return
+	 */
 
     void setNumSubgrids(int mNumSubgrids);
 
@@ -328,7 +339,19 @@ public:
      * These coordinates are an offset from the lower left hand corner.
      */
     int getCoordinateDatum(int x,int y,int z, double* value);
+
+	/**
+	 * operator
+	 * @param int
+	 * @param int
+	 * @param int
+	 *
+	 */
     double operator()(int,int,int);
+	/**
+	 * getSubgridData
+	 * @param int grid
+	 */
     double* getSubgridData(int grid);
 
     /**
@@ -338,7 +361,13 @@ public:
      */
     double* getData();
 
-    /** \see getData() */
+    /**
+	 * see getData() 
+	 * @param empty
+	 *
+	 * setData
+	 * @param double pointer 
+	 * */
     const double* getData() const;
     void  setData(double*);
 
@@ -346,6 +375,17 @@ public:
 
 
 };
+/**
+ * calcOffset
+ * @param int extent
+ * @param int block_count
+ * @param int block_idx
+ *
+ * calcExtent
+ * @param int extent 
+ * int block_count
+ * int block_idx
+ */
 int calcOffset(int extent, int block_count, int block_idx);
 int calcExtent(int extent, int block_count, int block_idx);
 

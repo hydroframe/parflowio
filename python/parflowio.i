@@ -29,6 +29,9 @@ namespace std {
 %apply std::array<int, 3>* OUTPUT {std::array<int, 3>* diffIndex};
 PFData::differenceType PFData::compare(const PFData& otherObj, std::array<int, 3>* diffIndex);
 
+//Ignore this constructor, and replace it with our own down below
+%ignore PFData::PFData(double* data, int nz, int ny, int nx);
+
 %include "parflow/pfdata.hpp"
 
 %extend PFData {
@@ -45,23 +48,37 @@ PFData::differenceType PFData::compare(const PFData& otherObj, std::array<int, 3
     }
 
     void setDataArray(PyObject * pyObjIn){
-		PyArrayObject *pyArrayIn;
-		pyArrayIn = (PyArrayObject *) PyArray_FromAny(pyObjIn,PyArray_DescrFromType(NPY_DOUBLE),3,3,NPY_ARRAY_IN_ARRAY, nullptr);
-    	npy_intp ind[3] = {0,0,0};
-    	$self->setData((double *) PyArray_GetPtr(pyArrayIn, ind));
-    	npy_intp * arr_shape = PyArray_SHAPE(pyArrayIn);
-    	$self->setNZ(arr_shape[0]);
-    	$self->setNY(arr_shape[1]);
-    	$self->setNX(arr_shape[2]);
+        PyArrayObject *pyArrayIn;
+        pyArrayIn = (PyArrayObject *) PyArray_FromAny(pyObjIn,PyArray_DescrFromType(NPY_DOUBLE),3,3,NPY_ARRAY_INOUT_ARRAY, nullptr);
+        npy_intp ind[3] = {0,0,0};
+        $self->setData((double *) PyArray_GetPtr(pyArrayIn, ind));
+        npy_intp * arr_shape = PyArray_SHAPE(pyArrayIn);
+        $self->setNZ(arr_shape[0]);
+        $self->setNY(arr_shape[1]);
+        $self->setNX(arr_shape[2]);
 
+    }
+
+    PFData(PyObject* pyObj){
+        PFData* data = new PFData();
+        PyArrayObject* pyArray = (PyArrayObject*) PyArray_FromAny(pyObj, PyArray_DescrFromType(NPY_DOUBLE), 3, 3, NPY_ARRAY_INOUT_ARRAY, nullptr);
+
+        npy_intp ind[3] = {0,0,0};
+        data->setData((double*) PyArray_GetPtr(pyArray, ind));
+        npy_intp* arr_shape = PyArray_SHAPE(pyArray);
+        data->setNZ(arr_shape[0]);
+        data->setNY(arr_shape[1]);
+        data->setNX(arr_shape[2]);
+
+        return data;
     }
 
     %pythoncode %{
     def __str__(self):
         s = str(self.__class__.__name__) + "(X={}, Y={}, Z={}, NX={}, NY={}, NZ={}, DX={}, DY={}, DZ={})".format(self
-        		.getX(), self.getY(), self.getZ(), self.getNX(), self.getNY(), self.getNZ(), self.getDX(), self.getDY(),
-        		self.getDZ())
+                .getX(), self.getY(), self.getZ(), self.getNX(), self.getNY(), self.getNZ(), self.getDX(), self.getDY(),
+                self.getDZ())
         return s
-	%}
+    %}
 
 };

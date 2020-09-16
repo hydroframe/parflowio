@@ -24,7 +24,11 @@ private:
     int m_numSubgrids;
     int m_p,m_q,m_r;
     double* m_data;
-
+	/**
+	 * writeFile
+	 * @param string filename
+	 * @return int 
+	 */
     int writeFile(const std::string filename, std::vector<long> &byte_offsets);
 
 public:
@@ -67,8 +71,27 @@ public:
      * This function reads all of the data from the pfb file into memory.
      */
      int loadData();
+	 /**
+	  * writeFile
+	  * @param string filenamee
+	  * @return int
+	  */
      int writeFile(std::string filename);
+	 /**
+	  * writeFile
+	  * @param empty
+	  * @reutrn int
+	  */
+
      int writeFile();
+	 /**
+	  * distFile
+	  * @param int P
+	  * @param int Q
+	  * @param int R
+	  * @param string outFile
+	  * @return int
+	  */
      int distFile(int P, int Q, int R, std::string outFile);
 
     //Used for the compare function
@@ -345,7 +368,7 @@ public:
 	 * @param int
 	 * @param int
 	 * @param int
-	 *
+	 * @return double
 	 */
     double operator()(int,int,int);
 	/**
@@ -364,13 +387,19 @@ public:
     /**
 	 * see getData() 
 	 * @param empty
-	 *
-	 * setData
-	 * @param double pointer 
-	 * */
+	 */
     const double* getData() const;
+	/**
+	 * setData
+	 * @param double*
+	 * @return void
+	 */
     void  setData(double*);
-
+	/**
+	 * close
+	 * @param empty
+	 * @return empty
+	 */
     void close();
 
 
@@ -380,13 +409,16 @@ public:
  * @param int extent
  * @param int block_count
  * @param int block_idx
- *
- * calcExtent
- * @param int extent 
- * int block_count
- * int block_idx
  */
 int calcOffset(int extent, int block_count, int block_idx);
+/**
+ * calcExtent
+ * @param int extent 
+ * @param int block_count
+ * @param int block_idx
+ * @return int
+ */
+ 
 int calcExtent(int extent, int block_count, int block_idx);
 
 

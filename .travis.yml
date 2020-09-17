@@ -39,6 +39,19 @@ matrix:
           - cmake -S . -B build
           - cmake --build build --target test
 
+    - os: windows
+      language: cpp
+      env: LANGUAGE=python
+      script:
+          - choco install python swig -y
+          - pip install numpy
+          - cmake -S . -B build -DBUILD_PYTHON=ON
+          - cmake --build build --config Release
+          - cmake --build build --config Release --target test
+          - pip install build/python/parflowio/
+          - cd python/
+          - python test.py
+
 install:
   - ./.travis/install.sh
 

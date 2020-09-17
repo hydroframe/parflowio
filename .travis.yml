@@ -2,39 +2,61 @@ language: generic
 
 matrix:
   include:
-    - os: linux
-      dist: bionic
-      language: cpp
-      compiler: gcc
-      env: LANGUAGE=cpp
-    - os: linux
-      dist: bionic
-      language: cpp
-      compiler: gcc
-      env: LANGUAGE=python
+      - os: linux
+        dist: bionic
+        language: cpp
+        compiler: gcc
+        env: LANGUAGE=cpp
 
-    - os: osx
-      osx_image: xcode9.4
-      language: cpp
-      compiler: clang
-      env: LANGUAGE=cpp
-      addons:
-        homebrew:
-          update: true
+      - os: linux
+        dist: bionic
+        language: cpp
+        compiler: gcc
+        env: LANGUAGE=python
 
-    - os: osx
-      osx_image: xcode9.4
-      language: cpp
-      compiler: clang
-      env: LANGUAGE=python
-      addons:
-        homebrew:
-          packages:
-            - swig
-          update: true
+      - os: osx
+        osx_image: xcode9.4
+        language: cpp
+        compiler: clang
+        env: LANGUAGE=cpp
+        addons:
+          homebrew:
+            update: true
+
+      - os: osx
+        osx_image: xcode9.4
+        language: cpp
+        compiler: clang
+        env: LANGUAGE=python
+        addons:
+          homebrew:
+            packages:
+              - swig
+            update: true
+
+      - os: windows
+        language: cpp
+        env: LANGUAGE=cpp
+        script:
+          - cmake -S . -B build
+          - cmake --build build --target test
+
+      - os: windows
+        language: cpp
+        env: LANGUAGE=python
+        script:
+          - choco install python swig -y
+          #Reload path
+          - eval $(powershell -NonInteractive -Command 'write("export PATH=`"" + ([Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [Environment]::GetEnvironmentVariable("PATH","User")).replace("\","/").replace("C:","/c").replace(";",":") + ":`$PATH`"")')
+          - pip install numpy wheel
+          - cmake -S . -B build -DBUILD_PYTHON=ON -DCMAKE_GENERATOR_PLATFORM=x64
+          - cmake --build build --config Release
+          - cmake --build build --config Release --target test
+          - pip install build/python/parflowio/
+          - cd python/
+          - python test.py
 
 install:
   - ./.travis/install.sh
-
 script:
   - ./.travis/script.sh

@@ -44,6 +44,10 @@ matrix:
       env: LANGUAGE=python
       script:
           - choco install python swig -y
+            #Reload path
+          - eval $(powershell -NonInteractive -Command 'write("export PATH=`"" + ([Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [Environment]::GetEnvironmentVariable("PATH","User")).replace("\","/").replace("C:","/c").replace(";",":") + ":`$PATH`"")')
+          - python --version
+          - pip --version
           - pip install numpy
           - cmake -S . -B build -DBUILD_PYTHON=ON
           - cmake --build build --config Release

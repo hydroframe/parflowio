@@ -54,7 +54,7 @@ matrix:
           - cmake -S . -B build -DBUILD_PYTHON=ON -DCMAKE_GENERATOR_PLATFORM=x64
           - cat build/CMakeFiles/CMakeOutput.log
           - cat build/CMakeFiles/CMakeError.log
-          - cmake --build build --config Release -- /verbosity:diag
+          - cmake --build build --config Release -- /verbosity:d
           - cmake --build build --config Release --target test
           - pip install build/python/parflowio/
           - cd python/

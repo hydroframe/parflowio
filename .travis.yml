@@ -51,10 +51,10 @@ matrix:
           - pip install numpy wheel
           - pip list
             #- cmake -S . -B build
-          - cmake -S . -B build -DBUILD_PYTHON=ON
+          - cmake -S . -B build -DBUILD_PYTHON=ON -DCMAKE_GENERATOR_PLATFORM=x64
           - cat build/CMakeFiles/CMakeOutput.log
           - cat build/CMakeFiles/CMakeError.log
-          - cmake --build build --config Release
+          - cmake --build build --config Release -- /verbosity:diag
           - cmake --build build --config Release --target test
           - pip install build/python/parflowio/
           - cd python/

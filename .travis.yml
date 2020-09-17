@@ -33,6 +33,12 @@ matrix:
             - swig
           update: true
 
+    - os: windows
+      language: cpp
+      script:
+          - cmake -S . -B build
+          - cmake --build build --target test
+
 install:
   - ./.travis/install.sh
 

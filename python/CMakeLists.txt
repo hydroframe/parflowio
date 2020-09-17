@@ -142,7 +142,13 @@ elseif(UNIX)
     INSTALL_RPATH "$ORIGIN:$ORIGIN/../../${PROJECT_NAME}/.libs"
     )
 endif()
-target_link_libraries(pyParflowio PRIVATE parflowio_shared)
+
+if(WIN32) #Only static builds work on windows
+    target_link_libraries(pyParflowio PRIVATE parflowio_static)
+else()
+    target_link_libraries(pyParflowio PRIVATE parflowio_shared)
+endif()
+
 
 # Variable PYTHON_LIBRARIES can contains keyword `optimized`
 # which won't be interpreted inside a generator expression.

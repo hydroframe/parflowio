@@ -1,7 +1,7 @@
 set(HEADER_LIST "${parflowio_SOURCE_DIR}/include/parflow/pfdata.hpp")
 
 # Make an automatic library - will be static or dynamic based on user setting
-add_library(parflowio OBJECT pfdata.cpp ${HEADER_LIST})
+add_library(parflowio OBJECT pfdata.cpp pfutil.cpp ${HEADER_LIST})
 
 # shared libraries need PIC
 set_property(TARGET parflowio PROPERTY POSITION_INDEPENDENT_CODE 1)

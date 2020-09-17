@@ -1,32 +1,32 @@
 #include "parflow/pfdata.hpp"
+#include "pfutil.hpp"
+
 #include <array>
 #include <cassert>
 #include <cstdio>
-#include <arpa/inet.h>
+#include <cstdlib>
 #include <cstdint>
+#include <cstring>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
-#include <unistd.h>
 
 
 
-#define WRITEINT(V,f) {uint32_t temp = htonl(V); \
+#define WRITEINT(V,f) {uint32_t temp = bswap32(V); \
                          fwrite(&temp, 4, 1, f);}
 #define READINT(V,f,err) {uint32_t buf; \
                          err = fread(&buf, 4, 1, f);\
-                         uint32_t temp =  ntohl(buf);\
+                         uint32_t temp =  bswap32(buf);\
                          V = (int)temp;}
 #define WRITEDOUBLE(V,f) {uint64_t t1 = *(uint64_t*)&V;\
-                         t1 =  pfhtonll(t1); \
+                         t1 =  bswap64(t1); \
                          fwrite(&t1, 8, 1, f);}
 #define READDOUBLE(V,f,err) {uint64_t buf; \
                          err = fread(&buf, 8, 1, f);\
-                         uint64_t temp =  pfntohll(buf);\
+                         uint64_t temp =  bswap64(buf);\
                          V = *(double*)&temp;}
-uint64_t pfntohll(uint64_t value);
-uint64_t pfhtonll(uint64_t value);
 
 
 
@@ -58,7 +58,8 @@ int PFData::loadHeader() {
 
     m_fp = fopen( m_filename.c_str(), "rb");
     if(m_fp == nullptr){
-        perror("Error opening pfbfile");
+        std::string err{"Error opening file: \"" + m_filename + "\""};
+        perror(err.c_str());
         return 1;
     }
     /* read in header information */
@@ -244,7 +245,7 @@ int PFData::loadData() {
                 //uint64_t* buf = (uint64_t*)&(m_data[index]);
                 for(j=0;j<nx;j++){
                     uint64_t tmp = buf[j];
-                    tmp = pfntohll(tmp);
+                    tmp = bswap64(tmp);
                     m_data[index+j] = *(double*)(&tmp);
                 }
             }
@@ -270,9 +271,10 @@ int PFData::writeFile(const std::string filename) {
 
 int PFData::writeFile(const std::string filename, std::vector<long> &byte_offsets) {
 
-    FILE *fp = fopen(filename.c_str(), "wb");
+    std::FILE* fp = std::fopen(filename.c_str(), "wb");
     if(fp == nullptr){
-        perror("Error Opening File");
+        std::string err{"Error opening file: \"" + filename + "\""};
+        perror(err.c_str());
         return 1;
     }
 
@@ -289,7 +291,7 @@ int PFData::writeFile(const std::string filename, std::vector<long> &byte_offset
     WRITEDOUBLE(m_dZ,fp);
     WRITEINT(m_numSubgrids,fp);
     int max_x_extent =calcExtent(m_nx,m_p,0);
-    double writebuf[max_x_extent];
+    std::vector<double> writeBuf(max_x_extent);
     // now write the subgrids one at a time
     // this iterates over the subgrids in order
     int nsg=0;
@@ -327,12 +329,14 @@ int PFData::writeFile(const std::string filename, std::vector<long> &byte_offset
                         int j;
                         for(j=0;j<x_extent;j++){
                             uint64_t tmp = buf[j];
-                            tmp = pfntohll(tmp);
-                            writebuf[j] = *(double*)(&tmp);
+                            tmp = bswap64(tmp);
+                            writeBuf[j] = *(double*)(&tmp);
                         }
-                        int written = fwrite(writebuf,sizeof(double),x_extent,fp);
+                        int written = fwrite(writeBuf.data(),sizeof(double),x_extent,fp);
                         if(written != x_extent){
-                            std::cerr << "Error printing subgrid data" << std::endl;
+                            std::fclose(fp);
+                            std::cerr << "Error writing subgrid data to file " << filename << "\n";
+                            perror("");
                             return 1;
                         }
                     }
@@ -485,25 +489,4 @@ void PFData::setQ(int Q) {
 
 void PFData::setR(int R) {
     m_r = R;
-}
-
-uint64_t pfntohll(uint64_t value) {
-    if (htonl(1) != 1){
-        const uint32_t high_part = ntohl((uint32_t)(value >> 32));
-        const uint32_t low_part = ntohl((uint32_t)(value));
-        uint64_t retval = (uint64_t)low_part << 32;
-        retval = retval | high_part;
-        return retval;
-    }
-    return value;
-}
-uint64_t pfhtonll(uint64_t value) {
-    if (htonl(1) != 1){
-        const uint32_t high_part = htonl((uint32_t)(value >> 32));
-        const uint32_t low_part = htonl((uint32_t)(value));
-        uint64_t retval = (uint64_t)low_part << 32;
-        retval = retval | high_part;
-        return retval;
-    }
-    return value;
 }

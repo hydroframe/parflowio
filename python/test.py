@@ -38,6 +38,7 @@ class PFDataClassTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        os.chdir(os.path.join('..', 'tests', 'inputs'))
         cls.local_dir = Path(__file__).parent
 
     def test_empty_init(self):
@@ -55,7 +56,7 @@ class PFDataClassTests(unittest.TestCase):
         self.assertIsNone(test.close(), 'should be able to open and close an empty object')
 
     def test_good_filename(self):
-        test = PFData((self.local_dir / '../tests/inputs/press.init.pfb').as_posix())
+        test = PFData(('press.init.pfb'))
         retval = test.loadHeader()
         self.assertEqual(0, retval, 'should load header of file that exists')
         self.assertEqual(41, test.getNX(), 'sample file should have 41 columns')
@@ -68,7 +69,7 @@ class PFDataClassTests(unittest.TestCase):
         test.close()
 
     def test_validate_cell_values(self):
-        test = PFData((self.local_dir / '../tests/inputs/press.init.pfb').as_posix())
+        test = PFData(('press.init.pfb'))
         retval = test.loadHeader()
         self.assertEqual(0, retval, 'should load header of file that exists')
         retval = test.loadData()
@@ -93,11 +94,11 @@ class PFDataClassTests(unittest.TestCase):
         test.close()
 
     def test_compare(self):
-        test1 = PFData((self.local_dir / '../tests/inputs/press.init.pfb').as_posix())
+        test1 = PFData(('press.init.pfb'))
         test1.loadHeader()
         test1.loadData()
 
-        test2 = PFData((self.local_dir / '../tests/inputs/press.init.pfb').as_posix())
+        test2 = PFData(('press.init.pfb'))
         test2.loadHeader()
         test2.loadData()
 
@@ -118,39 +119,39 @@ class PFDataClassTests(unittest.TestCase):
         test2.close()
 
     def test_read_write_data(self):
-        test = PFData((self.local_dir / '../tests/inputs/press.init.pfb').as_posix())
+        test = PFData(('press.init.pfb'))
         retval = test.loadHeader()
         self.assertEqual(0, retval, 'should load header of file that exists')
         retval = test.loadData()
         self.assertEqual(0, retval, 'should load data from valid file')
-        retval = test.writeFile((self.local_dir / '../tests/inputs/press.init.pfb.tmp').as_posix())
+        retval = test.writeFile(('press.init.pfb.tmp'))
         self.assertEqual(0, retval, 'should write data from previously loaded file')
 
-        data2 = PFData((self.local_dir / '../tests/inputs/press.init.pfb.tmp').as_posix())
+        data2 = PFData(('press.init.pfb.tmp'))
         data2.loadHeader()
         data2.loadData()
         self.assertIsNone(np.testing.assert_array_equal(test.getDataAsArray(),
                                                         data2.getDataAsArray(),
                                                         'should read back same values we wrote'))
-        in_file_hash = calculate_sha1_hash((self.local_dir / '../tests/inputs/press.init.pfb').as_posix())
-        out_file_hash = calculate_sha1_hash((self.local_dir / '../tests/inputs/press.init.pfb.tmp').as_posix())
+        in_file_hash = calculate_sha1_hash(('press.init.pfb'))
+        out_file_hash = calculate_sha1_hash(('press.init.pfb.tmp'))
 
         # This assertion (that the files are identical) is failing in Python and in C++
         # because the original test input file was written by a tool that incorrectly set the value
         self.assertNotEqual(in_file_hash, out_file_hash, 'sha1 hash of input and output files should not match')
 
-        same, byte_diff = byte_compare_files((self.local_dir / '../tests/inputs/press.init.pfb').as_posix(),
-                                             (self.local_dir / '../tests/inputs/press.init.pfb.tmp').as_posix())
+        same, byte_diff = byte_compare_files(('press.init.pfb'),
+                                             ('press.init.pfb.tmp'))
 
         self.assertFalse(same, 'press.init.pfb should differ from version just written')
         self.assertEqual(92, byte_diff, 'first byte difference at byte 92')
 
         test.close()
         data2.close()
-        os.remove((self.local_dir / '../tests/inputs/press.init.pfb.tmp').as_posix())
+        os.remove(('press.init.pfb.tmp'))
 
     def test_manipulate_data(self):
-        test = PFData((self.local_dir / '../tests/inputs/press.init.pfb').as_posix())
+        test = PFData(('press.init.pfb'))
         retval = test.loadHeader()
         self.assertEqual(0, retval, 'should load header of file that exists')
         retval = test.loadData()
@@ -164,9 +165,9 @@ class PFDataClassTests(unittest.TestCase):
         self.assertEqual(1, test(0, 0, 0), 'data update affects underlying array')
         self.assertEqual(1, test(40, 0, 0), 'data update affects underlying array')
         self.assertEqual(1, test(21, 1, 2), 'data update affects underlying array')
-        retval = test.writeFile((self.local_dir / '../tests/inputs/press.init.pfb.tmp').as_posix())
+        retval = test.writeFile(('press.init.pfb.tmp'))
         self.assertEqual(0, retval, 'able to write updated data to output file')
-        test_read = PFData((self.local_dir / '../tests/inputs/press.init.pfb.tmp').as_posix())
+        test_read = PFData(('press.init.pfb.tmp'))
         test_read.loadHeader()
         test_read.loadData()
         self.assertEqual(1, test_read(0, 0, 0), 'updates to data written to file can be read back')
@@ -174,14 +175,14 @@ class PFDataClassTests(unittest.TestCase):
         self.assertEqual(1, test_read(21, 1, 2), 'updates to data written to file can be read back')
         test.close()
         test_read.close()
-        os.remove((self.local_dir / '../tests/inputs/press.init.pfb.tmp').as_posix())
+        os.remove(('press.init.pfb.tmp'))
 
     def test_dist_file(self):
-        test = PFData((self.local_dir / '../tests/inputs/press.init.pfb').as_posix())
-        test.distFile(P=2, Q=2, R=1, outFile=(self.local_dir / '../tests/press.init.pfb').as_posix())
+        test = PFData(('press.init.pfb'))
+        test.distFile(P=2, Q=2, R=1, outFile=('press.init.pfb.tmp'))
 
-        out_file = PFData((self.local_dir / '../tests/press.init.pfb').as_posix())
-        dist_file = open((self.local_dir / '../tests/press.init.pfb.dist').as_posix(), 'r')
+        out_file = PFData(('press.init.pfb.tmp'))
+        dist_file = open(('press.init.pfb.tmp.dist'), 'r')
         dist_lines = dist_file.readlines()
         [self.assertEqual(int(line.rstrip('\n')), val) for line, val in zip(dist_lines, [0, 176500, 344536, 512572,
                                                                                         672608])]
@@ -192,15 +193,15 @@ class PFDataClassTests(unittest.TestCase):
         test.close()
         out_file.close()
         dist_file.close()
-        os.remove((self.local_dir / '../tests/press.init.pfb').as_posix())
-        os.remove((self.local_dir / '../tests/press.init.pfb.dist').as_posix())
+        os.remove(('press.init.pfb.tmp'))
+        os.remove(('press.init.pfb.tmp.dist'))
 
     def test_dist_nldas_file(self):
-        test = PFData((self.local_dir / '../tests/inputs/NLDAS.APCP.000001_to_000024.pfb').as_posix())
-        test.distFile(P=2, Q=2, R=1, outFile=(self.local_dir / '../tests/NLDAS.APCP.000001_to_000024.pfb').as_posix())
+        test = PFData(('NLDAS.APCP.000001_to_000024.pfb'))
+        test.distFile(P=2, Q=2, R=1, outFile=('NLDAS.APCP.000001_to_000024.pfb.tmp'))
 
-        out_file = PFData((self.local_dir / '../tests/NLDAS.APCP.000001_to_000024.pfb').as_posix())
-        dist_file = open((self.local_dir / '../tests/NLDAS.APCP.000001_to_000024.pfb.dist').as_posix(), 'r')
+        out_file = PFData(('NLDAS.APCP.000001_to_000024.pfb.tmp'))
+        dist_file = open(('NLDAS.APCP.000001_to_000024.pfb.tmp.dist'), 'r')
         dist_lines = dist_file.readlines()
         [self.assertEqual(int(line.rstrip('\n')), val) for line, val in zip(dist_lines, [0, 84772, 165448, 246124,
                                                                                          322960])]
@@ -211,8 +212,8 @@ class PFDataClassTests(unittest.TestCase):
         test.close()
         out_file.close()
         dist_file.close()
-        os.remove((self.local_dir / '../tests/NLDAS.APCP.000001_to_000024.pfb').as_posix())
-        os.remove((self.local_dir / '../tests/NLDAS.APCP.000001_to_000024.pfb.dist').as_posix())
+        os.remove(('NLDAS.APCP.000001_to_000024.pfb.tmp'))
+        os.remove(('NLDAS.APCP.000001_to_000024.pfb.tmp.dist'))
 
     def test_assign_data(self):
         test = PFData()
@@ -230,8 +231,8 @@ class PFDataClassTests(unittest.TestCase):
         test.setP(1)
         test.setQ(1)
         test.setR(1)
-        test.writeFile((self.local_dir / '../tests/inputs/test_write_raw.pfb').as_posix())
-        test_read = PFData((self.local_dir / '../tests/inputs/test_write_raw.pfb').as_posix())
+        test.writeFile(('test_write_raw.pfb'))
+        test_read = PFData(('test_write_raw.pfb'))
         test_read.loadHeader()
         test_read.loadData()
         self.assertEqual(0, test_read.getX())
@@ -249,7 +250,7 @@ class PFDataClassTests(unittest.TestCase):
         del data
         test.close()
         test_read.close()
-        os.remove((self.local_dir / '../tests/inputs/test_write_raw.pfb').as_posix())
+        os.remove(('test_write_raw.pfb'))
 
     def test_create_from_data(self):
         data = np.random.random_sample((50, 49, 31))
@@ -263,8 +264,8 @@ class PFDataClassTests(unittest.TestCase):
         self.assertEqual(0, test.getX())
         self.assertEqual(0, test.getY())
         self.assertEqual(0, test.getZ())
-        test.writeFile((self.local_dir / '../tests/inputs/test_write_raw.pfb').as_posix())
-        test_read = PFData((self.local_dir / '../tests/inputs/test_write_raw.pfb').as_posix())
+        test.writeFile(('test_write_raw.pfb'))
+        test_read = PFData(('test_write_raw.pfb'))
         test_read.loadHeader()
         test_read.loadData()
         self.assertEqual(0, test_read.getX())
@@ -282,7 +283,7 @@ class PFDataClassTests(unittest.TestCase):
         del data
         test.close()
         test_read.close()
-        os.remove((self.local_dir / '../tests/inputs/test_write_raw.pfb').as_posix())
+        os.remove(('test_write_raw.pfb'))
 
 
 if __name__ == "__main__":

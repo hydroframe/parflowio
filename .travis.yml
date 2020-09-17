@@ -49,6 +49,7 @@ matrix:
           - python --version
           - pip --version
           - pip install numpy
+          - cmake -S . -B build
           - cmake -S . -B build -DBUILD_PYTHON=ON
           - cat build/CMakeFiles/CMakeOutput.log
           - cat build/CMakeFiles/CMakeError.log

@@ -48,8 +48,9 @@ matrix:
           - eval $(powershell -NonInteractive -Command 'write("export PATH=`"" + ([Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [Environment]::GetEnvironmentVariable("PATH","User")).replace("\","/").replace("C:","/c").replace(";",":") + ":`$PATH`"")')
           - python --version
           - pip --version
-          - pip install numpy
-          - cmake -S . -B build
+          - pip install numpy wheel
+          - pip list
+            #- cmake -S . -B build
           - cmake -S . -B build -DBUILD_PYTHON=ON
           - cat build/CMakeFiles/CMakeOutput.log
           - cat build/CMakeFiles/CMakeError.log

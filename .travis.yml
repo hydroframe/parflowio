@@ -36,6 +36,7 @@ matrix:
 
       - os: windows
         language: cpp
+        env: LANGUAGE=cpp
         script:
           - cmake -S . -B build
           - cmake --build build --target test

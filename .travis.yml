@@ -2,42 +2,42 @@ language: generic
 
 matrix:
   include:
-    - os: linux
-      dist: bionic
-      language: cpp
-      compiler: gcc
-      env: LANGUAGE=cpp
-    - os: linux
-      dist: bionic
-      language: cpp
-      compiler: gcc
-      env: LANGUAGE=python
+      #- os: linux
+      #  dist: bionic
+      #  language: cpp
+      #  compiler: gcc
+      #  env: LANGUAGE=cpp
+      #- os: linux
+      #  dist: bionic
+      #  language: cpp
+      #  compiler: gcc
+      #  env: LANGUAGE=python
 
-    - os: osx
-      osx_image: xcode9.4
-      language: cpp
-      compiler: clang
-      env: LANGUAGE=cpp
-      addons:
-        homebrew:
-          update: true
+      #- os: osx
+      #  osx_image: xcode9.4
+      #  language: cpp
+      #  compiler: clang
+      #  env: LANGUAGE=cpp
+      #  addons:
+      #    homebrew:
+      #      update: true
 
-    - os: osx
-      osx_image: xcode9.4
-      language: cpp
-      compiler: clang
-      env: LANGUAGE=python
-      addons:
-        homebrew:
-          packages:
-            - swig
-          update: true
+      #- os: osx
+      #  osx_image: xcode9.4
+      #  language: cpp
+      #  compiler: clang
+      #  env: LANGUAGE=python
+      #  addons:
+      #    homebrew:
+      #      packages:
+      #        - swig
+      #      update: true
 
-    - os: windows
-      language: cpp
-      script:
-          - cmake -S . -B build
-          - cmake --build build --target test
+      #- os: windows
+      #  language: cpp
+      #  script:
+      #      - cmake -S . -B build
+      #      - cmake --build build --target test
 
     - os: windows
       language: cpp
@@ -50,6 +50,8 @@ matrix:
           - pip --version
           - pip install numpy
           - cmake -S . -B build -DBUILD_PYTHON=ON
+          - cat build/CMakeFiles/CMakeOutput.log
+          - cat build/CMakeFiles/CMakeError.log
           - cmake --build build --config Release
           - cmake --build build --config Release --target test
           - pip install build/python/parflowio/

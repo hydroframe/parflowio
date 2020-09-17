@@ -9,11 +9,8 @@ if(BUILD_PYTHON)
 
     # Will need swig
     set(CMAKE_SWIG_FLAGS)
-    message(STATUS "Finding SWIG")
     find_package(SWIG REQUIRED)
-    message(STATUS "Found SWIG")
     include(UseSWIG)
-    message(STATUS "Included SWIG")
 
     if(${SWIG_VERSION} VERSION_GREATER_EQUAL 4)
       list(APPEND CMAKE_SWIG_FLAGS "-doxygen")
@@ -23,14 +20,14 @@ if(BUILD_PYTHON)
       list(APPEND CMAKE_SWIG_FLAGS "-DSWIGWORDSIZE64")
     endif()
 
-    message(STATUS "Finding Python")
+    message(STATUS "Finding Python (Interpreter)")
     # Find Python
     find_package(Python REQUIRED COMPONENTS Interpreter)
-    message(STATUS "Found Python. Finding Dev.")
+    message(STATUS "Found Python (Interpreter). Finding Development.Module.")
     find_package(Python REQUIRED COMPONENTS Development.Module)
-    message(STATUS "Found dev. Finding numpy")
+    message(STATUS "Found Development.Module. Finding Numpy")
     find_package(Python REQUIRED COMPONENTS NumPy)
-    message(STATUS "Found numpy")
+    message(STATUS "Found Numpy")
 
     if(Python_VERSION VERSION_GREATER_EQUAL 3)
       list(APPEND CMAKE_SWIG_FLAGS "-py3;-DPY3")

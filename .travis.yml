@@ -7,20 +7,12 @@ matrix:
         language: cpp
         compiler: gcc
         env: LANGUAGE=cpp
-        install:
-          - ./.travis/install.sh
-        script:
-          - ./.travis/script.sh
 
       - os: linux
         dist: bionic
         language: cpp
         compiler: gcc
         env: LANGUAGE=python
-        install:
-          - ./.travis/install.sh
-        script:
-          - ./.travis/script.sh
 
       - os: osx
         osx_image: xcode9.4
@@ -30,10 +22,6 @@ matrix:
         addons:
           homebrew:
             update: true
-        install:
-          - ./.travis/install.sh
-        script:
-          - ./.travis/script.sh
 
       - os: osx
         osx_image: xcode9.4
@@ -45,24 +33,19 @@ matrix:
             packages:
               - swig
             update: true
-        install:
-          - ./.travis/install.sh
-        script:
-          - ./.travis/script.sh
-          
 
       - os: windows
         language: cpp
         script:
-            - cmake -S . -B build
-            - cmake --build build --target test
+          - cmake -S . -B build
+          - cmake --build build --target test
 
-    - os: windows
-      language: cpp
-      env: LANGUAGE=python
-      script:
+      - os: windows
+        language: cpp
+        env: LANGUAGE=python
+        script:
           - choco install python swig -y
-            #Reload path
+          #Reload path
           - eval $(powershell -NonInteractive -Command 'write("export PATH=`"" + ([Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [Environment]::GetEnvironmentVariable("PATH","User")).replace("\","/").replace("C:","/c").replace(";",":") + ":`$PATH`"")')
           - pip install numpy wheel
           - cmake -S . -B build -DBUILD_PYTHON=ON -DCMAKE_GENERATOR_PLATFORM=x64
@@ -71,3 +54,8 @@ matrix:
           - pip install build/python/parflowio/
           - cd python/
           - python test.py
+
+install:
+  - ./.travis/install.sh
+script:
+  - ./.travis/script.sh

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-project(parflowio VERSION 0.0.1 LANGUAGES CXX)
+project(parflowio VERSION 0.0.2 LANGUAGES CXX)
 message(STATUS "project: ${PROJECT_NAME}")
 message(STATUS "version: ${PROJECT_VERSION}")
 

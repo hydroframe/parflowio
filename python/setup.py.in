@@ -17,7 +17,7 @@ class InstallPlatlib(install):
 
 setup(
   name='parflowio',
-  version='0.0.2',
+  version='0.0.3',
   author='arezaii',
   author_email='\"Ahmad Rezaii\" <ahmadrezaii@u.boisestate.edu>',
   url='https://github.com/hydroframe/parflowio',

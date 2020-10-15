@@ -13,12 +13,10 @@ else
   # Mac and Windows...
   mkdir -p build
   cd build
-  # Set the python executable so it won't assume we are looking
-  # for Python 2.
   cmake \
     -DPACKAGE_TESTS=OFF \
     -DBUILD_PYTHON=ON \
     -DPython_EXECUTABLE=$(which python) \
     ..
-    cmake --build .
+  cmake --build . --config Release
 fi

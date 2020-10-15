@@ -22,12 +22,7 @@ if(BUILD_PYTHON)
 
     message(STATUS "Finding Python (Interpreter)")
     # Find Python
-    find_package(Python REQUIRED COMPONENTS Interpreter)
-    message(STATUS "Found Python (Interpreter). Finding Development.Module.")
-    find_package(Python REQUIRED COMPONENTS Development.Module)
-    message(STATUS "Found Development.Module. Finding Numpy")
-    find_package(Python REQUIRED COMPONENTS NumPy)
-    message(STATUS "Found Numpy")
+    find_package(Python REQUIRED COMPONENTS Interpreter Development.Module NumPy)
 
     if(Python_VERSION VERSION_GREATER_EQUAL 3)
       list(APPEND CMAKE_SWIG_FLAGS "-py3;-DPY3")

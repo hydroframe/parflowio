@@ -3,11 +3,11 @@ name: Build Wheels
 on: [push, pull_request]
 
 env:
-  # Don't build python 2.7, pypy, or 32-bit Linux wheels
-  CIBW_SKIP: "cp27-* pp* *-manylinux_i686"
+  # Don't build python 2.7, pypy, or 32-bit wheels
+  CIBW_SKIP: "cp27-* pp* *-manylinux_i686 *-win32"
 
   # Run this script before each build...
-  CIBW_BEFORE_BUILD: . ./scripts/github-actions/before_cibuildwheel.sh
+  CIBW_BEFORE_BUILD: bash ./scripts/github-actions/before_cibuildwheel.sh
 
   # This has some of the software we need pre-installed on it
   CIBW_MANYLINUX_X86_64_IMAGE: hydroframebot/parflowio_manylinux2010_x86_64

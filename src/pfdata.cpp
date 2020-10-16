@@ -29,29 +29,20 @@
                          V = *(double*)&temp;}
 
 
+PFData::PFData(std::string filename)
+    : m_filename{filename} {}
 
-PFData::PFData() {
-    m_fp = nullptr;
-    m_data = nullptr;
-    m_X = m_Y = m_Z = 0.0;
-    m_dX = m_dY = m_dZ = 1.0;
-    m_p = m_q = m_r = 1;
-}
+PFData::PFData(double *data, int nz, int ny, int nx)
+    : m_data{data}, m_nz{nz}, m_ny{ny}, m_nx{nx} {}
 
-PFData::PFData(std::string filename) : PFData{} {
-    m_filename = filename;
+PFData::~PFData(){
+    if(m_fp){
+        std::fclose(m_fp);
+    }
 
-}
-
-PFData::PFData(double *data, int nz, int ny, int nx) {
-    m_data = data;
-    m_nx = nx;
-    m_ny = ny;
-    m_nz = nz;
-    m_X = m_Y = m_Z = 0.0;
-    m_dX = m_dY = m_dZ = 1.0;
-    m_p = m_q = m_r = 1;
-    m_fp = nullptr;
+    if(m_dataOwner){
+        std::free(m_data);
+    }
 }
 
 int PFData::loadHeader() {
@@ -62,6 +53,7 @@ int PFData::loadHeader() {
         perror(err.c_str());
         return 1;
     }
+
     /* read in header information */
     int errcheck;
     READDOUBLE(m_X,m_fp,errcheck);
@@ -195,10 +187,14 @@ int PFData::loadData() {
     if(m_fp  == nullptr){
         return 1;
     }
-    m_data = (double*)malloc(sizeof(double)*m_nx*m_ny*m_nz);
+
+    m_data = (double*)std::malloc(sizeof(double)*m_nx*m_ny*m_nz);
+    m_dataOwner = true;
+
     if(m_data == nullptr){
         return 2;
     }
+
     for (nsg = 0;nsg<m_numSubgrids; nsg++){
         // read subgrid header
         int errcheck;
@@ -255,12 +251,10 @@ int PFData::loadData() {
 }
 
 void PFData::close() {
-  if(m_fp == nullptr){
-      return;
-  }
-  fclose(m_fp);
-  m_fp = nullptr;
-  return;
+    if(m_fp){
+        std::fclose(m_fp);
+        m_fp = nullptr;
+    }
 }
 
 
@@ -350,6 +344,7 @@ int PFData::writeFile(const std::string filename, std::vector<long> &byte_offset
     fclose(fp);
     return 0;
 }
+
 int calcExtent(int extent, int block_count, int block_idx) {
     int lx = extent % block_count;
     int bx = extent / block_count;
@@ -359,6 +354,7 @@ int calcExtent(int extent, int block_count, int block_idx) {
     }
     return block_extent;
 }
+
 int calcOffset(int extent, int block_count, int block_idx) {
     int lx = extent % block_count;
     int bx = extent / block_count;
@@ -369,10 +365,6 @@ int calcOffset(int extent, int block_count, int block_idx) {
         offset += lx;
     }
     return offset;
-}
-
-int PFData::writeFile() {
-    return 0;
 }
 
 int PFData::distFile(int P, int Q, int R, const std::string outFile) {
@@ -489,4 +481,8 @@ void PFData::setQ(int Q) {
 
 void PFData::setR(int R) {
     m_r = R;
+}
+
+void PFData::setIsDataOwner(bool isOwner){
+    m_dataOwner = isOwner;
 }

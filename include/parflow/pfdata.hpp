@@ -1,10 +1,9 @@
 #ifndef PARFLOWIO_PFDATA_HPP
 #define PARFLOWIO_PFDATA_HPP
 #include <array>
-#include <cstddef>
 #include <cstdio>
-#include <vector>
 #include <string>
+#include <vector>
 
 /**
  * class: PFData
@@ -14,16 +13,32 @@
 class PFData {
 private:
     std::string m_filename;
-    FILE* m_fp;
+    std::FILE* m_fp = nullptr;
 
     // The following information is available only after the file is opened
     // main header information
-    double m_X,m_Y,m_Z;
-    int m_nx,m_ny,m_nz;
-    double m_dX,m_dY,m_dZ;
-    int m_numSubgrids;
-    int m_p,m_q,m_r;
-    double* m_data;
+    double m_X = 0.0;
+    double m_Y = 0.0;
+    double m_Z = 0.0;
+
+    int m_nx = 0;
+    int m_ny = 0;
+    int m_nz = 0;
+
+    double m_dX = 1.0;
+    double m_dY = 1.0;
+    double m_dZ = 1.0;
+
+    int m_numSubgrids{};
+    int m_p = 1;
+    int m_q = 1;
+    int m_r = 1;
+
+    //Tracks if we own m_data, and need to free it.
+    bool m_dataOwner = false;
+
+    double* m_data = nullptr;
+
 	/**
 	 * writeFile
 	 * @param string filename
@@ -37,7 +52,7 @@ public:
      * PFData
      * Default constructor, useful when storing data that may be written later
      */
-    PFData();
+    PFData() = default;
 
     /**
      * PFData
@@ -57,6 +72,9 @@ public:
      */
     PFData(double * data, int nz, int ny, int nx);
 
+    //Closes the file descriptor, if open. If we own the backing data memory, it is freed.
+    ~PFData();
+
     /**
      * loadHeader
      * @retval 0 on success, non 0 on failure (sets errno)
@@ -71,19 +89,14 @@ public:
      * This function reads all of the data from the pfb file into memory.
      */
      int loadData();
+
 	 /**
 	  * writeFile
 	  * @param string filenamee
 	  * @return int
 	  */
      int writeFile(std::string filename);
-	 /**
-	  * writeFile
-	  * @param empty
-	  * @reutrn int
-	  */
 
-     int writeFile();
 	 /**
 	  * distFile
 	  * @param int P
@@ -401,6 +414,11 @@ public:
 	 * @return empty
 	 */
     void close();
+
+    /**Sets if the class owns the backing data or not. Mostly provided for compatibility with SWIG.
+     * \param   isOwner     True if the class should free the data upon destruction, false otherwise.
+     */
+    void setIsDataOwner(bool isOwner);
 
 
 };

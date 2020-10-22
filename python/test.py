@@ -74,7 +74,7 @@ class PFDataClassTests(unittest.TestCase):
         self.assertEqual(0, retval, 'should load header of file that exists')
         retval = test.loadData()
         self.assertEqual(0, retval, 'should load data from valid file')
-        data = test.getDataAsArray()
+        data = test.viewDataArray()
         self.assertIsNotNone(data, 'data from object should be available as python object')
         self.assertSequenceEqual((50, 41, 41), data.shape)
         self.assertAlmostEqual(98.003604098773, test(0, 0, 0), 12, 'valid data in cell (0,0,0)')
@@ -108,7 +108,7 @@ class PFDataClassTests(unittest.TestCase):
         self.assertEqual(PFData.differenceType_x, test1.compare(test2)[0], "The x values differ")
         test1.setX(test1.getX()-1.0)
 
-        arr = test1.getDataAsArray()
+        arr = test1.viewDataArray()
         arr[1][2][3] += 1.0
         ret, zyx = test1.compare(test2)
         self.assertEqual(PFData.differenceType_data, ret, "The data values differ")
@@ -130,8 +130,8 @@ class PFDataClassTests(unittest.TestCase):
         data2 = PFData(('press.init.pfb.tmp'))
         data2.loadHeader()
         data2.loadData()
-        self.assertIsNone(np.testing.assert_array_equal(test.getDataAsArray(),
-                                                        data2.getDataAsArray(),
+        self.assertIsNone(np.testing.assert_array_equal(test.viewDataArray(),
+                                                        data2.viewDataArray(),
                                                         'should read back same values we wrote'))
         in_file_hash = calculate_sha1_hash(('press.init.pfb'))
         out_file_hash = calculate_sha1_hash(('press.init.pfb.tmp'))
@@ -156,7 +156,7 @@ class PFDataClassTests(unittest.TestCase):
         self.assertEqual(0, retval, 'should load header of file that exists')
         retval = test.loadData()
         self.assertEqual(0, retval, 'should load data from valid file')
-        test_data = test.getDataAsArray()
+        test_data = test.viewDataArray()
         self.assertSequenceEqual((50, 41, 41), test_data.shape, 'test file array should have shape (50,41,41)')
         self.assertAlmostEqual(98.003604098773, test(0, 0, 0), 12, 'valid data in cell (0,0,0)')
         test_data[0, 0, 0] = 1
@@ -188,7 +188,7 @@ class PFDataClassTests(unittest.TestCase):
                                                                                         672608])]
         self.assertEqual(0, out_file.loadHeader(), 'should load distributed file header')
         self.assertEqual(0, out_file.loadData(), 'should load distributed data')
-        self.assertIsNone(np.testing.assert_array_equal(test.getDataAsArray(), out_file.getDataAsArray()),
+        self.assertIsNone(np.testing.assert_array_equal(test.viewDataArray(), out_file.viewDataArray()),
                           'should find matching data values in original and distributed files')
         test.close()
         out_file.close()
@@ -207,7 +207,7 @@ class PFDataClassTests(unittest.TestCase):
                                                                                          322960])]
         self.assertEqual(0, out_file.loadHeader(), 'should load distributed file header')
         self.assertEqual(0, out_file.loadData(), 'should load distributed data')
-        self.assertIsNone(np.testing.assert_array_equal(test.getDataAsArray(), out_file.getDataAsArray()),
+        self.assertIsNone(np.testing.assert_array_equal(test.viewDataArray(), out_file.viewDataArray()),
                           'should find matching data values in original and distributed files')
         test.close()
         out_file.close()
@@ -244,7 +244,7 @@ class PFDataClassTests(unittest.TestCase):
         self.assertEqual(1, test_read.getP())
         self.assertEqual(1, test_read.getQ())
         self.assertEqual(1, test_read.getR())
-        test_data = test_read.getDataAsArray()
+        test_data = test_read.viewDataArray()
         self.assertIsNone(np.testing.assert_array_equal(data, test_data), 'Data written to array should exist in '
                                                                           'written PFB file.')
         del data
@@ -277,7 +277,7 @@ class PFDataClassTests(unittest.TestCase):
         self.assertEqual(1, test_read.getP())
         self.assertEqual(1, test_read.getQ())
         self.assertEqual(1, test_read.getR())
-        test_data = test_read.getDataAsArray()
+        test_data = test_read.viewDataArray()
         self.assertIsNone(np.testing.assert_array_equal(data, test_data), 'Data written to array should exist in '
                                                                           'written PFB file.')
         del data
@@ -285,6 +285,24 @@ class PFDataClassTests(unittest.TestCase):
         test_read.close()
         os.remove(('test_write_raw.pfb'))
 
+    def test_view(self):
+        data = np.random.random_sample((50, 49, 31))
+        test = PFData(data)
+        view = test.viewDataArray()
+        self.assertTrue(np.array_equal(data, view), 'Data obtained from PFData::viewDataArray must match given data')
+
+    def test_copy(self):
+        data = np.random.random_sample((50, 49, 31))
+        test = PFData(data)
+        copy = test.copyDataArray()
+        self.assertTrue(np.array_equal(data, copy), 'Data obtained from PFData::copyDataArray must match given data')
+
+    def test_move(self):
+        data = np.random.random_sample((50, 49, 31))
+        test = PFData(data)
+        move = test.moveDataArray()
+        self.assertTrue(np.array_equal(data, move), 'Data obtained from PFData::moveDataArray must match given data')
+        self.assertIsNone(test.viewDataArray(), 'Calling PFData::moveDataArray must invalidate the internal data pointer')
 
 if __name__ == "__main__":
     unittest.main()

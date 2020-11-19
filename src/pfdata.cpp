@@ -32,8 +32,8 @@
 PFData::PFData(std::string filename)
     : m_filename{filename} {}
 
-PFData::PFData(double *data, int nz, int ny, int nx)
-    : m_data{data}, m_nz{nz}, m_ny{ny}, m_nx{nx} {}
+PFData::PFData(double *data, int nx, int ny, int nz)
+    : m_data{data}, m_nx{nx}, m_ny{ny}, m_nz{nz} {}
 
 PFData::~PFData(){
     if(m_fp){
@@ -395,17 +395,17 @@ int PFData::distFile(int P, int Q, int R, const std::string outFile) {
 
 PFData::differenceType PFData::compare(const PFData& otherObj, std::array<int, 3>* diffIndex) const{
     //Check relevant header data
-    if(otherObj.getZ()  != getZ())  return differenceType::z;
-    if(otherObj.getY()  != getY())  return differenceType::y;
     if(otherObj.getX()  != getX())  return differenceType::x;
+    if(otherObj.getY()  != getY())  return differenceType::y;
+    if(otherObj.getZ()  != getZ())  return differenceType::z;
 
-    if(otherObj.getDZ() != getDZ()) return differenceType::dZ;
-    if(otherObj.getDY() != getDY()) return differenceType::dY;
     if(otherObj.getDX() != getDX()) return differenceType::dX;
+    if(otherObj.getDY() != getDY()) return differenceType::dY;
+    if(otherObj.getDZ() != getDZ()) return differenceType::dZ;
 
-    if(otherObj.getNZ() != getNZ()) return differenceType::nZ;
-    if(otherObj.getNY() != getNY()) return differenceType::nY;
     if(otherObj.getNX() != getNX()) return differenceType::nX;
+    if(otherObj.getNY() != getNY()) return differenceType::nY;
+    if(otherObj.getNZ() != getNZ()) return differenceType::nZ;
 
 
     //Check for differences in the data array
@@ -444,11 +444,11 @@ std::array<int, 3> PFData::unflattenIndex(int index) const{
     const int x = index;    //index remainder is x value
 
     //Sanity check
-    assert(z < getNZ() && z >= 0);
-    assert(y < getNY() && y >= 0);
     assert(x < getNX() && x >= 0);
+    assert(y < getNY() && y >= 0);
+    assert(z < getNZ() && z >= 0);
 
-    return {z, y, x};
+    return {x, y, z};
 }
 
 std::string PFData::getFilename() const{

@@ -84,6 +84,23 @@ public:
     std::string getFilename() const;
 
     /**
+     * read_subgrid_header
+     * @retval 0 on success, non 0 on failure
+     * This function reads a single subgrid header. The file pointer must be
+     * positioned at the beginning of the subgrid header. 
+    **/
+    int read_subgrid_header(int nsg, int* x, int* y, int* z, int* nx,
+                            int* ny, int* nz, int* rx, int* ry, int* rz);
+
+    /**
+     * scan_for_PQR
+     * @retval 0 on success, non 0 on failure
+     * This function seeks through the file to determine P, Q, and R.
+     * The file pointer is set back to the end of the global header. 
+    **/
+    int scan_for_PQR();
+
+    /**
      * loadData
      * @retval 0 on success, non-0 on failure
      * This function reads all of the data from the pfb file into memory.

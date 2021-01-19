@@ -180,6 +180,61 @@ const double* PFData::getData() const{
     return m_data;
 }
 
+int PFData::read_subgrid_header(int nsg, int* x, int* y, int* z, int* nx,
+                                int* ny, int* nz, int* rx, int* ry, int* rz){
+
+    int errcheck;
+    READINT(*x,m_fp,errcheck);
+    if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
+    READINT(*y,m_fp,errcheck);
+    if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
+    READINT(*z,m_fp,errcheck);
+    if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
+    READINT(*nx,m_fp,errcheck);
+    if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
+    READINT(*ny,m_fp,errcheck);
+    if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
+    READINT(*nz,m_fp,errcheck);
+    if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
+    READINT(*rx,m_fp,errcheck);
+    if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
+    READINT(*ry,m_fp,errcheck);
+    if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
+    READINT(*rz,m_fp,errcheck);
+    if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
+    if(nsg == m_numSubgrids-1){
+        m_p = m_nx/(*nx);
+        m_q = m_ny/(*ny);
+        m_r = m_nz/(*nz);
+    }
+    return errcheck;
+}
+
+int PFData::scan_for_PQR() {
+
+    //subgrid variables
+    int x,y,z,nx,ny,nz,rx,ry,rz;
+    if(m_fp  == nullptr){
+        return 1;
+    }
+    int startingPoint = SEEK_CUR; 
+    for (int nsg = 0;nsg<m_numSubgrids; nsg++){
+        // read subgrid header
+        int errcheck =read_subgrid_header(nsg,&x,&y,&z,&nx,&ny,&nz,&rx,&ry,&rz);
+        int err = fseek(m_fp, 8*nx*ny*nz ,SEEK_CUR);
+        if(err){
+          fclose(m_fp);
+          return err;
+        }
+    }
+    if(m_p == 0 || m_q == 0 || m_r == 0){
+      fclose(m_fp);
+      return 1;
+    }
+    fseek(m_fp,startingPoint,SEEK_SET);
+    return 0;
+}
+
 int PFData::loadData() {
     int nsg;
     //subgrid variables
@@ -197,30 +252,7 @@ int PFData::loadData() {
 
     for (nsg = 0;nsg<m_numSubgrids; nsg++){
         // read subgrid header
-        int errcheck;
-        READINT(x,m_fp,errcheck);
-        if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
-        READINT(y,m_fp,errcheck);
-        if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
-        READINT(z,m_fp,errcheck);
-        if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
-        READINT(nx,m_fp,errcheck);
-        if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
-        READINT(ny,m_fp,errcheck);
-        if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
-        READINT(nz,m_fp,errcheck);
-        if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
-        READINT(rx,m_fp,errcheck);
-        if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
-        READINT(ry,m_fp,errcheck);
-        if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
-        READINT(rz,m_fp,errcheck);
-        if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
-        if(nsg == m_numSubgrids-1){
-            m_p = m_nx/nx;
-            m_q = m_ny/ny;
-            m_r = m_nz/nz;
-        }
+        int errcheck =read_subgrid_header(nsg,&x,&y,&z,&nx,&ny,&nz,&rx,&ry,&rz);
 
         // read values for subgrid
         // qq is the location of the subgrid

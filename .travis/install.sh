@@ -5,14 +5,19 @@ set -e
 function install-cmake() {
   # need CMake >= 3.14 (for using the newly swig built-in UseSWIG module)
   if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-    wget https://cmake.org/files/v3.16/cmake-3.16.2.tar.gz
-    tar xzf cmake-3.16.2.tar.gz && rm cmake-3.16.2.tar.gz
-    cd cmake-3.16.2 && ./bootstrap --prefix=/opt/cmake-3.16.2
-    make -j 2
-    sudo make install
-    cd .. && rm -rf cmake-3.16.2
-    export PATH=/opt/cmake-3.16.2/bin:$PATH
-    command -v cmake
+    wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
+    sudo apt-add-repository -y 'deb https://apt.kitware.com/ubuntu/ bionic main'
+    sudo apt-get -y update
+    sudo apt-get -y install cmake
+
+    #wget https://cmake.org/files/v3.16/cmake-3.16.2.tar.gz
+    #tar xzf cmake-3.16.2.tar.gz && rm cmake-3.16.2.tar.gz
+    #cd cmake-3.16.2 && ./bootstrap --prefix=/opt/cmake-3.16.2
+    #make -j 2
+    #sudo make install
+    #cd .. && rm -rf cmake-3.16.2
+    #export PATH=/opt/cmake-3.16.2/bin:$PATH
+    #command -v cmake
     cmake --version
   elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
     cmake --version

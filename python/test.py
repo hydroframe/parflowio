@@ -76,7 +76,7 @@ class PFDataClassTests(unittest.TestCase):
         self.assertEqual(0, retval, 'should load data from valid file')
         data = test.viewDataArray()
         self.assertIsNotNone(data, 'data from object should be available as python object')
-        self.assertSequenceEqual((50, 41, 41), data.shape)
+        self.assertSequenceEqual((41, 41, 50), data.shape)
         self.assertAlmostEqual(98.003604098773, test(0, 0, 0), 12, 'valid data in cell (0,0,0)')
         self.assertAlmostEqual(97.36460429313328, test(40, 0, 0), 12, 'data in cell (40,0,0)')
         self.assertAlmostEqual(98.0043134691891, test(0, 1, 0), 12, 'data in cell (0, 1, 0)')
@@ -85,12 +85,12 @@ class PFDataClassTests(unittest.TestCase):
         self.assertAlmostEqual(7.98008728357588, test(0, 1, 45), 12, 'data in cell (0, 1, 45)')
         self.assertAlmostEqual(97.30205516102234, test(22, 1, 0), 12, 'valid data in cell (22,1,0)')
         self.assertEqual(test(0, 0, 0), data[0, 0, 0], 'data array and c array match values at (0,0,0)')
-        self.assertEqual(test(40, 0, 0), data[0, 0, 40], 'data array and c array match values at (40,0,0)')
+        self.assertEqual(test(40, 0, 0), data[40, 0, 0], 'data array and c array match values at (40,0,0)')
         self.assertEqual(test(0, 1, 0), data[0, 1, 0], 'data array and c array match values at (0,1,0)')
-        self.assertEqual(test(1, 0, 0), data[0, 0, 1], 'data array and c array match values at (1,0,0)')
-        self.assertEqual(test(21, 1, 2), data[2, 1, 21], 'data array and c array match values at (21,1,2)')
-        self.assertEqual(test(0, 1, 45), data[45, 1, 0], 'data array and c array match values at (0,1,45)')
-        self.assertEqual(test(22, 1, 0), data[0, 1, 22], 'data array and c array match values at (22,1,0)')
+        self.assertEqual(test(1, 0, 0), data[1, 0, 0], 'data array and c array match values at (1,0,0)')
+        self.assertEqual(test(21, 1, 2), data[21, 1, 2], 'data array and c array match values at (21,1,2)')
+        self.assertEqual(test(0, 1, 45), data[0, 1, 45], 'data array and c array match values at (0,1,45)')
+        self.assertEqual(test(22, 1, 0), data[22, 1, 0], 'data array and c array match values at (22,1,0)')
         test.close()
 
     def test_compare(self):
@@ -110,9 +110,9 @@ class PFDataClassTests(unittest.TestCase):
 
         arr = test1.viewDataArray()
         arr[1][2][3] += 1.0
-        ret, zyx = test1.compare(test2)
+        ret, xyz = test1.compare(test2)
         self.assertEqual(PFData.differenceType_data, ret, "The data values differ")
-        self.assertEqual((1, 2, 3), zyx, "The differing data's coordinates are correct")
+        self.assertEqual((1, 2, 3), xyz, "The differing data's coordinates are correct")
         arr[1][2][3] -= 1.0
 
         test1.close()
@@ -157,11 +157,11 @@ class PFDataClassTests(unittest.TestCase):
         retval = test.loadData()
         self.assertEqual(0, retval, 'should load data from valid file')
         test_data = test.viewDataArray()
-        self.assertSequenceEqual((50, 41, 41), test_data.shape, 'test file array should have shape (50,41,41)')
+        self.assertSequenceEqual((41, 41, 50), test_data.shape, 'test file array should have shape (41,41,50)')
         self.assertAlmostEqual(98.003604098773, test(0, 0, 0), 12, 'valid data in cell (0,0,0)')
         test_data[0, 0, 0] = 1
-        test_data[0, 0, 40] = 1
-        test_data[2, 1, 21] = 1
+        test_data[40, 0, 0] = 1
+        test_data[21, 1, 2] = 1
         self.assertEqual(1, test(0, 0, 0), 'data update affects underlying array')
         self.assertEqual(1, test(40, 0, 0), 'data update affects underlying array')
         self.assertEqual(1, test(21, 1, 2), 'data update affects underlying array')
@@ -219,9 +219,9 @@ class PFDataClassTests(unittest.TestCase):
         test = PFData()
         data = np.random.random_sample((50, 49, 31))
         test.setDataArray(data)
-        self.assertEqual(31, test.getNX())
+        self.assertEqual(50, test.getNX())
         self.assertEqual(49, test.getNY())
-        self.assertEqual(50, test.getNZ())
+        self.assertEqual(31, test.getNZ())
         test.setDX(1)
         test.setDY(1)
         test.setDZ(1)
@@ -238,9 +238,9 @@ class PFDataClassTests(unittest.TestCase):
         self.assertEqual(0, test_read.getX())
         self.assertEqual(0, test_read.getY())
         self.assertEqual(0, test_read.getZ())
-        self.assertEqual(31, test_read.getNX())
+        self.assertEqual(50, test_read.getNX())
         self.assertEqual(49, test_read.getNY())
-        self.assertEqual(50, test_read.getNZ())
+        self.assertEqual(31, test_read.getNZ())
         self.assertEqual(1, test_read.getP())
         self.assertEqual(1, test_read.getQ())
         self.assertEqual(1, test_read.getR())
@@ -253,7 +253,7 @@ class PFDataClassTests(unittest.TestCase):
         os.remove(('test_write_raw.pfb'))
 
     def test_create_from_data(self):
-        data = np.random.random_sample((50, 49, 31))
+        data = np.random.random_sample((31, 49, 50))
         test = PFData(data)
         self.assertEqual(31, test.getNX())
         self.assertEqual(49, test.getNY())

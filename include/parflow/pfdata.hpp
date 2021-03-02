@@ -1,6 +1,7 @@
 #ifndef PARFLOWIO_PFDATA_HPP
 #define PARFLOWIO_PFDATA_HPP
 #include <array>
+#include <cmath>
 #include <cstdio>
 #include <string>
 #include <vector>
@@ -46,6 +47,24 @@ private:
 	 */
     int writeFile(const std::string filename, std::vector<long> &byte_offsets);
 
+    /** Given a target subgrid, returns the absolute offset from the start of the file to the beginning of the target subgrid header.
+     * \pre             loadHeader() and loadPQR()
+     * \param gridX     The X index of the target subgrid
+     * \param gridY     The Y index of the target subgrid
+     * \param gridZ     The Z index of the target subgrid
+     * \return          The absolute offset from the beginning of the file, to the start of the target subgrid header.
+     */
+    long getSubgridOffset(int gridX, int gridY, int gridZ);
+
+    /** Given a target point, returns the absolute offset from the start of the file to the specified point.
+     * \pre             loadHeader() and loadPQR()
+     * \param x         The x index of the target point
+     * \param y         The y index of the target point
+     * \param z         The z index of the target point
+     * \return          The absolute offset from the start of the file to the point.
+     */
+    long getPointOffset(int x, int y, int z);
+
 public:
 
     /**
@@ -75,12 +94,138 @@ public:
     //Closes the file descriptor, if open. If we own the backing data memory, it is freed.
     ~PFData();
 
+    /** Read a single point from the file, without loading it all into memory.
+     * \pre             loadHeader() and loadPQR()
+     * \param   x       X index of the point
+     * \param   y       Y index of the point
+     * \param   z       Z index of the point
+     * \return          Value of the data at the specified point.
+     */
+    double fileReadPoint(int x, int y, int z);
+
+    /** Read in the subgrid containing the specified point from the file.
+     * \pre         loadHeader() and loadPQR()
+     * \param   x   X index of the point inside the desired subgrid.
+     * \param   y   Y index of the point inside the desired subgrid.
+     * \param   z   Z index of the point inside the desired subgrid.
+     * \return      The subgrid containing the specified point.
+     */
+    std::vector<double> fileReadSubgridAtPointIndex(int x, int y, int z);
+
+    /** Read in the subgrid at the specified subgrid index. Note that this is different than the point indicies.
+     * \pre             loadHeader() and loadPQR()
+     * \param   gridX   The X index of the subgrid. 
+     * \param   gridY   The Y index of the subgrid. 
+     * \param   gridZ   The Z index of the subgrid. 
+     * \return          Value of the subgrid at the specified index.
+     */
+    std::vector<double> fileReadSubgridAtGridIndex(int gridX, int gridY, int gridZ);
+
+
+    /** Returns the X subgrid index of the point at the specified X index.
+     * \pre         loadHeader() and loadPQR()
+     * \param idx   The X index of the point.
+     * \return      The X index of the subgrid containing the point.
+     */
+    int getSubgridIndexX(int idx);
+
+    /** Returns the Y subgrid index of the point at the specified Y index.
+     * \pre         loadHeader() and loadPQR()
+     * \param idx   The Y index of the point.
+     * \return      The Y index of the subgrid containing the point.
+     */
+    int getSubgridIndexY(int idx);
+
+    /** Returns the Z subgrid index of the point at the specified Z index.
+     * \pre         loadHeader() and loadPQR()
+     * \param idx   The Z index of the point.
+     * \return      The Z index of the subgrid containing the point.
+     */
+    int getSubgridIndexZ(int idx);
+
+
+    /** Returns the size in the X direction of the subgrid at the specified X index.
+     * \pre         loadHeader() and loadPQR()
+     * \param idx   The X index of the target subgrid.
+     * \return      The X size of the subgrid at the specified index.
+     */
+    int getSubgridSizeX(int idx);
+
+    /** Returns the size in the Y direction of the subgrid at the specified Y index.
+     * \pre         loadHeader() and loadPQR()
+     * \param idx   The Y index of the target subgrid.
+     * \return      The Y size of the subgrid at the specified index.
+     */
+    int getSubgridSizeY(int idx);
+
+    /** Returns the size in the Z direction of the subgrid at the specified Z index.
+     * \pre         loadHeader() and loadPQR()
+     * \param idx   The Z index of the target subgrid.
+     * \return      The Z size of the subgrid at the specified index.
+     */
+    int getSubgridSizeZ(int idx);
+
+
+    /**Returns the starting X index of the specified subgrid.
+     * \pre         loadHeader() and loadPQR()
+     * \param idx   The X subgrid index of the specified subgrid.
+     * \return      The first X index of the subgrid.
+     */
+    int getSubgridStartX(int gridIdx);
+
+    /**\See getSubgridStartX
+     */
+    int getSubgridStartY(int gridIdx);
+
+    /**\See getSubgridStartX
+     */
+    int getSubgridStartZ(int gridIdx);
+
+
+    /** Returns the size in the X direction of a normal block.
+     * \pre     loadHeader() and loadPQR()
+     * \return  X size of a normal block.
+     */
+    int getNormalBlockSizeX();
+
+    /**\See getNormalBlockSizeX
+     */
+    int getNormalBlockSizeY();
+
+    /**\See getNormalBlockSizeX
+     */
+    int getNormalBlockSizeZ();
+
+
+    /** Returns the index where normal blocks begin(inclusive).
+     * \pre     loadHeader() and loadPQR()
+     * \return  Zero if there are no remainder blocks.
+     */
+    int getNormalBlockStartX();
+
+    /**\See getNormalBlockStartX
+     */
+    int getNormalBlockStartY();
+
+    /**\See getNormalBlockStartX
+     */
+    int getNormalBlockStartZ();
+
+
     /**
      * loadHeader
      * @retval 0 on success, non 0 on failure (sets errno)
      * This function reads the header of the pfb file, but does not read the data.
      */
     int loadHeader();
+
+
+    /** This function loads the subgrid headers in order to calculate PQR. The only way to do this is by reading all of the subgrids and counting them, so this function incurs an performance penalty proportional to seeking and reading each subgrid header. 
+     * \pre     loadHeader() must have been previously called.
+     * \return  0 on success. Other values indicate an error.
+     */
+    int loadPQR();
+
     std::string getFilename() const;
 
     /**

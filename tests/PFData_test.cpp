@@ -74,6 +74,33 @@ TEST_F(PFData_test, loadData) {
     test.close();
 }
 
+TEST_F(PFData_test, loadPQR){
+    PFData test("tests/inputs/press.init.pfb");
+    int retval = test.loadHeader();
+    EXPECT_EQ(0,retval);
+
+    retval = test.loadPQR();
+    EXPECT_EQ(0,retval);
+
+    EXPECT_EQ(4, test.getP());
+    EXPECT_EQ(4, test.getQ());
+    EXPECT_EQ(1, test.getR());
+
+    EXPECT_EQ(16, test.getNumSubgrids());
+
+    retval = test.loadData();
+    ASSERT_EQ(0, retval);
+    double* data = test.getData();
+    EXPECT_NE(nullptr, data);
+    EXPECT_NEAR(98.003604098773,test(0,0,0),1E-12);
+    EXPECT_NEAR(97.36460429313328,test(40,0,0),1E-12);
+    EXPECT_NEAR(98.0043134691891,test(0,1,0),1E-12);
+    EXPECT_NEAR(98.00901307022781,test(1,0,0),1E-12);
+    EXPECT_NEAR(92.61370155558751,test(21,1,2),1E-12);
+    EXPECT_NEAR(7.98008728357588,test(0,1,45),1E-12);
+    EXPECT_NEAR(97.30205516102234,test(22,1,0),1E-12);
+}
+
 TEST_F(PFData_test, compareFuncSame){
     PFData test1("tests/inputs/press.init.pfb");
     test1.loadHeader();
@@ -261,8 +288,27 @@ TEST_F(PFData_test, dist_press){
     char buf1[1024];
     char buf2[1024];
 
+    PFData p1("tests/inputs/press.init.pfb");
+    p1.loadHeader();
+    p1.loadPQR();
+    EXPECT_EQ(4, p1.getP());
+    EXPECT_EQ(4, p1.getQ());
+    EXPECT_EQ(1, p1.getR());
+    EXPECT_EQ(16, p1.getNumSubgrids());
+
+
     PFData test("tests/inputs/press.init.pfb");
     test.distFile(2,2,1,"tests/press.init.pfb");
+
+    EXPECT_EQ(4, test.getNumSubgrids());
+    //Also test loadPQR
+    PFData test2("tests/press.init.pfb");
+    test2.loadHeader();
+    test2.loadPQR();
+    EXPECT_EQ(2, test2.getP());
+    EXPECT_EQ(2, test2.getQ());
+    EXPECT_EQ(1, test2.getR());
+    EXPECT_EQ(4, test2.getNumSubgrids());
 
     FILE* f1 = fopen("tests/inputs/press.init.pfb","rb");
     FILE* f2 = fopen("tests/press.init.pfb","rb");
@@ -278,7 +324,6 @@ TEST_F(PFData_test, dist_press){
     fclose(f1);
     fclose(f2);
     ASSERT_EQ(0,remove("tests/press.init.pfb"));
-
 }
 
 
@@ -288,6 +333,14 @@ TEST_F(PFData_test, dist_lw_nldas){
 
     PFData test("tests/inputs/NLDAS.APCP.000001_to_000024.pfb");
     test.distFile(2,2,1,"tests/NLDAS.APCP.000001_to_000024.pfb");
+
+    //Also test loadPQR
+    PFData test2("tests/NLDAS.APCP.000001_to_000024.pfb");
+    test2.loadHeader();
+    test2.loadPQR();
+    ASSERT_EQ(2, test2.getP());
+    ASSERT_EQ(2, test2.getQ());
+    ASSERT_EQ(1, test2.getR());
 
     FILE* f1 = fopen("tests/inputs/NLDAS.APCP.000001_to_000024.pfb","rb");
     FILE* f2 = fopen("tests/NLDAS.APCP.000001_to_000024.pfb","rb");

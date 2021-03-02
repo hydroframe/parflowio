@@ -85,17 +85,20 @@ int PFData::loadHeader() {
 int PFData::loadPQR(){
     //Read nx, ny, nz from subgrid header.
     auto readValues = [](std::FILE* f, int& nx, int& ny, int& nz){
-        if(int err = std::fread(&nx, 4, 1, f)){
+        int err = std::fread(&nx, 4, 1, f);
+        if(err != 1){
             perror("Error reading nx in subgrid header");
             return err;
         }
 
-        if(int err = std::fread(&ny, 4, 1, f)){
+        err = std::fread(&ny, 4, 1, f);
+        if(err != 1){
             perror("Error reading ny in subgrid header");
             return err;
         }
 
-        if(int err = std::fread(&ny, 4, 1, f)){
+        err = std::fread(&nz, 4, 1, f);
+        if(err != 1){
             perror("Error reading nz in subgrid header");
             return err;
         }

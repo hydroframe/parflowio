@@ -74,6 +74,17 @@ TEST_F(PFData_test, loadData) {
     test.close();
 }
 
+TEST_F(PFData_test, fileReadPoint1){
+    PFData test("tests/inputs/press.init.pfb");
+    int retval = test.loadHeader();
+    EXPECT_EQ(0,retval);
+
+    retval = test.loadPQR();
+    double val = test.fileReadPoint(21, 1, 2);
+    EXPECT_NEAR(92.61370155558751,val,1E-12);
+    test.close();
+}
+
 TEST_F(PFData_test, loadPQR){
     PFData test("tests/inputs/press.init.pfb");
     int retval = test.loadHeader();

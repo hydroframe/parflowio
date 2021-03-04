@@ -174,29 +174,29 @@ long PFData::getSubgridOffset(int gridX, int gridY, int gridZ){
 
     //--Calculate Z Offset
     //Remainder blocks offset
-    long offset = (m_nx * m_ny * (getNormalBlockSizeZ()+1))* std::min(gridZ, getNormalBlockStartZ());
+    long offset = (m_nx * m_ny * (getNormalBlockSizeZ()+1))* std::min(gridZ, getNormalBlockStartGridZ());
 
     //Normal blocks offset
-    if(gridZ >= getNormalBlockStartZ()){
-        offset += (m_nx * m_ny * getNormalBlockSizeZ()) * (gridZ - getNormalBlockStartZ());
+    if(gridZ >= getNormalBlockStartGridZ()){
+        offset += (m_nx * m_ny * getNormalBlockSizeZ()) * (gridZ - getNormalBlockStartGridZ());
     }
 
     //--Calculate Y Offset
     //Remainder blocks offset
-    offset += (m_nx * (getNormalBlockSizeY()+1) * currBlockSizeZ) * std::min(gridY, getNormalBlockStartY());
+    offset += (m_nx * (getNormalBlockSizeY()+1) * currBlockSizeZ) * std::min(gridY, getNormalBlockStartGridY());
 
     //Normal blocks offset
-    if(gridY >= getNormalBlockStartY()){
-        offset += (m_nx * getNormalBlockSizeY() * currBlockSizeZ) * (gridY - getNormalBlockStartY());
+    if(gridY >= getNormalBlockStartGridY()){
+        offset += (m_nx * getNormalBlockSizeY() * currBlockSizeZ) * (gridY - getNormalBlockStartGridY());
     }
 
     //--Calculate X Offset
     //Remainder blocks offset
-    offset += ((getNormalBlockSizeX()+1) * currBlockSizeY * currBlockSizeZ) * std::min(gridX, getNormalBlockStartX());
+    offset += ((getNormalBlockSizeX()+1) * currBlockSizeY * currBlockSizeZ) * std::min(gridX, getNormalBlockStartGridX());
 
     //Normal blocks offset
-    if(gridX >= getNormalBlockStartX()){
-        offset += (getNormalBlockSizeX() * currBlockSizeY * currBlockSizeZ) * (gridX - getNormalBlockStartX());
+    if(gridX >= getNormalBlockStartGridX()){
+        offset += (getNormalBlockSizeX() * currBlockSizeY * currBlockSizeZ) * (gridX - getNormalBlockStartGridX());
     }
 
     //--Account for headers and data size
@@ -222,14 +222,37 @@ long PFData::getPointOffset(int x, int y, int z){
     const int remZ = z - getSubgridStartZ(gridZ);
 
     const int sizeX = getSubgridSizeX(gridX);
-    const int sizeY = getSubgridSizeX(gridY);
-    const int sizeZ = getSubgridSizeX(gridZ);
+    const int sizeY = getSubgridSizeY(gridY);
+    const int sizeZ = getSubgridSizeZ(gridZ);
 
     const long subgridOffset = getSubgridOffset(gridX, gridY, gridZ) + 36;  //Skip header
     const long pointOffset = 8 * ((remZ * sizeY * sizeX) + (remY * sizeX) + remX);
     return subgridOffset + pointOffset;
 }
 
+
+double PFData::fileReadPoint(int x, int y, int z){
+    std::fpos_t pos{};
+    //Save old position
+    std::fgetpos(m_fp, &pos);
+
+    const long offset = getPointOffset(x, y, z);
+    if(std::fseek(m_fp, offset, SEEK_SET)){
+        std::perror("Error seeking to file");
+    }
+
+    double data = 0;
+    int err = 0;
+    READDOUBLE(data, m_fp, err);
+    if(1 != err){
+        std::perror("Error reading double");
+    }
+
+    //Restore old position
+    std::fsetpos(m_fp, &pos);
+
+    return data;
+}
 
 std::vector<double> PFData::fileReadSubgridAtPointIndex(int x, int y, int z){
     const int gridX = getSubgridIndexX(x);
@@ -277,7 +300,7 @@ std::vector<double> PFData::fileReadSubgridAtGridIndex(int gridX, int gridY, int
     return result;
 }
 
-int PFData::getSubgridIndexX(int idx){
+int PFData::getSubgridIndexX(int idx) const{
     const int start = getNormalBlockStartX();
     const int size = getNormalBlockSizeX();
     if(idx < start){   //In remainder subgrid
@@ -289,7 +312,7 @@ int PFData::getSubgridIndexX(int idx){
     return (m_nx % m_p) + (idx - start)/size;
 }
 
-int PFData::getSubgridIndexY(int idx){
+int PFData::getSubgridIndexY(int idx) const{
     const int start = getNormalBlockStartY();
     const int size = getNormalBlockSizeY();
     if(idx < start){   //In remainder subgrid
@@ -301,7 +324,7 @@ int PFData::getSubgridIndexY(int idx){
     return (m_ny % m_q) + (idx - start)/size;
 }
 
-int PFData::getSubgridIndexZ(int idx){
+int PFData::getSubgridIndexZ(int idx) const{
     const int start = getNormalBlockStartZ();
     const int size = getNormalBlockSizeZ();
     if(idx < start){   //In remainder subgrid
@@ -313,25 +336,28 @@ int PFData::getSubgridIndexZ(int idx){
     return (m_nz % m_r) + (idx - start)/size;
 }
 
-int PFData::getSubgridSizeX(int gridIdx){
+int PFData::getSubgridSizeX(int gridIdx) const{
     const int size = getNormalBlockSizeX();
-    return gridIdx >= getNormalBlockStartX() ? size : size+1;
+    const int numRem = m_nx % m_p;
+    return gridIdx >= numRem ? size : size+1;
 }
 
-int PFData::getSubgridSizeY(int gridIdx){
+int PFData::getSubgridSizeY(int gridIdx) const{
     const int size = getNormalBlockSizeY();
-    return gridIdx >= getNormalBlockStartY() ? size : size+1;
+    const int numRem = m_ny % m_q;
+    return gridIdx >= numRem ? size : size+1;
 }
 
-int PFData::getSubgridSizeZ(int gridIdx){
+int PFData::getSubgridSizeZ(int gridIdx) const{
     const int size = getNormalBlockSizeZ();
-    return gridIdx >= getNormalBlockStartZ() ? size : size+1;
+    const int numRem = m_nz % m_r;
+    return gridIdx >= numRem ? size : size+1;
 }
 
 
-int PFData::getSubgridStartX(int gridIdx){
+int PFData::getSubgridStartX(int gridIdx) const{
     const int size = getNormalBlockSizeX();
-    const int start = getNormalBlockStartX();
+    const int start = m_nx % m_p;
 
     //Remainder blocks
     int offset = (size+1) * std::min(gridIdx, start);
@@ -344,9 +370,9 @@ int PFData::getSubgridStartX(int gridIdx){
     return offset;
 }
 
-int PFData::getSubgridStartY(int gridIdx){
+int PFData::getSubgridStartY(int gridIdx) const{
     const int size = getNormalBlockSizeY();
-    const int start = getNormalBlockStartY();
+    const int start = m_ny % m_q;
 
     //Remainder blocks
     int offset = (size+1) * std::min(gridIdx, start);
@@ -359,9 +385,9 @@ int PFData::getSubgridStartY(int gridIdx){
     return offset;
 }
 
-int PFData::getSubgridStartZ(int gridIdx){
+int PFData::getSubgridStartZ(int gridIdx) const{
     const int size = getNormalBlockSizeZ();
-    const int start = getNormalBlockStartZ();
+    const int start = m_nx % m_r;
 
     //Remainder blocks
     int offset = (size+1) * std::min(gridIdx, start);
@@ -374,30 +400,41 @@ int PFData::getSubgridStartZ(int gridIdx){
     return offset;
 }
 
-int PFData::getNormalBlockSizeX(){
+int PFData::getNormalBlockSizeX() const{
     return m_nx/m_p;
 }
 
-int PFData::getNormalBlockSizeY(){
+int PFData::getNormalBlockSizeY() const{
     return m_ny/m_p;
 }
 
-int PFData::getNormalBlockSizeZ(){
+int PFData::getNormalBlockSizeZ() const{
     return m_nz/m_r;
 }
 
-int PFData::getNormalBlockStartX(){
+int PFData::getNormalBlockStartX() const{
     return (m_nx % m_p) * (getNormalBlockSizeX()+1);
 }
 
-int PFData::getNormalBlockStartY(){
+int PFData::getNormalBlockStartY() const{
     return (m_ny % m_q) * (getNormalBlockSizeY()+1);
 }
 
-int PFData::getNormalBlockStartZ(){
+int PFData::getNormalBlockStartZ() const{
     return (m_nz % m_r) * (getNormalBlockSizeZ()+1);
 }
 
+int PFData::getNormalBlockStartGridX() const{
+    return m_nx % m_p;
+}
+
+int PFData::getNormalBlockStartGridY() const{
+    return m_ny % m_q;
+}
+
+int PFData::getNormalBlockStartGridZ() const{
+    return m_nz % m_r;
+}
 
 double PFData::getX() const {
     return m_X;

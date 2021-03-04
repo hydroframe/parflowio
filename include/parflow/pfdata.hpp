@@ -127,21 +127,21 @@ public:
      * \param idx   The X index of the point.
      * \return      The X index of the subgrid containing the point.
      */
-    int getSubgridIndexX(int idx);
+    int getSubgridIndexX(int idx) const;
 
     /** Returns the Y subgrid index of the point at the specified Y index.
      * \pre         loadHeader() and loadPQR()
      * \param idx   The Y index of the point.
      * \return      The Y index of the subgrid containing the point.
      */
-    int getSubgridIndexY(int idx);
+    int getSubgridIndexY(int idx) const;
 
     /** Returns the Z subgrid index of the point at the specified Z index.
      * \pre         loadHeader() and loadPQR()
      * \param idx   The Z index of the point.
      * \return      The Z index of the subgrid containing the point.
      */
-    int getSubgridIndexZ(int idx);
+    int getSubgridIndexZ(int idx) const;
 
 
     /** Returns the size in the X direction of the subgrid at the specified X index.
@@ -149,21 +149,21 @@ public:
      * \param idx   The X index of the target subgrid.
      * \return      The X size of the subgrid at the specified index.
      */
-    int getSubgridSizeX(int idx);
+    int getSubgridSizeX(int idx) const;
 
     /** Returns the size in the Y direction of the subgrid at the specified Y index.
      * \pre         loadHeader() and loadPQR()
      * \param idx   The Y index of the target subgrid.
      * \return      The Y size of the subgrid at the specified index.
      */
-    int getSubgridSizeY(int idx);
+    int getSubgridSizeY(int idx) const;
 
     /** Returns the size in the Z direction of the subgrid at the specified Z index.
      * \pre         loadHeader() and loadPQR()
      * \param idx   The Z index of the target subgrid.
      * \return      The Z size of the subgrid at the specified index.
      */
-    int getSubgridSizeZ(int idx);
+    int getSubgridSizeZ(int idx) const;
 
 
     /**Returns the starting X index of the specified subgrid.
@@ -171,45 +171,59 @@ public:
      * \param idx   The X subgrid index of the specified subgrid.
      * \return      The first X index of the subgrid.
      */
-    int getSubgridStartX(int gridIdx);
+    int getSubgridStartX(int gridIdx) const;
 
     /**\See getSubgridStartX
      */
-    int getSubgridStartY(int gridIdx);
+    int getSubgridStartY(int gridIdx) const;
 
     /**\See getSubgridStartX
      */
-    int getSubgridStartZ(int gridIdx);
+    int getSubgridStartZ(int gridIdx) const;
 
 
     /** Returns the size in the X direction of a normal block.
      * \pre     loadHeader() and loadPQR()
      * \return  X size of a normal block.
      */
-    int getNormalBlockSizeX();
+    int getNormalBlockSizeX() const;
 
     /**\See getNormalBlockSizeX
      */
-    int getNormalBlockSizeY();
+    int getNormalBlockSizeY() const;
 
     /**\See getNormalBlockSizeX
      */
-    int getNormalBlockSizeZ();
+    int getNormalBlockSizeZ() const;
 
 
     /** Returns the index where normal blocks begin(inclusive).
      * \pre     loadHeader() and loadPQR()
      * \return  Zero if there are no remainder blocks.
      */
-    int getNormalBlockStartX();
+    int getNormalBlockStartX() const;
 
     /**\See getNormalBlockStartX
      */
-    int getNormalBlockStartY();
+    int getNormalBlockStartY() const;
 
     /**\See getNormalBlockStartX
      */
-    int getNormalBlockStartZ();
+    int getNormalBlockStartZ() const;
+
+    /** Similar to getNormalBlockStartX, but returns the grid index instead of the point index.
+     * \pre     loadHeader() and loadPQR()
+     * \return  The grid index where normal blocks begin (inclusive)
+     */
+    int getNormalBlockStartGridX() const;
+
+    /**\See getNormalBlockStartGridX
+     */
+    int getNormalBlockStartGridY() const;
+
+    /** \See getNormalBlockStartGridX
+     */
+    int getNormalBlockStartGridZ() const;
 
 
     /**

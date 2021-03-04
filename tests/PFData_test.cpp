@@ -80,8 +80,32 @@ TEST_F(PFData_test, fileReadPoint1){
     EXPECT_EQ(0,retval);
 
     retval = test.loadPQR();
-    double val = test.fileReadPoint(21, 1, 2);
-    EXPECT_NEAR(92.61370155558751,val,1E-12);
+    EXPECT_EQ(4, test.getP());
+    EXPECT_EQ(4, test.getQ());
+    EXPECT_EQ(1, test.getR());
+
+    PFData base("tests/inputs/press.init.pfb");
+    base.loadHeader();
+    base.loadData();
+    for(int z = 0; z < test.getNZ(); ++z){
+        for(int y = 0; y < test.getNY(); ++y){
+            for(int x = 0; x < test.getNX(); ++x){
+                EXPECT_EQ(base(x, y, z), test.fileReadPoint(x, y, z));
+            }
+        }
+    }
+
+    EXPECT_NEAR(98.003604098773,    test.fileReadPoint(0,0,0),1E-12);
+    EXPECT_NEAR(97.36460429313328,  test.fileReadPoint(40,0,0),1E-12);
+    EXPECT_NEAR(98.0043134691891,   test.fileReadPoint(0,1,0),1E-12);
+    EXPECT_NEAR(98.00901307022781,  test.fileReadPoint(1,0,0),1E-12);
+    EXPECT_NEAR(92.61370155558751,  test.fileReadPoint(21,1,2),1E-12);
+    EXPECT_NEAR(7.98008728357588,   test.fileReadPoint(0,1,45),1E-12);
+    EXPECT_NEAR(97.30205516102234,  test.fileReadPoint(22,1,0),1E-12);
+
+    EXPECT_EQ(0, test.getSubgridIndexX(0));
+    EXPECT_EQ(3, test.getSubgridIndexX(40));
+
     test.close();
 }
 

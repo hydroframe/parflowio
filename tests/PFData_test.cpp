@@ -80,6 +80,7 @@ TEST_F(PFData_test, fileReadPoint1){
     EXPECT_EQ(0,retval);
 
     retval = test.loadPQR();
+    EXPECT_EQ(0,retval);
     EXPECT_EQ(4, test.getP());
     EXPECT_EQ(4, test.getQ());
     EXPECT_EQ(1, test.getR());
@@ -107,6 +108,82 @@ TEST_F(PFData_test, fileReadPoint1){
     EXPECT_EQ(3, test.getSubgridIndexX(40));
 
     test.close();
+}
+
+TEST_F(PFData_test, helperFunctions){
+    PFData test("tests/inputs/press.init.pfb");
+    int retval = test.loadHeader();
+    EXPECT_EQ(0,retval);
+
+    retval = test.loadPQR();
+    EXPECT_EQ(0,retval);
+
+    //getNormalBlockStartGrid
+    EXPECT_EQ(test.getNormalBlockStartGridX(),  1);
+    EXPECT_EQ(test.getNormalBlockStartGridY(),  1);
+    EXPECT_EQ(test.getNormalBlockStartGridZ(),  0);
+
+    //getNormalBlockStart
+    EXPECT_EQ(test.getNormalBlockStartX(),      11);
+    EXPECT_EQ(test.getNormalBlockStartY(),      11);
+    EXPECT_EQ(test.getNormalBlockStartZ(),      0);
+
+    //getNormalBlockSize
+    EXPECT_EQ(test.getNormalBlockSizeX(),       10);
+    EXPECT_EQ(test.getNormalBlockSizeY(),       10);
+    EXPECT_EQ(test.getNormalBlockSizeZ(),       50);
+
+    EXPECT_EQ(test.getNormalBlockSizeX(),       10);
+    EXPECT_EQ(test.getNormalBlockSizeY(),       10);
+    EXPECT_EQ(test.getNormalBlockSizeZ(),       50);
+
+    //getSubgridStart
+    EXPECT_EQ(test.getSubgridStartX(0),         0);
+    EXPECT_EQ(test.getSubgridStartX(1),         11);
+    EXPECT_EQ(test.getSubgridStartX(2),         21);
+    EXPECT_EQ(test.getSubgridStartX(3),         31);
+
+    EXPECT_EQ(test.getSubgridStartY(0),         0);
+    EXPECT_EQ(test.getSubgridStartY(1),         11);
+    EXPECT_EQ(test.getSubgridStartY(2),         21);
+    EXPECT_EQ(test.getSubgridStartY(3),         31);
+
+    EXPECT_EQ(test.getSubgridStartZ(0),         0);
+
+    //getSubgridSize
+    EXPECT_EQ(test.getSubgridSizeX(0),          11);
+    EXPECT_EQ(test.getSubgridSizeX(1),          10);
+    EXPECT_EQ(test.getSubgridSizeX(2),          10);
+    EXPECT_EQ(test.getSubgridSizeX(3),          10);
+
+    EXPECT_EQ(test.getSubgridSizeY(0),          11);
+    EXPECT_EQ(test.getSubgridSizeY(1),          10);
+    EXPECT_EQ(test.getSubgridSizeY(2),          10);
+    EXPECT_EQ(test.getSubgridSizeY(3),          10);
+
+    EXPECT_EQ(test.getSubgridSizeZ(0),          50);
+
+    //getSubgridIndex
+    EXPECT_EQ(test.getSubgridIndexX(0),         0);
+    EXPECT_EQ(test.getSubgridIndexX(10),        0);
+    EXPECT_EQ(test.getSubgridIndexX(11),        1);
+    EXPECT_EQ(test.getSubgridIndexX(20),        1);
+    EXPECT_EQ(test.getSubgridIndexX(21),        2);
+    EXPECT_EQ(test.getSubgridIndexX(30),        2);
+    EXPECT_EQ(test.getSubgridIndexX(31),        3);
+    EXPECT_EQ(test.getSubgridIndexX(40),        3);
+
+    EXPECT_EQ(test.getSubgridIndexY(0),         0);
+    EXPECT_EQ(test.getSubgridIndexY(10),        0);
+    EXPECT_EQ(test.getSubgridIndexY(11),        1);
+    EXPECT_EQ(test.getSubgridIndexY(20),        1);
+    EXPECT_EQ(test.getSubgridIndexY(21),        2);
+    EXPECT_EQ(test.getSubgridIndexY(30),        2);
+    EXPECT_EQ(test.getSubgridIndexY(31),        3);
+    EXPECT_EQ(test.getSubgridIndexY(40),        3);
+
+    EXPECT_EQ(test.getSubgridIndexZ(0),         0);
+    EXPECT_EQ(test.getSubgridIndexZ(49),        0);
 }
 
 TEST_F(PFData_test, loadPQR){

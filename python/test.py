@@ -122,6 +122,8 @@ class PFDataClassTests(unittest.TestCase):
         test = PFData(('press.init.pfb'))
         retval = test.loadHeader()
         self.assertEqual(0, retval, 'should load header of file that exists')
+        retval = test.loadPQR()
+        self.assertEqual(0, retval, 'should load PQR of file that exists')
         retval = test.loadData()
         self.assertEqual(0, retval, 'should load data from valid file')
         retval = test.writeFile(('press.init.pfb.tmp'))
@@ -130,6 +132,7 @@ class PFDataClassTests(unittest.TestCase):
         data2 = PFData(('press.init.pfb.tmp'))
         data2.loadHeader()
         data2.loadData()
+        data2.loadPQR()
         self.assertIsNone(np.testing.assert_array_equal(test.viewDataArray(),
                                                         data2.viewDataArray(),
                                                         'should read back same values we wrote'))

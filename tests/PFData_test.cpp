@@ -74,6 +74,33 @@ TEST_F(PFData_test, loadData) {
     test.close();
 }
 
+TEST_F(PFData_test, loadDataThreaded){
+    PFData base("tests/inputs/press.init.pfb");
+    base.loadHeader();
+    base.loadData();
+
+    //1 thread
+    PFData test1("tests/inputs/press.init.pfb");
+    test1.loadHeader();
+    test1.loadPQR();
+    test1.loadDataThreaded(1);
+    EXPECT_EQ(base.compare(test1, nullptr), PFData::differenceType::none);
+
+    //8 threads
+    PFData test8("tests/inputs/press.init.pfb");
+    test8.loadHeader();
+    test8.loadPQR();
+    test8.loadDataThreaded(8);
+    EXPECT_EQ(base.compare(test8, nullptr), PFData::differenceType::none);
+
+    //40 threads (more than the number of subgrids)
+    PFData test40("tests/inputs/press.init.pfb");
+    test40.loadHeader();
+    test40.loadPQR();
+    test40.loadDataThreaded(40);
+    EXPECT_EQ(base.compare(test40, nullptr), PFData::differenceType::none);
+}
+
 TEST_F(PFData_test, fileReadPoint1){
     PFData test("tests/inputs/press.init.pfb");
     int retval = test.loadHeader();
@@ -325,6 +352,36 @@ TEST_F(PFData_test, unflattenIndex){
     EXPECT_EQ(invalid, test.unflattenIndex(-1));
 
     test.close();
+}
+
+TEST_F(PFData_test, unflattenGridIndex){
+    PFData test("tests/inputs/press.init.pfb");
+    test.loadHeader();
+    test.loadPQR();
+
+
+    std::array<int, 3> expected{0, 0, 0};
+    EXPECT_EQ(expected, test.unflattenGridIndex(0));
+
+    expected = {1, 0, 0};
+    EXPECT_EQ(expected, test.unflattenGridIndex(1));
+
+    expected = {0, 1, 0};
+    EXPECT_EQ(expected, test.unflattenGridIndex(4));
+
+    expected = {1, 1, 0};
+    EXPECT_EQ(expected, test.unflattenGridIndex(5));
+
+    expected = {2, 2, 0};
+    EXPECT_EQ(expected, test.unflattenGridIndex(10));
+
+    expected = {3, 3, 0};
+    EXPECT_EQ(expected, test.unflattenGridIndex(15));
+
+    const std::array<int, 3> invalid{-1, -1, -1};
+    EXPECT_EQ(invalid, test.unflattenGridIndex(-1));
+    EXPECT_EQ(invalid, test.unflattenGridIndex(16));
+    EXPECT_EQ(invalid, test.unflattenGridIndex(17));
 }
 
 TEST_F(PFData_test, loadDataAbs) {

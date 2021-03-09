@@ -54,7 +54,17 @@ private:
      * \param gridZ     The Z index of the target subgrid
      * \return          The absolute offset from the beginning of the file, to the start of the target subgrid header.
      */
-    long getSubgridOffset(int gridX, int gridY, int gridZ);
+    long getSubgridOffset(int gridX, int gridY, int gridZ) const;
+
+    /** Given a target subgrid, returns the index of the first element of that grid in the pfb file. Effectively returns the number of elements between the start of the file(0) and the subgrid in the file.
+     * \pre             loadHeader() and loadPQR()
+     * \param gridX     The X index of the target subgrid
+     * \param gridY     The Y index of the target subgrid
+     * \param gridZ     The Z index of the target subgrid
+     * \return          The number of elements before the target subgrid.
+     */
+    long getSubgridOffsetElements(int gridX, int gridY, int gridZ) const;
+
 
     /** Given a target point, returns the absolute offset from the start of the file to the specified point.
      * \pre             loadHeader() and loadPQR()
@@ -63,7 +73,28 @@ private:
      * \param z         The z index of the target point
      * \return          The absolute offset from the start of the file to the point.
      */
-    long getPointOffset(int x, int y, int z);
+    long getPointOffset(int x, int y, int z) const;
+
+    /** Read in the subgrid at the specified subgrid index.
+     * \pre             loadHeader() and loadPQR()
+     * \param           buffer  Pointer to an array of size: getSubgridSizeX(gridX) * getSubgridSizeY(gridY) * getSubgridSizeZ(gridZ), 1d
+     * \param   fp      File pointer to use. No requirement on current position, as it will seek to the appropriate location. If no error has occurred, fp will point after the last element read.
+     * \param   gridX   The X index of the subgrid to read.
+     * \param   gridY   The Y index of the subgrid to read
+     * \param   gridZ   The Z index of the subgrid to read.
+     * \return          0 if success, non-zero if error.
+     */
+    int fileReadSubgridAtGridIndexInternal(double* buffer, std::FILE* fp, int gridX, int gridY, int gridZ) const;
+
+    /** Reads in the subgrid from the file pointer, emplacing it into the m_data array.
+     * \pre             loadHeader() and loadPQR()
+     * \param   fp      The file pointer to use.
+     * \param   gridX   X index of the target subgrid
+     * \param   gridY   Y index of the target subgrid
+     * \param   gridZ   Z index of the target subgrid
+     * \return          0 if success, non-zero on error.
+     */
+    int emplaceSubgridFromFile(std::FILE* fp, int gridX, int gridY, int gridZ);
 
 public:
 
@@ -249,6 +280,14 @@ public:
      */
      int loadData();
 
+     /**
+      * Performs the same functionality as loadData(), but loads the file in parallel, using the supplied number of threads.
+      * \pre                loadPQR(). @@TODO maybe we want a way to enforce this in the future.
+      * \param  numThreads  The number of threads to use, must be at least one.
+      * \return             0 if success, non-zero if error.
+      */
+     int loadDataThreaded(int numThreads);
+
 	 /**
 	  * writeFile
 	  * @param string filenamee
@@ -295,6 +334,15 @@ public:
      */
     std::array<int, 3> unflattenIndex(int index) const;
 
+    /** Given a flattened subgrid index (value in range [0, getNumSubgrids()), unflatten it.
+     * \pre         loadHeader() and loadPQR()
+     * \param       index           Subgrid index, [0, getNumSubgrids())
+     * \retval      {X,Y,Z}         The XYZ indicies of the subgrid.
+     * \retval      {-1, -1, -1}    Invalid index
+     * @@TEST
+     */
+    std::array<int, 3> unflattenGridIndex(int index) const;
+
     /**
      * get[X,Y,Z]
      * [X,Y,Z] is the lower left corner of the Computational Grid.
@@ -310,12 +358,14 @@ public:
 	 * @return double
 	 */
     double getX() const;
+
 	/** @param double  get[X,Y,Z] [Y] is the lower left corner of the Computational Grid. 
 	 * This function is useful either when reading an existing file or when confirming the configuration 
 	 * of a file that is being created where the computational grid has already been set.
 	 * @return double
 	 */
     double getY() const;
+
 	/** @param double get[X,Y,Z] [Z] is the lower left corner of the Computational Grid.
 	 * This function is useful either when reading an existing file or when
 	 * confirming the configuration of a file that is being created where the

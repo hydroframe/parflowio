@@ -317,7 +317,7 @@ TEST_F(PFData_test, unflattenIndex){
         return  zyx[0]*test.getNX()*test.getNY() + zyx[1]*test.getNX() + zyx[2];
     };
 
-    const int maxIdx = test.getNX() * test.getNY() * test.getNZ() - 1;
+    const int maxIdx = test.getNZ() * test.getNY() * test.getNX() - 1;
 
     {
         const int expected = maxIdx;

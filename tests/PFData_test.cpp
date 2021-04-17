@@ -46,12 +46,12 @@ TEST_F(PFData_test, data2){
     PFData test("tests/inputs/press.init.pfb");
     int retval = test.loadHeader();
     EXPECT_EQ(0,retval);
-    EXPECT_EQ(41,test.getNX());
-    EXPECT_EQ(41,test.getNY());
     EXPECT_EQ(50,test.getNZ());
-    EXPECT_NEAR(0,test.getX(),.00001);
-    EXPECT_NEAR(0,test.getY(),.00001);
+    EXPECT_EQ(41,test.getNY());
+    EXPECT_EQ(41,test.getNX());
     EXPECT_NEAR(0,test.getZ(),.00001);
+    EXPECT_NEAR(0,test.getY(),.00001);
+    EXPECT_NEAR(0,test.getX(),.00001);
     EXPECT_EQ(16,test.getNumSubgrids());
     test.close();
 }
@@ -65,12 +65,12 @@ TEST_F(PFData_test, loadData) {
     double* data = test.getData();
     EXPECT_NE(nullptr, data);
     EXPECT_NEAR(98.003604098773,test(0,0,0),1E-12);
-    EXPECT_NEAR(97.36460429313328,test(40,0,0),1E-12);
+    EXPECT_NEAR(97.36460429313328,test(0,0,40),1E-12);
     EXPECT_NEAR(98.0043134691891,test(0,1,0),1E-12);
-    EXPECT_NEAR(98.00901307022781,test(1,0,0),1E-12);
-    EXPECT_NEAR(92.61370155558751,test(21,1,2),1E-12);
-    EXPECT_NEAR(7.98008728357588,test(0,1,45),1E-12);
-    EXPECT_NEAR(97.30205516102234,test(22,1,0),1E-12);
+    EXPECT_NEAR(98.00901307022781,test(0,0,1),1E-12);
+    EXPECT_NEAR(92.61370155558751,test(2,1,21),1E-12);
+    EXPECT_NEAR(7.98008728357588,test(45,1,0),1E-12);
+    EXPECT_NEAR(97.30205516102234,test(0,1,22),1E-12);
     test.close();
 }
 
@@ -108,9 +108,9 @@ TEST_F(PFData_test, fileReadPoint1){
 
     retval = test.loadPQR();
     EXPECT_EQ(0,retval);
-    EXPECT_EQ(4, test.getP());
-    EXPECT_EQ(4, test.getQ());
     EXPECT_EQ(1, test.getR());
+    EXPECT_EQ(4, test.getQ());
+    EXPECT_EQ(4, test.getP());
 
     PFData base("tests/inputs/press.init.pfb");
     base.loadHeader();
@@ -118,18 +118,18 @@ TEST_F(PFData_test, fileReadPoint1){
     for(int z = 0; z < test.getNZ(); ++z){
         for(int y = 0; y < test.getNY(); ++y){
             for(int x = 0; x < test.getNX(); ++x){
-                EXPECT_EQ(base(x, y, z), test.fileReadPoint(x, y, z));
+                EXPECT_EQ(base(z, y, x), test.fileReadPoint(z, y, x));
             }
         }
     }
 
     EXPECT_NEAR(98.003604098773,    test.fileReadPoint(0,0,0),1E-12);
-    EXPECT_NEAR(97.36460429313328,  test.fileReadPoint(40,0,0),1E-12);
+    EXPECT_NEAR(97.36460429313328,  test.fileReadPoint(0,0,40),1E-12);
     EXPECT_NEAR(98.0043134691891,   test.fileReadPoint(0,1,0),1E-12);
-    EXPECT_NEAR(98.00901307022781,  test.fileReadPoint(1,0,0),1E-12);
-    EXPECT_NEAR(92.61370155558751,  test.fileReadPoint(21,1,2),1E-12);
-    EXPECT_NEAR(7.98008728357588,   test.fileReadPoint(0,1,45),1E-12);
-    EXPECT_NEAR(97.30205516102234,  test.fileReadPoint(22,1,0),1E-12);
+    EXPECT_NEAR(98.00901307022781,  test.fileReadPoint(0,0,1),1E-12);
+    EXPECT_NEAR(92.61370155558751,  test.fileReadPoint(2,1,21),1E-12);
+    EXPECT_NEAR(7.98008728357588,   test.fileReadPoint(45,1,0),1E-12);
+    EXPECT_NEAR(97.30205516102234,  test.fileReadPoint(0,1,22),1E-12);
 
     EXPECT_EQ(0, test.getSubgridIndexX(0));
     EXPECT_EQ(3, test.getSubgridIndexX(40));
@@ -146,59 +146,53 @@ TEST_F(PFData_test, helperFunctions){
     EXPECT_EQ(0,retval);
 
     //getNormalBlockStartGrid
-    EXPECT_EQ(test.getNormalBlockStartGridX(),  1);
-    EXPECT_EQ(test.getNormalBlockStartGridY(),  1);
     EXPECT_EQ(test.getNormalBlockStartGridZ(),  0);
+    EXPECT_EQ(test.getNormalBlockStartGridY(),  1);
+    EXPECT_EQ(test.getNormalBlockStartGridX(),  1);
 
     //getNormalBlockStart
-    EXPECT_EQ(test.getNormalBlockStartX(),      11);
-    EXPECT_EQ(test.getNormalBlockStartY(),      11);
     EXPECT_EQ(test.getNormalBlockStartZ(),      0);
+    EXPECT_EQ(test.getNormalBlockStartY(),      11);
+    EXPECT_EQ(test.getNormalBlockStartX(),      11);
 
     //getNormalBlockSize
-    EXPECT_EQ(test.getNormalBlockSizeX(),       10);
-    EXPECT_EQ(test.getNormalBlockSizeY(),       10);
     EXPECT_EQ(test.getNormalBlockSizeZ(),       50);
+    EXPECT_EQ(test.getNormalBlockSizeY(),       10);
+    EXPECT_EQ(test.getNormalBlockSizeX(),       10);
 
-    EXPECT_EQ(test.getNormalBlockSizeX(),       10);
-    EXPECT_EQ(test.getNormalBlockSizeY(),       10);
     EXPECT_EQ(test.getNormalBlockSizeZ(),       50);
+    EXPECT_EQ(test.getNormalBlockSizeY(),       10);
+    EXPECT_EQ(test.getNormalBlockSizeX(),       10);
 
     //getSubgridStart
-    EXPECT_EQ(test.getSubgridStartX(0),         0);
-    EXPECT_EQ(test.getSubgridStartX(1),         11);
-    EXPECT_EQ(test.getSubgridStartX(2),         21);
-    EXPECT_EQ(test.getSubgridStartX(3),         31);
+    EXPECT_EQ(test.getSubgridStartZ(0),         0);
 
     EXPECT_EQ(test.getSubgridStartY(0),         0);
     EXPECT_EQ(test.getSubgridStartY(1),         11);
     EXPECT_EQ(test.getSubgridStartY(2),         21);
     EXPECT_EQ(test.getSubgridStartY(3),         31);
 
-    EXPECT_EQ(test.getSubgridStartZ(0),         0);
+    EXPECT_EQ(test.getSubgridStartX(0),         0);
+    EXPECT_EQ(test.getSubgridStartX(1),         11);
+    EXPECT_EQ(test.getSubgridStartX(2),         21);
+    EXPECT_EQ(test.getSubgridStartX(3),         31);
 
     //getSubgridSize
-    EXPECT_EQ(test.getSubgridSizeX(0),          11);
-    EXPECT_EQ(test.getSubgridSizeX(1),          10);
-    EXPECT_EQ(test.getSubgridSizeX(2),          10);
-    EXPECT_EQ(test.getSubgridSizeX(3),          10);
+    EXPECT_EQ(test.getSubgridSizeZ(0),          50);
 
     EXPECT_EQ(test.getSubgridSizeY(0),          11);
     EXPECT_EQ(test.getSubgridSizeY(1),          10);
     EXPECT_EQ(test.getSubgridSizeY(2),          10);
     EXPECT_EQ(test.getSubgridSizeY(3),          10);
 
-    EXPECT_EQ(test.getSubgridSizeZ(0),          50);
+    EXPECT_EQ(test.getSubgridSizeX(0),          11);
+    EXPECT_EQ(test.getSubgridSizeX(1),          10);
+    EXPECT_EQ(test.getSubgridSizeX(2),          10);
+    EXPECT_EQ(test.getSubgridSizeX(3),          10);
 
     //getSubgridIndex
-    EXPECT_EQ(test.getSubgridIndexX(0),         0);
-    EXPECT_EQ(test.getSubgridIndexX(10),        0);
-    EXPECT_EQ(test.getSubgridIndexX(11),        1);
-    EXPECT_EQ(test.getSubgridIndexX(20),        1);
-    EXPECT_EQ(test.getSubgridIndexX(21),        2);
-    EXPECT_EQ(test.getSubgridIndexX(30),        2);
-    EXPECT_EQ(test.getSubgridIndexX(31),        3);
-    EXPECT_EQ(test.getSubgridIndexX(40),        3);
+    EXPECT_EQ(test.getSubgridIndexZ(0),         0);
+    EXPECT_EQ(test.getSubgridIndexZ(49),        0);
 
     EXPECT_EQ(test.getSubgridIndexY(0),         0);
     EXPECT_EQ(test.getSubgridIndexY(10),        0);
@@ -209,8 +203,14 @@ TEST_F(PFData_test, helperFunctions){
     EXPECT_EQ(test.getSubgridIndexY(31),        3);
     EXPECT_EQ(test.getSubgridIndexY(40),        3);
 
-    EXPECT_EQ(test.getSubgridIndexZ(0),         0);
-    EXPECT_EQ(test.getSubgridIndexZ(49),        0);
+    EXPECT_EQ(test.getSubgridIndexX(0),         0);
+    EXPECT_EQ(test.getSubgridIndexX(10),        0);
+    EXPECT_EQ(test.getSubgridIndexX(11),        1);
+    EXPECT_EQ(test.getSubgridIndexX(20),        1);
+    EXPECT_EQ(test.getSubgridIndexX(21),        2);
+    EXPECT_EQ(test.getSubgridIndexX(30),        2);
+    EXPECT_EQ(test.getSubgridIndexX(31),        3);
+    EXPECT_EQ(test.getSubgridIndexX(40),        3);
 }
 
 TEST_F(PFData_test, loadPQR){
@@ -221,9 +221,9 @@ TEST_F(PFData_test, loadPQR){
     retval = test.loadPQR();
     EXPECT_EQ(0,retval);
 
-    EXPECT_EQ(4, test.getP());
-    EXPECT_EQ(4, test.getQ());
     EXPECT_EQ(1, test.getR());
+    EXPECT_EQ(4, test.getQ());
+    EXPECT_EQ(4, test.getP());
 
     EXPECT_EQ(16, test.getNumSubgrids());
 
@@ -232,12 +232,12 @@ TEST_F(PFData_test, loadPQR){
     double* data = test.getData();
     EXPECT_NE(nullptr, data);
     EXPECT_NEAR(98.003604098773,test(0,0,0),1E-12);
-    EXPECT_NEAR(97.36460429313328,test(40,0,0),1E-12);
+    EXPECT_NEAR(97.36460429313328,test(0,0,40),1E-12);
     EXPECT_NEAR(98.0043134691891,test(0,1,0),1E-12);
-    EXPECT_NEAR(98.00901307022781,test(1,0,0),1E-12);
-    EXPECT_NEAR(92.61370155558751,test(21,1,2),1E-12);
-    EXPECT_NEAR(7.98008728357588,test(0,1,45),1E-12);
-    EXPECT_NEAR(97.30205516102234,test(22,1,0),1E-12);
+    EXPECT_NEAR(98.00901307022781,test(0,0,1),1E-12);
+    EXPECT_NEAR(92.61370155558751,test(2,1,21),1E-12);
+    EXPECT_NEAR(7.98008728357588,test(45,1,0),1E-12);
+    EXPECT_NEAR(97.30205516102234,test(0,1,22),1E-12);
 }
 
 TEST_F(PFData_test, compareFuncSame){
@@ -253,45 +253,44 @@ TEST_F(PFData_test, compareFuncSame){
     EXPECT_EQ(res, PFData::differenceType::none);
 
 
-    //{X,Y,Z}
-    test1.setX(test1.getX()+1.0);
-    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::x);
-    test1.setX(test1.getX()-1.0);
+    //{Z,Y,X}
+    test1.setZ(test1.getZ()+1.0);
+    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::z);
+    test1.setZ(test1.getZ()-1.0);
 
     test1.setY(test1.getY()+1.0);
     EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::y);
     test1.setY(test1.getY()-1.0);
 
-    test1.setZ(test1.getZ()+1.0);
-    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::z);
-    test1.setZ(test1.getZ()-1.0);
+    test1.setX(test1.getX()+1.0);
+    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::x);
+    test1.setX(test1.getX()-1.0);
 
-    //D{X,Y,Z}
-    test1.setDX(test1.getDX()+1.0);
-    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::dX);
-    test1.setDX(test1.getDX()-1.0);
+    //D{Z,Y,X}
+    test1.setDZ(test1.getDZ()+1.0);
+    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::dZ);
+    test1.setDZ(test1.getDZ()-1.0);
 
     test1.setDY(test1.getDY()+1.0);
     EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::dY);
     test1.setDY(test1.getDY()-1.0);
 
-    test1.setDZ(test1.getDZ()+1.0);
-    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::dZ);
-    test1.setDZ(test1.getDZ()-1.0);
+    test1.setDX(test1.getDX()+1.0);
+    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::dX);
+    test1.setDX(test1.getDX()-1.0);
 
-
-    //N{X,Y,Z}
-    test1.setNX(test1.getNX()+1.0);
-    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::nX);
-    test1.setNX(test1.getNX()-1.0);
+    //N{Z,Y,X}
+    test1.setNZ(test1.getNZ()+1.0);
+    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::nZ);
+    test1.setNZ(test1.getNZ()-1.0);
 
     test1.setNY(test1.getNY()+1.0);
     EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::nY);
     test1.setNY(test1.getNY()-1.0);
 
-    test1.setNZ(test1.getNZ()+1.0);
-    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::nZ);
-    test1.setNZ(test1.getNZ()-1.0);
+    test1.setNX(test1.getNX()+1.0);
+    EXPECT_EQ(test1.compare(test2, nullptr), PFData::differenceType::nX);
+    test1.setNX(test1.getNX()-1.0);
 
     //data
     const int mutIdx = (test1.getNZ() * test1.getNY() * test1.getNX() - 1)/3;
@@ -314,8 +313,8 @@ TEST_F(PFData_test, unflattenIndex){
     test.loadData();
 
     //Small function to reflatten index for easy checking
-    auto flatten = [&](const std::array<int, 3>& xyz){
-        return  xyz[2]*test.getNX()*test.getNY() + xyz[1]*test.getNX() + xyz[0];
+    auto flatten = [&](const std::array<int, 3>& zyx){
+        return  zyx[0]*test.getNX()*test.getNY() + zyx[1]*test.getNX() + zyx[2];
     };
 
     const int maxIdx = test.getNX() * test.getNY() * test.getNZ() - 1;
@@ -363,19 +362,19 @@ TEST_F(PFData_test, unflattenGridIndex){
     std::array<int, 3> expected{0, 0, 0};
     EXPECT_EQ(expected, test.unflattenGridIndex(0));
 
-    expected = {1, 0, 0};
+    expected = {0, 0, 1};
     EXPECT_EQ(expected, test.unflattenGridIndex(1));
 
     expected = {0, 1, 0};
     EXPECT_EQ(expected, test.unflattenGridIndex(4));
 
-    expected = {1, 1, 0};
+    expected = {0, 1, 1};
     EXPECT_EQ(expected, test.unflattenGridIndex(5));
 
-    expected = {2, 2, 0};
+    expected = {0, 2, 2};
     EXPECT_EQ(expected, test.unflattenGridIndex(10));
 
-    expected = {3, 3, 0};
+    expected = {0, 3, 3};
     EXPECT_EQ(expected, test.unflattenGridIndex(15));
 
     const std::array<int, 3> invalid{-1, -1, -1};
@@ -397,12 +396,12 @@ TEST_F(PFData_test, loadDataAbs) {
     double* data = test.getData();
     EXPECT_NE(nullptr, data);
     EXPECT_NEAR(98.003604098773,test(0,0,0),1E-12);
-    EXPECT_NEAR(97.36460429313328,test(40,0,0),1E-12);
+    EXPECT_NEAR(97.36460429313328,test(0,0,40),1E-12);
     EXPECT_NEAR(98.0043134691891,test(0,1,0),1E-12);
-    EXPECT_NEAR(98.00901307022781,test(1,0,0),1E-12);
-    EXPECT_NEAR(92.61370155558751,test(21,1,2),1E-12);
-    EXPECT_NEAR(7.98008728357588,test(0,1,45),1E-12);
-    EXPECT_NEAR(97.30205516102234,test(22,1,0),1E-12);
+    EXPECT_NEAR(98.00901307022781,test(0,0,1),1E-12);
+    EXPECT_NEAR(92.61370155558751,test(2,1,21),1E-12);
+    EXPECT_NEAR(7.98008728357588,test(45,1,0),1E-12);
+    EXPECT_NEAR(97.30205516102234,test(0,1,22),1E-12);
     test.close();
 }
 
@@ -460,9 +459,9 @@ TEST_F(PFData_test, dist_press){
     PFData p1("tests/inputs/press.init.pfb");
     p1.loadHeader();
     p1.loadPQR();
-    EXPECT_EQ(4, p1.getP());
-    EXPECT_EQ(4, p1.getQ());
     EXPECT_EQ(1, p1.getR());
+    EXPECT_EQ(4, p1.getQ());
+    EXPECT_EQ(4, p1.getP());
     EXPECT_EQ(16, p1.getNumSubgrids());
 
 
@@ -474,9 +473,9 @@ TEST_F(PFData_test, dist_press){
     PFData test2("tests/press.init.pfb");
     test2.loadHeader();
     test2.loadPQR();
-    EXPECT_EQ(2, test2.getP());
-    EXPECT_EQ(2, test2.getQ());
     EXPECT_EQ(1, test2.getR());
+    EXPECT_EQ(2, test2.getQ());
+    EXPECT_EQ(2, test2.getP());
     EXPECT_EQ(4, test2.getNumSubgrids());
 
     FILE* f1 = fopen("tests/inputs/press.init.pfb","rb");
@@ -507,9 +506,9 @@ TEST_F(PFData_test, dist_lw_nldas){
     PFData test2("tests/NLDAS.APCP.000001_to_000024.pfb");
     test2.loadHeader();
     test2.loadPQR();
-    ASSERT_EQ(2, test2.getP());
-    ASSERT_EQ(2, test2.getQ());
     ASSERT_EQ(1, test2.getR());
+    ASSERT_EQ(2, test2.getQ());
+    ASSERT_EQ(2, test2.getP());
 
     FILE* f1 = fopen("tests/inputs/NLDAS.APCP.000001_to_000024.pfb","rb");
     FILE* f2 = fopen("tests/NLDAS.APCP.000001_to_000024.pfb","rb");
@@ -532,26 +531,26 @@ TEST_F(PFData_test, dist_lw_nldas){
 }
 
 TEST_F(PFData_test, idxCalcs){
-   int nx =8;
-   int ny =8;
    int nz = 1;
-   int p=3,q=3,r=1;
+   int ny =8;
+   int nx =8;
+   int r=1,q=3,p=3;
 
-    EXPECT_EQ(3,calcExtent(nx,p,0));
-    EXPECT_EQ(3,calcExtent(ny,q,0));
-    EXPECT_EQ(1,calcExtent(nz,r,0));
-    EXPECT_EQ(3,calcExtent(nx,p,1));
-    EXPECT_EQ(3,calcExtent(ny,q,1));
-    EXPECT_EQ(2,calcExtent(nx,p,2));
-    EXPECT_EQ(2,calcExtent(ny,q,2));
+   EXPECT_EQ(1,calcExtent(nz,r,0));
+   EXPECT_EQ(3,calcExtent(ny,q,0));
+   EXPECT_EQ(3,calcExtent(nx,p,0));
+   EXPECT_EQ(3,calcExtent(ny,q,1));
+   EXPECT_EQ(3,calcExtent(nx,p,1));
+   EXPECT_EQ(2,calcExtent(ny,q,2));
+   EXPECT_EQ(2,calcExtent(nx,p,2));
 
-   EXPECT_EQ(0,calcOffset(nx,p,0));
-   EXPECT_EQ(0,calcOffset(ny,q,0));
    EXPECT_EQ(0,calcOffset(nz,r,0));
-   EXPECT_EQ(3,calcOffset(nx,p,1));
+   EXPECT_EQ(0,calcOffset(ny,q,0));
+   EXPECT_EQ(0,calcOffset(nx,p,0));
    EXPECT_EQ(3,calcOffset(ny,q,1));
-   EXPECT_EQ(6,calcOffset(nx,p,2));
+   EXPECT_EQ(3,calcOffset(nx,p,1));
    EXPECT_EQ(6,calcOffset(ny,q,2));
+   EXPECT_EQ(6,calcOffset(nx,p,2));
 
 }
 
@@ -570,13 +569,13 @@ TEST_F(PFData_test, fileFromData){
     for (int i =0; i<24; i++){
         data[i] = (double) rand() / 1000;
     }
-    PFData test(data, 6, 4, 1);
-    int p = test.getP();
-    EXPECT_EQ(1, p);
-    int q = test.getQ();
-    EXPECT_EQ(1, q);
+    PFData test(data, 1, 4, 6);
     int r = test.getR();
     EXPECT_EQ(1, r);
+    int q = test.getQ();
+    EXPECT_EQ(1, q);
+    int p = test.getP();
+    EXPECT_EQ(1, p);
     retval = test.writeFile("tests/pfb_file_from_data.pfb");
 
     PFData test_read("tests/pfb_file_from_data.pfb");
@@ -584,21 +583,21 @@ TEST_F(PFData_test, fileFromData){
     EXPECT_EQ(0, retval);
     retval = test_read.loadData();
     EXPECT_EQ(0, retval);
-    p = test_read.getP();
-    EXPECT_EQ(1, p);
-    q = test_read.getQ();
-    EXPECT_EQ(1, q);
     r = test_read.getR();
     EXPECT_EQ(1, r);
-    EXPECT_EQ(1, test_read.getDX());
-    EXPECT_EQ(1, test_read.getDY());
+    q = test_read.getQ();
+    EXPECT_EQ(1, q);
+    p = test_read.getP();
+    EXPECT_EQ(1, p);
     EXPECT_EQ(1, test_read.getDZ());
+    EXPECT_EQ(1, test_read.getDY());
+    EXPECT_EQ(1, test_read.getDX());
     EXPECT_EQ(1, test_read.getNZ());
     EXPECT_EQ(4, test_read.getNY());
     EXPECT_EQ(6, test_read.getNX());
-    EXPECT_EQ(0, test_read.getX());
-    EXPECT_EQ(0, test_read.getY());
     EXPECT_EQ(0, test_read.getZ());
+    EXPECT_EQ(0, test_read.getY());
+    EXPECT_EQ(0, test_read.getX());
     test_read.close();
     test.close();
     ASSERT_EQ(0,remove("tests/pfb_file_from_data.pfb"));
@@ -610,32 +609,32 @@ TEST_F(PFData_test, setData){
     for (int i =0; i<24; i++){
         data[i] = (double) rand() / 1000;
     }
-    test.setP(1);
-    test.setQ(1);
     test.setR(1);
-    test.setDX(1.0);
-    test.setDY(1.0);
+    test.setQ(1);
+    test.setP(1);
     test.setDZ(1.0);
-    test.setNX(6);
-    test.setNY(4);
+    test.setDY(1.0);
+    test.setDX(1.0);
     test.setNZ(1);
+    test.setNY(4);
+    test.setNX(6);
     test.setData(data);
     test.writeFile("tests/test_write_file_out.pfb");
     PFData test_read = PFData("tests/test_write_file_out.pfb");
     test_read.loadHeader();
     test_read.loadData();
-    EXPECT_EQ(1, test_read.getP());
-    EXPECT_EQ(1, test_read.getQ());
     EXPECT_EQ(1, test_read.getR());
-    EXPECT_EQ(1, test_read.getDX());
-    EXPECT_EQ(1, test_read.getDY());
+    EXPECT_EQ(1, test_read.getQ());
+    EXPECT_EQ(1, test_read.getP());
     EXPECT_EQ(1, test_read.getDZ());
+    EXPECT_EQ(1, test_read.getDY());
+    EXPECT_EQ(1, test_read.getDX());
     EXPECT_EQ(1, test_read.getNZ());
     EXPECT_EQ(4, test_read.getNY());
     EXPECT_EQ(6, test_read.getNX());
-    EXPECT_EQ(0, test_read.getX());
-    EXPECT_EQ(0, test_read.getY());
     EXPECT_EQ(0, test_read.getZ());
+    EXPECT_EQ(0, test_read.getY());
+    EXPECT_EQ(0, test_read.getX());
 
     test_read.close();
     test.close();

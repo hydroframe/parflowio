@@ -18,22 +18,22 @@ private:
 
     // The following information is available only after the file is opened
     // main header information
-    double m_X = 0.0;
-    double m_Y = 0.0;
     double m_Z = 0.0;
+    double m_Y = 0.0;
+    double m_X = 0.0;
 
-    int m_nx = 0;
-    int m_ny = 0;
     int m_nz = 0;
+    int m_ny = 0;
+    int m_nx = 0;
 
-    double m_dX = 1.0;
-    double m_dY = 1.0;
     double m_dZ = 1.0;
+    double m_dY = 1.0;
+    double m_dX = 1.0;
 
     int m_numSubgrids{};
-    int m_p = 1;
-    int m_q = 1;
     int m_r = 1;
+    int m_q = 1;
+    int m_p = 1;
 
     //Tracks if we own m_data, and need to free it.
     bool m_dataOwner = false;
@@ -43,58 +43,58 @@ private:
 	/**
 	 * writeFile
 	 * @param string filename
-	 * @return int 
+	 * @return int
 	 */
     int writeFile(const std::string filename, std::vector<long> &byte_offsets);
 
     /** Given a target subgrid, returns the absolute offset from the start of the file to the beginning of the target subgrid header.
      * \pre             loadHeader() and loadPQR()
-     * \param gridX     The X index of the target subgrid
-     * \param gridY     The Y index of the target subgrid
      * \param gridZ     The Z index of the target subgrid
+     * \param gridY     The Y index of the target subgrid
+     * \param gridX     The X index of the target subgrid
      * \return          The absolute offset from the beginning of the file, to the start of the target subgrid header.
      */
-    long getSubgridOffset(int gridX, int gridY, int gridZ) const;
+    long getSubgridOffset(int gridZ, int gridY, int gridX) const;
 
     /** Given a target subgrid, returns the index of the first element of that grid in the pfb file. Effectively returns the number of elements between the start of the file(0) and the subgrid in the file.
      * \pre             loadHeader() and loadPQR()
-     * \param gridX     The X index of the target subgrid
-     * \param gridY     The Y index of the target subgrid
      * \param gridZ     The Z index of the target subgrid
+     * \param gridY     The Y index of the target subgrid
+     * \param gridX     The X index of the target subgrid
      * \return          The number of elements before the target subgrid.
      */
-    long getSubgridOffsetElements(int gridX, int gridY, int gridZ) const;
+    long getSubgridOffsetElements(int gridZ, int gridY, int gridX) const;
 
 
     /** Given a target point, returns the absolute offset from the start of the file to the specified point.
      * \pre             loadHeader() and loadPQR()
-     * \param x         The x index of the target point
-     * \param y         The y index of the target point
      * \param z         The z index of the target point
+     * \param y         The y index of the target point
+     * \param x         The x index of the target point
      * \return          The absolute offset from the start of the file to the point.
      */
-    long getPointOffset(int x, int y, int z) const;
+    long getPointOffset(int z, int y, int x) const;
 
     /** Read in the subgrid at the specified subgrid index.
      * \pre             loadHeader() and loadPQR()
      * \param           buffer  Pointer to an array of size: getSubgridSizeX(gridX) * getSubgridSizeY(gridY) * getSubgridSizeZ(gridZ), 1d
      * \param   fp      File pointer to use. No requirement on current position, as it will seek to the appropriate location. If no error has occurred, fp will point after the last element read.
-     * \param   gridX   The X index of the subgrid to read.
-     * \param   gridY   The Y index of the subgrid to read
      * \param   gridZ   The Z index of the subgrid to read.
+     * \param   gridY   The Y index of the subgrid to read
+     * \param   gridX   The X index of the subgrid to read.
      * \return          0 if success, non-zero if error.
      */
-    int fileReadSubgridAtGridIndexInternal(double* buffer, std::FILE* fp, int gridX, int gridY, int gridZ) const;
+    int fileReadSubgridAtGridIndexInternal(double* buffer, std::FILE* fp, int gridZ, int gridY, int gridX) const;
 
     /** Reads in the subgrid from the file pointer, emplacing it into the m_data array.
      * \pre             loadHeader() and loadPQR()
      * \param   fp      The file pointer to use.
-     * \param   gridX   X index of the target subgrid
-     * \param   gridY   Y index of the target subgrid
      * \param   gridZ   Z index of the target subgrid
+     * \param   gridY   Y index of the target subgrid
+     * \param   gridX   X index of the target subgrid
      * \return          0 if success, non-zero on error.
      */
-    int emplaceSubgridFromFile(std::FILE* fp, int gridX, int gridY, int gridZ);
+    int emplaceSubgridFromFile(std::FILE* fp, int gridZ, int gridY, int gridX);
 
 public:
 
@@ -115,57 +115,43 @@ public:
     /**
      * PFData
      * @param data array of doubles,
-     * @param nx number of elements in x dimension
-     * @param ny number of elements in y dimension
      * @param nz number of elements in z direction
+     * @param ny number of elements in y dimension
+     * @param nx number of elements in x dimension
      * This constructor is useful if you have an existing data array you want to make into a PFB file.
      */
-    PFData(double * data, int nx, int ny, int nz);
+    PFData(double * data, int nz, int ny, int nx);
 
     //Closes the file descriptor, if open. If we own the backing data memory, it is freed.
     ~PFData();
 
     /** Read a single point from the file, without loading it all into memory.
      * \pre             loadHeader() and loadPQR()
-     * \param   x       X index of the point
-     * \param   y       Y index of the point
      * \param   z       Z index of the point
+     * \param   y       Y index of the point
+     * \param   x       X index of the point
      * \return          Value of the data at the specified point.
      */
-    double fileReadPoint(int x, int y, int z);
+    double fileReadPoint(int z, int y, int x);
 
     /** Read in the subgrid containing the specified point from the file.
      * \pre         loadHeader() and loadPQR()
-     * \param   x   X index of the point inside the desired subgrid.
-     * \param   y   Y index of the point inside the desired subgrid.
      * \param   z   Z index of the point inside the desired subgrid.
+     * \param   y   Y index of the point inside the desired subgrid.
+     * \param   x   X index of the point inside the desired subgrid.
      * \return      The subgrid containing the specified point.
      */
-    std::vector<double> fileReadSubgridAtPointIndex(int x, int y, int z);
+    std::vector<double> fileReadSubgridAtPointIndex(int z, int y, int x);
 
     /** Read in the subgrid at the specified subgrid index. Note that this is different than the point indicies.
      * \pre             loadHeader() and loadPQR()
-     * \param   gridX   The X index of the subgrid. 
-     * \param   gridY   The Y index of the subgrid. 
-     * \param   gridZ   The Z index of the subgrid. 
+     * \param   gridZ   The Z index of the subgrid.
+     * \param   gridY   The Y index of the subgrid.
+     * \param   gridX   The X index of the subgrid.
      * \return          Value of the subgrid at the specified index.
      */
-    std::vector<double> fileReadSubgridAtGridIndex(int gridX, int gridY, int gridZ);
+    std::vector<double> fileReadSubgridAtGridIndex(int gridZ, int gridY, int gridX);
 
-
-    /** Returns the X subgrid index of the point at the specified X index.
-     * \pre         loadHeader() and loadPQR()
-     * \param idx   The X index of the point.
-     * \return      The X index of the subgrid containing the point.
-     */
-    int getSubgridIndexX(int idx) const;
-
-    /** Returns the Y subgrid index of the point at the specified Y index.
-     * \pre         loadHeader() and loadPQR()
-     * \param idx   The Y index of the point.
-     * \return      The Y index of the subgrid containing the point.
-     */
-    int getSubgridIndexY(int idx) const;
 
     /** Returns the Z subgrid index of the point at the specified Z index.
      * \pre         loadHeader() and loadPQR()
@@ -174,20 +160,20 @@ public:
      */
     int getSubgridIndexZ(int idx) const;
 
-
-    /** Returns the size in the X direction of the subgrid at the specified X index.
+    /** Returns the Y subgrid index of the point at the specified Y index.
      * \pre         loadHeader() and loadPQR()
-     * \param idx   The X index of the target subgrid.
-     * \return      The X size of the subgrid at the specified index.
+     * \param idx   The Y index of the point.
+     * \return      The Y index of the subgrid containing the point.
      */
-    int getSubgridSizeX(int idx) const;
+    int getSubgridIndexY(int idx) const;
 
-    /** Returns the size in the Y direction of the subgrid at the specified Y index.
+    /** Returns the X subgrid index of the point at the specified X index.
      * \pre         loadHeader() and loadPQR()
-     * \param idx   The Y index of the target subgrid.
-     * \return      The Y size of the subgrid at the specified index.
+     * \param idx   The X index of the point.
+     * \return      The X index of the subgrid containing the point.
      */
-    int getSubgridSizeY(int idx) const;
+    int getSubgridIndexX(int idx) const;
+
 
     /** Returns the size in the Z direction of the subgrid at the specified Z index.
      * \pre         loadHeader() and loadPQR()
@@ -196,65 +182,79 @@ public:
      */
     int getSubgridSizeZ(int idx) const;
 
-
-    /**Returns the starting X index of the specified subgrid.
+    /** Returns the size in the Y direction of the subgrid at the specified Y index.
      * \pre         loadHeader() and loadPQR()
-     * \param idx   The X subgrid index of the specified subgrid.
-     * \return      The first X index of the subgrid.
+     * \param idx   The Y index of the target subgrid.
+     * \return      The Y size of the subgrid at the specified index.
      */
-    int getSubgridStartX(int gridIdx) const;
+    int getSubgridSizeY(int idx) const;
 
-    /**\See getSubgridStartX
+    /** Returns the size in the X direction of the subgrid at the specified X index.
+     * \pre         loadHeader() and loadPQR()
+     * \param idx   The X index of the target subgrid.
+     * \return      The X size of the subgrid at the specified index.
      */
-    int getSubgridStartY(int gridIdx) const;
+    int getSubgridSizeX(int idx) const;
 
-    /**\See getSubgridStartX
+
+    /**Returns the starting Z index of the specified subgrid.
+     * \pre         loadHeader() and loadPQR()
+     * \param idx   The Z subgrid index of the specified subgrid.
+     * \return      The first Z index of the subgrid.
      */
     int getSubgridStartZ(int gridIdx) const;
 
-
-    /** Returns the size in the X direction of a normal block.
-     * \pre     loadHeader() and loadPQR()
-     * \return  X size of a normal block.
+    /**\See getSubgridStartZ
      */
-    int getNormalBlockSizeX() const;
+    int getSubgridStartY(int gridIdx) const;
 
-    /**\See getNormalBlockSizeX
+    /**\See getSubgridStartZ
+     */
+    int getSubgridStartX(int gridIdx) const;
+
+
+    /** Returns the size in the Z direction of a normal block.
+     * \pre     loadHeader() and loadPQR()
+     * \return  Z size of a normal block.
+     */
+    int getNormalBlockSizeZ() const;
+
+    /**\See getNormalBlockSizeZ
      */
     int getNormalBlockSizeY() const;
 
-    /**\See getNormalBlockSizeX
+    /**\See getNormalBlockSizeZ
      */
-    int getNormalBlockSizeZ() const;
+    int getNormalBlockSizeX() const;
 
 
     /** Returns the index where normal blocks begin(inclusive).
      * \pre     loadHeader() and loadPQR()
      * \return  Zero if there are no remainder blocks.
      */
-    int getNormalBlockStartX() const;
+    int getNormalBlockStartZ() const;
 
-    /**\See getNormalBlockStartX
+    /**\See getNormalBlockStartZ
      */
     int getNormalBlockStartY() const;
 
-    /**\See getNormalBlockStartX
+    /**\See getNormalBlockStartZ
      */
-    int getNormalBlockStartZ() const;
+    int getNormalBlockStartX() const;
 
-    /** Similar to getNormalBlockStartX, but returns the grid index instead of the point index.
+    /** Similar to getNormalBlockStartZ, but returns the grid index instead of the point index.
      * \pre     loadHeader() and loadPQR()
      * \return  The grid index where normal blocks begin (inclusive)
      */
-    int getNormalBlockStartGridX() const;
+    int getNormalBlockStartGridZ() const;
 
-    /**\See getNormalBlockStartGridX
+    /**\See getNormalBlockStartGridZ
      */
     int getNormalBlockStartGridY() const;
 
-    /** \See getNormalBlockStartGridX
+    /** \See getNormalBlockStartGridZ
      */
-    int getNormalBlockStartGridZ() const;
+    int getNormalBlockStartGridX() const;
 
 
     /**
@@ -265,7 +265,7 @@ public:
     int loadHeader();
 
 
-    /** This function loads the subgrid headers in order to calculate PQR. The only way to do this is by reading all of the subgrids and counting them, so this function incurs an performance penalty proportional to seeking and reading each subgrid header. 
+    /** This function loads the subgrid headers in order to calculate PQR. The only way to do this is by reading all of the subgrids and counting them, so this function incurs an performance penalty proportional to seeking and reading each subgrid header.
      * \pre     loadHeader() must have been previously called.
      * \return  0 on success. Other values indicate an error.
      */
@@ -306,30 +306,30 @@ public:
      int distFile(int P, int Q, int R, std::string outFile);
 
     //Used for the compare function
-    enum class differenceType {none=0, x, y, z, dX, dY, dZ, nX, nY, nZ, data};
+    enum class differenceType {none=0, z, y, x, dZ, dY, dX, nZ, nY, nX, data};
 
-    /** Compares `this` and another PFData object. Comparison is based on `X`, `Y`, `Z`, `DX`, `DY`, `DZ`, and the data.
+    /** Compares `this` and another PFData object. Comparison is based on `Z`, `Y`, `X`, `DZ`, `DY`, `DX`, and the data.
      * Note: The behavior is undefined if `this` or `otherObj` is not fully initialized. The return value corresponds to the first difference found.
      * \param[in]   otherObj        Other object to compare with.
      * \param[out]  diffIndex       Unused if it is `nullptr` and/or the return values are not `data` Otherwise contains the location where the first difference occurs.
      * \retval      none            The objects are the same
-     * \retval      x               The `X` values are different
-     * \retval      y               The `Y` values are different
      * \retval      z               The `Z` values are different
-     * \retval      dX              The `DX` values are different
-     * \retval      dY              The `DY` values are different
+     * \retval      y               The `Y` values are different
+     * \retval      x               The `X` values are different
      * \retval      dZ              The `DZ` values are different
-     * \retval      nX              The `NX` values are different (data dimensions)
-     * \retval      nY              The `NY` values are different
+     * \retval      dY              The `DY` values are different
+     * \retval      dX              The `DX` values are different
      * \retval      nZ              The `NZ` values are different
-     * \retval      data            The data dimensions are the same, but the values are different. If `diffIndex` is non-null, it will contain the `XYZ` data location  where the (first) difference occurred.
+     * \retval      nY              The `NY` values are different
+     * \retval      nX              The `NX` values are different (data dimensions)
+     * \retval      data            The data dimensions are the same, but the values are different. If `diffIndex` is non-null, it will contain the `ZYX` data location where the (first) difference occurred, where diffIndex[0] is the Z index.
     */
     differenceType compare(const PFData& otherObj, std::array<int, 3>* diffIndex) const;
 
-    /** Given a flattened index into `data`, unflatten it into its `XYZ` components.
+    /** Given a flattened index into `data`, unflatten it into its `ZYX` components.
      * Note: The behavior is undefined if the dimension data is not fully initialized.
      * \param[int]  index           The flattened index of the `data`
-     * \retval      {X,Y,Z}         Corresponding `XYZ` of the valid `index`
+     * \retval      {Z,Y,X}         Corresponding `ZYX` of the valid `index`, such that the first entry ([0]) is the Z index.
      * \retval      {-1,-1,-1}      Invalid index @@TODO want?
      */
     std::array<int, 3> unflattenIndex(int index) const;
@@ -337,42 +337,34 @@ public:
     /** Given a flattened subgrid index (value in range [0, getNumSubgrids()), unflatten it.
      * \pre         loadHeader() and loadPQR()
      * \param       index           Subgrid index, [0, getNumSubgrids())
-     * \retval      {X,Y,Z}         The XYZ indicies of the subgrid.
+     * \retval      {Z,Y,X}         The ZYX indicies of the subgrid.
      * \retval      {-1, -1, -1}    Invalid index
      * @@TEST
      */
     std::array<int, 3> unflattenGridIndex(int index) const;
 
-    /**
-     * get[X,Y,Z]
-     * [X,Y,Z] is the lower left corner of the Computational Grid.
-     * This function is useful either when reading an existing file or when confirming the configuration
-     * of a file that is being created where the computational grid has already been set.
-     * @returns double
-     */
-
 	/**
-	 * @param double get[X,Y,Z] [X] is the lower left corner of the Computational Grid. 
-	 * This function is useful either when reading an existing file or when confirming the configuration 
+	 * @param double get[Z,Y,X] [Z] is the lower left corner of the Computational Grid.
+	 * This function is useful either when reading an existing file or when confirming the configuration
 	 * of a file that is being created where the computational grid has already been set.
 	 * @return double
 	 */
-    double getX() const;
+    double getZ() const;
 
-	/** @param double  get[X,Y,Z] [Y] is the lower left corner of the Computational Grid. 
-	 * This function is useful either when reading an existing file or when confirming the configuration 
+	/** @param double  get[Z,Y,X] [Y] is the lower left corner of the Computational Grid.
+	 * This function is useful either when reading an existing file or when confirming the configuration
 	 * of a file that is being created where the computational grid has already been set.
 	 * @return double
 	 */
     double getY() const;
 
-	/** @param double get[X,Y,Z] [Z] is the lower left corner of the Computational Grid.
+	/** @param double get[Z,Y,X] [X] is the lower left corner of the Computational Grid.
 	 * This function is useful either when reading an existing file or when
 	 * confirming the configuration of a file that is being created where the
 	 * computational grid has already been set.
 	 * @return double
 	 */
-    double getZ() const;
+    double getX() const;
 
     /**
     * get[P,Q,R]
@@ -398,31 +390,15 @@ public:
     void setR(int R);
 
     /**
-     * set[X,Y,Z]
-     * @param double [X,Y,Z]
-     * [X,Y,Z] is the lower left corner of the Computational Grid.
+     * set[Z,Y,X]
+     * @param double [Z,Y,X]
+     * [Z,Y,X] is the lower left corner of the Computational Grid.
      * This function is useful when creating a new pfb file. It is important to note that you can call this
      * function on an existing file, but it will invalidate the file and break all subsequent uses of the class
      * unless you call load_file() again to reset the value back to the one used in the file.
      */
 
-	/** @param double [X,Y,Z] [X] is the lower left corner of the Computational
-	 * Grid. This function is useful when creating a new pfb file. It is
-	 * important to note that you can call this function on an existing file,
-	 * but it will invalidate the file and break all subsequent uses of the
-	 * class unless you call load_file() again to reset the value back to the
-	 * one used in the file.
-	 */
-    void setX(double X);
-	/** @param double [X,Y,Z] [Y] is the lower left corner of the Computational
-	 * Grid. This function is useful when creating a new pfb file. It is
-	 * important to note that you can call this function on an existing file,
-	 * but it will invalidate the file and break all subsequent uses of the
-	 * class unless you call load_file() again to reset the value back to the
-	 * one used in the file.
-	 */
-    void setY(double Y);
-	/** @param double [X,Y,Z] [Z] is the lower left corner of the Computational
+	/** @param double [Z,Y,X] [Z] is the lower left corner of the Computational
 	 * Grid. This function is useful when creating a new pfb file. It is
 	 * important to note that you can call this function on an existing file,
 	 * but it will invalidate the file and break all subsequent uses of the
@@ -431,29 +407,25 @@ public:
 	 */
     void setZ(double Z);
 
-    /**
-     * getN[X,Y,Z]
-     * [NX,NY,NZ] describe the dimensions of the computational domain.
-     * This function is useful either when reading an existing file or when confirming the configuration
-     * of a file that is being created where the computational grid has already been set.
-     * @returns int
-     */
+	/** @param double [Z,Y,X] [Y] is the lower left corner of the Computational
+	 * Grid. This function is useful when creating a new pfb file. It is
+	 * important to note that you can call this function on an existing file,
+	 * but it will invalidate the file and break all subsequent uses of the
+	 * class unless you call load_file() again to reset the value back to the
+	 * one used in the file.
+	 */
+    void setY(double Y);
 
-	/** @param getN[X,Y,Z] [NX] describe the dimensions of the
-	 * computational domain. This function is useful either when reading an
-	 * existing file or when confirming the configuration of a file that is
-	 * being created where the computational grid has already been set.
-	 * @return int
+	/** @param double [Z,Y,X] [X] is the lower left corner of the Computational
+	 * Grid. This function is useful when creating a new pfb file. It is
+	 * important to note that you can call this function on an existing file,
+	 * but it will invalidate the file and break all subsequent uses of the
+	 * class unless you call load_file() again to reset the value back to the
+	 * one used in the file.
 	 */
-    int getNX() const;
-	/** @param getN[X,Y,Z] [NY] describe the dimensions of the
-	 * computational domain. This function is useful either when reading an
-	 * existing file or when confirming the configuration of a file that is
-	 * being created where the computational grid has already been set.
-	 * @return int
-	 */
-    int getNY() const;
-	/** @param getN[X,Y,Z] [NZ] describe the dimensions of the
+    void setX(double X);
+
+	/** @param getN[Z,Y,X] [NZ] describe the dimensions of the
 	 * computational domain. This function is useful either when reading an
 	 * existing file or when confirming the configuration of a file that is
 	 * being created where the computational grid has already been set.
@@ -461,32 +433,23 @@ public:
 	 */
     int getNZ() const;
 
-    /**
-     * setN[X,Y,Z]
-     * @param double N[X,Y,Z]
-     * [NX,NY,NZ] describes the dimensions of the computational grid.
-     * This function is useful when creating a new pfb file. It is important to note that you can call this
-     * function on an existing file, but it will invalidate the file and break all subsequent uses of the class
-     * unless you call load_file() again to reset the value back to the one used in the file.
-     */
+	/** @param getN[Z,Y,X] [NY] describe the dimensions of the
+	 * computational domain. This function is useful either when reading an
+	 * existing file or when confirming the configuration of a file that is
+	 * being created where the computational grid has already been set.
+	 * @return int
+	 */
+    int getNY() const;
 
-	/** @param double [NX,NY,NZ] [NX] describes the dimensions of the
-	 * computational grid. This function is useful when creating a new pfb file.
-	 * It is important to note that you can call this function on an existing
-	 * file, but it will invalidate the file and break all subsequent uses of
-	 * the class unless you call load_file() again to reset the value back to
-	 * the one used in the file.
+	/** @param getN[Z,Y,X] [NX] describe the dimensions of the
+	 * computational domain. This function is useful either when reading an
+	 * existing file or when confirming the configuration of a file that is
+	 * being created where the computational grid has already been set.
+	 * @return int
 	 */
-    void setNX(int NX);
-	/** @param double [NX,NY,NZ] [NY] describes the dimensions of the
-	 * computational grid. This function is useful when creating a new pfb file.
-	 * It is important to note that you can call this function on an existing
-	 * file, but it will invalidate the file and break all subsequent uses of
-	 * the class unless you call load_file() again to reset the value back to
-	 * the one used in the file.
-	 */
-    void setNY(int NY);
-	/** @param double [NX,NY,NZ] [NZ] describes the dimensions of the
+    int getNX() const;
+
+	/** @param double [NZ,NY,NX] [NZ] describes the dimensions of the
 	 * computational grid. This function is useful when creating a new pfb file.
 	 * It is important to note that you can call this function on an existing
 	 * file, but it will invalidate the file and break all subsequent uses of
@@ -495,29 +458,25 @@ public:
 	 */
     void setNZ(int NZ);
 
-    /**
-     * getD[X,Y,Z]
-     * [DX,DY,DZ] describe the TODO: the what?
-     * This function is useful either when reading an existing file or when confirming the configuration
-     * of a file that is being created where the computational grid has already been set.
-     * @returns int
-     */
+	/** @param double [NZ,NY,NX] [NY] describes the dimensions of the
+	 * computational grid. This function is useful when creating a new pfb file.
+	 * It is important to note that you can call this function on an existing
+	 * file, but it will invalidate the file and break all subsequent uses of
+	 * the class unless you call load_file() again to reset the value back to
+	 * the one used in the file.
+	 */
+    void setNY(int NY);
 
-	/** param get[DX,DY,DZ] [DX] describe the TODO: the what? This function
-	 * is useful either when reading an existing file or when confirming the
-	 * configuration of a file that is being created where the computational
-	 * grid has already been set.
-	 * @return double
+	/** @param double [NZ,NY,NX] [NX] describes the dimensions of the
+	 * computational grid. This function is useful when creating a new pfb file.
+	 * It is important to note that you can call this function on an existing
+	 * file, but it will invalidate the file and break all subsequent uses of
+	 * the class unless you call load_file() again to reset the value back to
+	 * the one used in the file.
 	 */
-    double getDX() const;
-	/** @param get[DX,DY,DZ] [DY] describe the TODO: the what? This function
-	 * is useful either when reading an existing file or when confirming the
-	 * configuration of a file that is being created where the computational
-	 * grid has already been set.
-	 * @return double
-	 */
-    double getDY() const;
-	/** @param get[DX,DY,DZ] [DZ] describe the TODO: the what? This function
+    void setNX(int NX);
+
+	/** param get[DZ,DY,DX] [DZ] describe the TODO: the what? This function
 	 * is useful either when reading an existing file or when confirming the
 	 * configuration of a file that is being created where the computational
 	 * grid has already been set.
@@ -525,32 +484,23 @@ public:
 	 */
     double getDZ() const;
 
-    /**
-     * setD[X,Y,Z]
-     * @param double D[X,Y,Z]
-     * [DX,DY,DZ] describes the TODO: the what?
-     * This function is useful when creating a new pfb file. It is important to note that you can call this
-     * function on an existing file, but it will invalidate the file and break all subsequent uses of the class
-     * unless you call load_file() again to reset the value back to the one used in the file.
-     */
+	/** @param get[DZ,DY,DX] [DY] describe the TODO: the what? This function
+	 * is useful either when reading an existing file or when confirming the
+	 * configuration of a file that is being created where the computational
+	 * grid has already been set.
+	 * @return double
+	 */
+    double getDY() const;
 
-	/** @param  double[DX,DY,DZ] [DX] describes the TODO: the what? This
-	 * function is useful when creating a new pfb file. It is important to note
-	 * that you can call this function on an existing file, but it will
-	 * invalidate the file and break all subsequent uses of the class unless you
-	 * call load_file() again to reset the value back to the one used in the
-	 * file.
+	/** @param get[DZ,DY,DX] [DX] describe the TODO: the what? This function
+	 * is useful either when reading an existing file or when confirming the
+	 * configuration of a file that is being created where the computational
+	 * grid has already been set.
+	 * @return double
 	 */
-    void setDX(double DX);
-	/** @param double [DX,DY,DZ] [DY] describes the TODO: the what? This
-	 * function is useful when creating a new pfb file. It is important to note
-	 * that you can call this function on an existing file, but it will
-	 * invalidate the file and break all subsequent uses of the class unless you
-	 * call load_file() again to reset the value back to the one used in the
-	 * file.
-	 */
-    void setDY(double DY);
-	/** @param double [DX,DY,DZ] [DZ] describes the TODO: the what? This
+    double getDX() const;
+
+	/** @param  double[DZ,DY,DX] [DZ] describes the TODO: the what? This
 	 * function is useful when creating a new pfb file. It is important to note
 	 * that you can call this function on an existing file, but it will
 	 * invalidate the file and break all subsequent uses of the class unless you
@@ -559,40 +509,46 @@ public:
 	 */
     void setDZ(double DZ);
 
+	/** @param double [DZ,DY,DX] [DY] describes the TODO: the what? This
+	 * function is useful when creating a new pfb file. It is important to note
+	 * that you can call this function on an existing file, but it will
+	 * invalidate the file and break all subsequent uses of the class unless you
+	 * call load_file() again to reset the value back to the one used in the
+	 * file.
+	 */
+    void setDY(double DY);
+
+	/** @param double [DZ,DY,DX] [DX] describes the TODO: the what? This
+	 * function is useful when creating a new pfb file. It is important to note
+	 * that you can call this function on an existing file, but it will
+	 * invalidate the file and break all subsequent uses of the class unless you
+	 * call load_file() again to reset the value back to the one used in the
+	 * file.
+	 */
+    void setDX(double DX);
+
 	/**
 	 * getNumSubgrids() const
 	 * @param empty
-	 * @return no return 
+	 * @return no return
 	 */
-
     int getNumSubgrids() const;
 
 	/** setNumSubgrids
 	 * @param int mNumSubgrids
 	 * @return no return
 	 */
-
     void setNumSubgrids(int mNumSubgrids);
-
-    /**
-     * getCoordinateDatum
-     * @param int x
-     * @param int y
-     * @param int z
-     * @param double* value
-     * @returns 0 on success, non 0 on failure
-     * These coordinates are an offset from the lower left hand corner.
-     */
-    int getCoordinateDatum(int x,int y,int z, double* value);
 
 	/**
 	 * operator
-	 * @param int
-	 * @param int
-	 * @param int
+	 * @param z
+	 * @param y
+	 * @param x
 	 * @return double
 	 */
-    double operator()(int,int,int);
+    double operator()(int z, int y, int x);
+
 	/**
 	 * getSubgridData
 	 * @param int grid
@@ -601,26 +557,24 @@ public:
 
     /**
      * getData
-     * @return std::vector<double>*
+     * @return double*
      * Get a pointer to the raw data as a one dimensional array.
      */
     double* getData();
 
     /**
-	 * see getData() 
-	 * @param empty
+	 * see getData()
 	 */
     const double* getData() const;
+
 	/**
 	 * setData
-	 * @param double*
-	 * @return void
+	 * @param data flattened ZYX array(X is most contiguous) to use as the data array.
 	 */
-    void  setData(double*);
+    void setData(double* data);
+
 	/**
-	 * close
-	 * @param empty
-	 * @return empty
+	 * close file. Destructor should automatically handle this in almost all cases.
 	 */
     void close();
 
@@ -631,6 +585,7 @@ public:
 
 
 };
+
 /**
  * calcOffset
  * @param int extent
@@ -638,14 +593,14 @@ public:
  * @param int block_idx
  */
 int calcOffset(int extent, int block_count, int block_idx);
+
 /**
  * calcExtent
- * @param int extent 
+ * @param int extent
  * @param int block_count
  * @param int block_idx
  * @return int
  */
- 
 int calcExtent(int extent, int block_count, int block_idx);
 
 

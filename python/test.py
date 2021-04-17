@@ -4,6 +4,7 @@ from parflowio.pyParflowio import PFData
 import numpy as np
 import os
 import hashlib
+import time
 
 
 def calculate_sha1_hash(filepath):
@@ -117,6 +118,71 @@ class PFDataClassTests(unittest.TestCase):
 
         test1.close()
         test2.close()
+
+    def test_load_data_threaded(self):
+        base = PFData(('press.init.pfb'))
+        base.loadHeader()
+        base.loadData()
+
+        # 1 thread
+        test1 = PFData(('press.init.pfb'))
+        test1.loadHeader()
+        test1.loadPQR()
+        test1.loadDataThreaded(1)
+        self.assertEqual(PFData.differenceType_none, base.compare(test1)[0], "base and test1 are the same")
+
+        # 8 threads
+        test8 = PFData(('press.init.pfb'))
+        test8.loadHeader()
+        test8.loadPQR()
+        test8.loadDataThreaded(8)
+        self.assertEqual(PFData.differenceType_none, base.compare(test8)[0], "base and test8 are the same")
+
+        # 40 threads (more than the number of subgrids)
+        test40 = PFData(('press.init.pfb'))
+        test40.loadHeader()
+        test40.loadPQR()
+        test40.loadDataThreaded(40)
+        self.assertEqual(PFData.differenceType_none, base.compare(test40)[0], "base and test40 are the same")
+
+        base.close()
+        test1.close()
+        test8.close()
+        test40.close()
+
+    def test_load_data_threaded_perf(self):
+        # loadData - Not using threads
+        non_threaded_time = 0
+        for i in range(10000):
+            base = PFData(('LW.out.press.00000.pfb'))   # Little Washita pressure PFB with 2x2x1 grid size
+            base.loadHeader()
+
+            start = time.time_ns()
+            base.loadData()
+            non_threaded_time += time.time_ns() - start
+
+        # loadDataThreaded - Using 4 threads
+        num_threads = 4
+        threaded_time = 0
+        for i in range(10000):
+            test = PFData(('LW.out.press.00000.pfb'))   # Little Washita pressure PFB with 2x2x1 grid size
+            test.loadHeader()
+
+            start = time.time_ns()
+            test.loadPQR()                              # loadPQR() must be called before loadDataThreaded()
+            test.loadDataThreaded(num_threads)
+            threaded_time += time.time_ns() - start
+
+        base.close()
+        test.close()
+
+        # loadDataThreaded() should have less total time spent than loadData()
+        assert threaded_time < non_threaded_time, f'Using {num_threads} threads has degraded the performance of loadDataThreaded()'
+
+        # Display performance increase in percent change
+        pct_change = 100 * abs(threaded_time - non_threaded_time) / non_threaded_time
+        print(f'{pct_change:.2f}% performance increase when using LoadDataThreaded() with {num_threads} threads')
+
 
     def test_read_write_data(self):
         test = PFData(('press.init.pfb'))

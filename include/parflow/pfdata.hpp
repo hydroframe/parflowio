@@ -398,7 +398,7 @@ public:
      * unless you call load_file() again to reset the value back to the one used in the file.
      */
 
-	/** @param double [Z,Y,X] [Z] is the lower left corner of the Computational
+	/** @param double set[Z,Y,X] [Z] is the lower left corner of the Computational
 	 * Grid. This function is useful when creating a new pfb file. It is
 	 * important to note that you can call this function on an existing file,
 	 * but it will invalidate the file and break all subsequent uses of the
@@ -407,7 +407,7 @@ public:
 	 */
     void setZ(double Z);
 
-	/** @param double [Z,Y,X] [Y] is the lower left corner of the Computational
+	/** @param double set[Z,Y,X] [Y] is the lower left corner of the Computational
 	 * Grid. This function is useful when creating a new pfb file. It is
 	 * important to note that you can call this function on an existing file,
 	 * but it will invalidate the file and break all subsequent uses of the
@@ -416,7 +416,7 @@ public:
 	 */
     void setY(double Y);
 
-	/** @param double [Z,Y,X] [X] is the lower left corner of the Computational
+	/** @param double set[Z,Y,X] [X] is the lower left corner of the Computational
 	 * Grid. This function is useful when creating a new pfb file. It is
 	 * important to note that you can call this function on an existing file,
 	 * but it will invalidate the file and break all subsequent uses of the
@@ -425,7 +425,7 @@ public:
 	 */
     void setX(double X);
 
-	/** @param getN[Z,Y,X] [NZ] describe the dimensions of the
+	/** @param get[NZ,NY,NX] [NZ] describes the dimensions of the
 	 * computational domain. This function is useful either when reading an
 	 * existing file or when confirming the configuration of a file that is
 	 * being created where the computational grid has already been set.
@@ -433,7 +433,7 @@ public:
 	 */
     int getNZ() const;
 
-	/** @param getN[Z,Y,X] [NY] describe the dimensions of the
+	/** @param get[NZ,NY,NX] [NY] describes the dimensions of the
 	 * computational domain. This function is useful either when reading an
 	 * existing file or when confirming the configuration of a file that is
 	 * being created where the computational grid has already been set.
@@ -441,7 +441,7 @@ public:
 	 */
     int getNY() const;
 
-	/** @param getN[Z,Y,X] [NX] describe the dimensions of the
+	/** @param get[NZ,NY,NX] [NX] describe the dimensions of the
 	 * computational domain. This function is useful either when reading an
 	 * existing file or when confirming the configuration of a file that is
 	 * being created where the computational grid has already been set.
@@ -449,7 +449,7 @@ public:
 	 */
     int getNX() const;
 
-	/** @param double [NZ,NY,NX] [NZ] describes the dimensions of the
+	/** @param double set[NZ,NY,NX] [NZ] describes the dimensions of the
 	 * computational grid. This function is useful when creating a new pfb file.
 	 * It is important to note that you can call this function on an existing
 	 * file, but it will invalidate the file and break all subsequent uses of
@@ -458,7 +458,7 @@ public:
 	 */
     void setNZ(int NZ);
 
-	/** @param double [NZ,NY,NX] [NY] describes the dimensions of the
+	/** @param double set[NZ,NY,NX] [NY] describes the dimensions of the
 	 * computational grid. This function is useful when creating a new pfb file.
 	 * It is important to note that you can call this function on an existing
 	 * file, but it will invalidate the file and break all subsequent uses of
@@ -467,7 +467,7 @@ public:
 	 */
     void setNY(int NY);
 
-	/** @param double [NZ,NY,NX] [NX] describes the dimensions of the
+	/** @param double set[NZ,NY,NX] [NX] describes the dimensions of the
 	 * computational grid. This function is useful when creating a new pfb file.
 	 * It is important to note that you can call this function on an existing
 	 * file, but it will invalidate the file and break all subsequent uses of
@@ -476,54 +476,54 @@ public:
 	 */
     void setNX(int NX);
 
-	/** param get[DZ,DY,DX] [DZ] describe the TODO: the what? This function
-	 * is useful either when reading an existing file or when confirming the
-	 * configuration of a file that is being created where the computational
-	 * grid has already been set.
+	/** param get[DZ,DY,DX] [DZ] describes the dimensions of the
+	 * computational grid. This function is useful either when reading an
+	 * existing file or when confirming the configuration of a file that is
+	 * being created where the computational grid has already been set.
 	 * @return double
 	 */
     double getDZ() const;
 
-	/** @param get[DZ,DY,DX] [DY] describe the TODO: the what? This function
-	 * is useful either when reading an existing file or when confirming the
-	 * configuration of a file that is being created where the computational
-	 * grid has already been set.
+	/** @param get[DZ,DY,DX] [DY] describes the dimensions of the
+	 * computational grid. This function is useful either when reading an
+	 * existing file or when confirming the configuration of a file that is
+	 * being created where the computational grid has already been set.
 	 * @return double
 	 */
     double getDY() const;
 
-	/** @param get[DZ,DY,DX] [DX] describe the TODO: the what? This function
-	 * is useful either when reading an existing file or when confirming the
-	 * configuration of a file that is being created where the computational
-	 * grid has already been set.
+	/** @param get[DZ,DY,DX] [DX] describes the dimensions of the
+	 * computational grid. This function is useful either when reading an
+	 * existing file or when confirming the configuration of a file that is
+	 * being created where the computational grid has already been set.
 	 * @return double
 	 */
     double getDX() const;
 
-	/** @param  double[DZ,DY,DX] [DZ] describes the TODO: the what? This
-	 * function is useful when creating a new pfb file. It is important to note
-	 * that you can call this function on an existing file, but it will
-	 * invalidate the file and break all subsequent uses of the class unless you
-	 * call load_file() again to reset the value back to the one used in the
-	 * file.
+	/** @param  double[DZ,DY,DX] [DZ] describes the dimensions of the
+	 * computational grid. This function is useful when creating a new pfb file.
+	 * It is important to note that you can call this function on an existing
+	 * file, but it will invalidate the file and break all subsequent uses of
+	 * the class unless you call load_file() again to reset the value back to
+	 * the one used in the file.
 	 */
     void setDZ(double DZ);
 
-	/** @param double [DZ,DY,DX] [DY] describes the TODO: the what? This
-	 * function is useful when creating a new pfb file. It is important to note
-	 * that you can call this function on an existing file, but it will
-	 * invalidate the file and break all subsequent uses of the class unless you
-	 * call load_file() again to reset the value back to the one used in the
-	 * file.
+	/** @param double [DZ,DY,DX] [DY] describes the dimensions of the
+	 * computational grid. This function is useful when creating a new pfb file.
+	 * It is important to note that you can call this function on an existing
+	 * file, but it will invalidate the file and break all subsequent uses of
+	 * the class unless you call load_file() again to reset the value back to
+	 * the one used in the file.
 	 */
     void setDY(double DY);
 
-	/** @param double [DZ,DY,DX] [DX] describes the TODO: the what? This
-	 * function is useful when creating a new pfb file. It is important to note
-	 * that you can call this function on an existing file, but it will
-	 * invalidate the file and break all subsequent uses of the class unless you
-	 * call load_file() again to reset the value back to the one used in the
-	 * file.
+	/** @param double [DZ,DY,DX] [DX] describes the dimensions of the
+	 * computational grid. This function is useful when creating a new pfb file.
+	 * It is important to note that you can call this function on an existing
+	 * file, but it will invalidate the file and break all subsequent uses of
+	 * the class unless you call load_file() again to reset the value back to
+	 * the one used in the file.
 	 */
     void setDX(double DX);
 

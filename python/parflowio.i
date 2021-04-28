@@ -17,7 +17,7 @@
 %}
 
 %apply (double* IN_ARRAY3, int DIM1, int DIM2, int DIM3) {
-    (double* data, int nx, int ny, int nz)
+    (double* data, int nz, int ny, int nx)
 }
 
 //Instantiate std::array<int, 3> template
@@ -30,7 +30,7 @@ namespace std {
 PFData::differenceType PFData::compare(const PFData& otherObj, std::array<int, 3>* diffIndex);
 
 //Ignore this constructor, and replace it with our own down below
-%ignore PFData::PFData(double* data, int nx, int ny, int nz);
+%ignore PFData::PFData(double* data, int nz, int ny, int nx);
 
 //Ignore these functions
 %ignore PFData::getData();
@@ -47,7 +47,7 @@ PFData::differenceType PFData::compare(const PFData& otherObj, std::array<int, 3
     #include "numpy/arrayobject.h"
 
     PFData(PyObject* pyObj){
-        PyArrayObject* pyArray = reinterpret_cast<PyArrayObject*>(PyArray_FromAny(pyObj, PyArray_DescrFromType(NPY_DOUBLE), 3, 3, NPY_ARRAY_OUT_FARRAY, nullptr));
+        PyArrayObject* pyArray = reinterpret_cast<PyArrayObject*>(PyArray_FromAny(pyObj, PyArray_DescrFromType(NPY_DOUBLE), 3, 3, NPY_ARRAY_OUT_ARRAY, nullptr));
 
         npy_intp* arr_shape = PyArray_SHAPE(pyArray);
 
@@ -56,16 +56,16 @@ PFData::differenceType PFData::compare(const PFData& otherObj, std::array<int, 3
     }
 
     void setDataArray(PyObject * pyObjIn){
-        PyArrayObject* pyArrayIn = reinterpret_cast<PyArrayObject*>(PyArray_FromAny(pyObjIn, PyArray_DescrFromType(NPY_DOUBLE), 3, 3, NPY_ARRAY_OUT_FARRAY, nullptr));
+        PyArrayObject* pyArrayIn = reinterpret_cast<PyArrayObject*>(PyArray_FromAny(pyObjIn, PyArray_DescrFromType(NPY_DOUBLE), 3, 3, NPY_ARRAY_OUT_ARRAY, nullptr));
 
         npy_intp ind[3] = {0,0,0};
         $self->setData(static_cast<double*>(PyArray_GetPtr(pyArrayIn, ind)));
         $self->setIsDataOwner(false);
 
         npy_intp* arr_shape = PyArray_SHAPE(pyArrayIn);
-        $self->setNX(arr_shape[0]);
+        $self->setNZ(arr_shape[0]);
         $self->setNY(arr_shape[1]);
-        $self->setNZ(arr_shape[2]);
+        $self->setNX(arr_shape[2]);
     }
 
     PyObject* moveDataArray(){
@@ -79,8 +79,7 @@ PFData::differenceType PFData::compare(const PFData& otherObj, std::array<int, 3
 
         PyObject* pyarray = PyArray_SimpleNewFromData(3, strides, NPY_DOUBLE, data);
         PyArray_ENABLEFLAGS(reinterpret_cast<PyArrayObject*>(pyarray), NPY_ARRAY_OWNDATA);
-        //return pyarray;
-        return PyArray_SwapAxes(reinterpret_cast<PyArrayObject*>(pyarray), 0, 2);
+        return pyarray;
     }
 
     PyObject* copyDataArray(){
@@ -94,8 +93,7 @@ PFData::differenceType PFData::compare(const PFData& otherObj, std::array<int, 3
         npy_intp strides[3] = {$self->getNZ(), $self->getNY(), $self->getNX()};
         PyObject* pyarray = PyArray_SimpleNewFromData(3, strides, NPY_DOUBLE, dataCopy);
         PyArray_ENABLEFLAGS(reinterpret_cast<PyArrayObject*>(pyarray), NPY_ARRAY_OWNDATA);
-        //return pyarray;
-        return PyArray_SwapAxes(reinterpret_cast<PyArrayObject*>(pyarray), 0, 2);
+        return pyarray;
     }
 
     PyObject* viewDataArray(){
@@ -103,8 +101,7 @@ PFData::differenceType PFData::compare(const PFData& otherObj, std::array<int, 3
         if(!data) return Py_None;
 
         npy_intp strides[3] = {$self->getNZ(), $self->getNY(), $self->getNX()};
-        return PyArray_SwapAxes(reinterpret_cast<PyArrayObject*>(PyArray_SimpleNewFromData(3, strides, NPY_DOUBLE, data)), 0, 2);
-        //return PyArray_SimpleNewFromData(3, strides, NPY_DOUBLE, data);
+        return PyArray_SimpleNewFromData(3, strides, NPY_DOUBLE, data);
     }
 
     %pythoncode %{

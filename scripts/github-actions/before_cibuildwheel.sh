@@ -2,7 +2,7 @@
 set -ev
 
 # We must install numpy for each wheel...
-pip install numpy==1.18.5
+pip install numpy==1.19.4
 
 if [[ "$(uname)" != "Linux" ]] && [[ "$(uname)" != "Darwin" ]]; then
   # Windows links to the python libraries, so we need to re-build

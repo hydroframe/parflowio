@@ -6,7 +6,6 @@
 #include <fstream>
 #include <string>
 #include <cstdlib>
-#include <cassert>
 
 class PFData_test : public ::testing::Test {
 

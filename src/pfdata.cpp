@@ -543,7 +543,7 @@ double* PFData::getSubgridData(int grid) {
 }
 
 double PFData::operator()(int z, int y, int x) {
-    return m_data[z*m_ny*m_nx+y*m_nx+x];
+    return m_data[static_cast<long long>(z)*m_ny*m_nx+y*m_nx+x];
 }
 
 double* PFData::getData() {
@@ -604,13 +604,13 @@ int PFData::loadData() {
 
         // read values for subgrid
         // qq is the location of the subgrid
-        int qq = z*m_nx*m_ny + y*m_nx + x;
-        int k,i,j;
+        long long qq = z*m_nx*m_ny + y*m_nx + x;
+        long long k,i,j;
         //int index = qq;//+k*nx*ny+i*nx;
         for (k=0; k<nz; k++){
             for(i=0;i<ny;i++){
                 // read full "pencil"
-                int index = qq+k*m_nx*m_ny+i*m_nx;
+                long long index = qq+k*m_nx*m_ny+i*m_nx;
                 uint64_t* buf = (uint64_t*)&(m_data[index]);
                 int read_count = fread(buf,8,nx,m_fp);
                 if(read_count != nx){
@@ -645,11 +645,11 @@ int PFData::emplaceSubgridFromFile(std::FILE* fp, int gridZ, int gridY, int grid
     const int startX = getSubgridStartX(gridX);
 
     //The index into m_data where the first element of the grid belongs.
-    const int startOfGrid = startZ*m_nx*m_ny + startY * m_nx + startX;
+    const long long startOfGrid = startZ*m_nx*m_ny + startY * m_nx + startX;
 
     for(int z = 0; z < sizeZ; ++z){
         for(int y = 0; y < sizeY; ++y){
-            const int index = startOfGrid + z * m_nx * m_ny + y * m_nx;
+            const long long index = startOfGrid + z * m_nx * m_ny + y * m_nx;
             double* const dataPtr = &(m_data[index]);
 
             const std::size_t numRead = std::fread(dataPtr, 8, sizeX, fp);
@@ -782,7 +782,7 @@ int PFData::writeFile(const std::string filename, std::vector<long> &byte_offset
     // this iterates over the subgrids in order
     int nsg=0;
     byte_offsets[0] = 0;
-    int sg_count = 1;
+    long long sg_count = 1;
     for(int nsg_z=0;nsg_z<m_r;nsg_z++){
         for(int nsg_y=0;nsg_y<m_q;nsg_y++) {
             for (int nsg_x = 0;nsg_x<m_p;nsg_x++) {
@@ -807,12 +807,12 @@ int PFData::writeFile(const std::string filename, std::vector<long> &byte_offset
                 WRITEINT(1, fp);
                 WRITEINT(1, fp);
 
-                int  ix,iy,iz;
+                long long ix,iy,iz;
                 for(iz=calcOffset(m_nz,m_r,nsg_z); iz < calcOffset(m_nz,m_r,nsg_z+1);iz++){
                     for(iy=calcOffset(m_ny,m_q,nsg_y); iy < calcOffset(m_ny,m_q,nsg_y+1);iy++){
 
                         uint64_t* buf = (uint64_t*)&(m_data[iz*m_nx*m_ny+iy*m_nx+calcOffset(m_nx,m_p,nsg_x)]);
-                        int j;
+                        long long j;
                         for(j=0;j<x_extent;j++){
                             uint64_t tmp = buf[j];
                             tmp = bswap64(tmp);
@@ -878,7 +878,7 @@ int PFData::distFile(int P, int Q, int R, const std::string outFile) {
     int rtnVal = writeFile(outFile, offsets);
 
     //write the block offsets to the .dist file
-    for (int i = 0; i<=P*Q*R; i++){
+    for (long long i = 0; i<=static_cast<long long>(P)*Q*R; i++){
         distFile << offsets[i] << "\n";
     }
 
@@ -907,9 +907,9 @@ PFData::differenceType PFData::compare(const PFData& otherObj, std::array<int, 3
 
     const double* dataOther = otherObj.getData();
     const double* dataSelf = getData();
-    const int dataSize = getNZ() * getNY() * getNX();
+    const long long dataSize = static_cast<long long>(getNZ()) * getNY() * getNX();
 
-    for(int i = 0; i < dataSize; ++i){
+    for(long long i = 0; i < dataSize; ++i){
         if(dataOther[i] != dataSelf[i]){
             if(diffIndex){  //Only write if not null
                 *diffIndex = unflattenIndex(i);

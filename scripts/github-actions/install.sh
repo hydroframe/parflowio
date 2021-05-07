@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -ev
 
-pip install cibuildwheel==1.5.5
+pip install cibuildwheel==1.11.0
 
 if [[ $RUNNER_OS == "Windows" ]]; then
   choco install -y swig --version=3.0.12

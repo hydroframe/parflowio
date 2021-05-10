@@ -546,6 +546,27 @@ double PFData::operator()(int z, int y, int x) {
     return m_data[static_cast<long long>(z)*m_ny*m_nx+y*m_nx+x];
 }
 
+std::string PFData::getIndexOrder() const {
+    return m_indexOrder;
+}
+
+void PFData::setIndexOrder(std::string indexOrder) {
+    // Input string should only be 3 chars long - "zyx" or "xyz"
+    indexOrder = indexOrder.substr(0, 3);
+
+    // Convert string to lowercase and compare to valid indexOrder strings
+    for (int i = 0; i < (int)indexOrder.length(); i++) {
+        indexOrder[i] = std::tolower(indexOrder[i]);
+
+        if ((indexOrder[i] != "zyx"[i]) && (indexOrder[i] != "xyz"[i])) {
+            return;
+        }
+    }
+
+    // At this point, indexOrder is valid
+    m_indexOrder = indexOrder;
+}
+
 double* PFData::getData() {
     return m_data;
 }
@@ -723,8 +744,6 @@ int PFData::loadDataThreaded(const int numThreads){
         pool.at(i) = std::thread(threadFunc, subgridBegin, subgridEnd, fps.at(i), std::ref(retCodes.at(i)));
     }
 
-
-
     for(int i = 0; i < numThreads; ++i){
         pool.at(i).join();
         std::fclose(fps.at(i));
@@ -749,13 +768,20 @@ void PFData::close() {
     }
 }
 
-
 int PFData::writeFile(const std::string filename) {
     std::vector<long> _offsets((m_p*m_q*m_r) + 1);
     return writeFile(filename, _offsets);
 }
 
 int PFData::writeFile(const std::string filename, std::vector<long> &byte_offsets) {
+    // m_indexOrder must be set to "zyx" in order to write file
+    // Notify user and exit function if not
+    if (m_indexOrder != "zyx") {
+        perror("PFData indexOrder attribute must be set to \"zyx\" before calling writeFile(). "
+                "Please confirm that your arrays are in the right order, and call setIndexOrder() "
+                "on your PFData object to set this attribute.");
+        return 1;
+    }
 
     std::FILE* fp = std::fopen(filename.c_str(), "wb");
     if(fp == nullptr){

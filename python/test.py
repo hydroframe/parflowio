@@ -177,12 +177,61 @@ class PFDataClassTests(unittest.TestCase):
         test.close()
 
         # loadDataThreaded() should have less total time spent than loadData()
-        assert threaded_time < non_threaded_time, f'Using {num_threads} threads has degraded the performance of loadDataThreaded()'
+        self.assertTrue(threaded_time < non_threaded_time, f'Using {num_threads} threads has degraded the performance of loadDataThreaded()')
 
         # Display performance increase in percent change
         pct_change = 100 * abs(threaded_time - non_threaded_time) / non_threaded_time
         print(f'{pct_change:.2f}% performance increase when using LoadDataThreaded() with {num_threads} threads')
 
+    def test_set_index_order(self):
+        test = PFData(('press.init.pfb'))
+
+        self.assertEqual(test.getIndexOrder(), 'zyx', 'indexOrder should equal \'zyx\'')
+
+        test.setIndexOrder('xyz')
+        self.assertEqual(test.getIndexOrder(), 'xyz', 'indexOrder should equal \'xyz\'')
+
+        test.setIndexOrder('xYz')
+        self.assertEqual(test.getIndexOrder(), 'xyz', 'indexOrder should equal \'xyz\'')
+
+        test.setIndexOrder('xYZ')
+        self.assertEqual(test.getIndexOrder(), 'xyz', 'indexOrder should equal \'xyz\'')
+
+        test.setIndexOrder('XYZ')
+        self.assertEqual(test.getIndexOrder(), 'xyz', 'indexOrder should equal \'xyz\'')
+
+        test.setIndexOrder('XYZZZZ')
+        self.assertEqual(test.getIndexOrder(), 'xyz', 'indexOrder should equal \'xyz\'')
+
+        # Should not work, should still equal 'xyz'
+        test.setIndexOrder('abc')
+        self.assertEqual(test.getIndexOrder(), 'xyz', 'indexOrder should equal \'xyz\'')
+
+        # Should not be able to write to file when indexOrder == 'xyz'
+        self.assertEqual(test.writeFile(('test_write_index_order.pfb')), 1,
+                         'Should not be able to write to file when indexOrder == \'xyz\'')
+
+        # Should equal 'zyx'
+        test.setIndexOrder('ZYX')
+        self.assertEqual(test.getIndexOrder(), 'zyx', 'indexOrder should equal \'zyx\'')
+
+        # Should equal 'zyx'
+        test.setIndexOrder('zYx')
+        self.assertEqual(test.getIndexOrder(), 'zyx', 'indexOrder should equal \'zyx\'')
+
+        # Should be able to write to file
+        self.assertEqual(test.writeFile(('test_write_index_order.pfb')), 0,
+                         'Should be able to write to file when indexOrder == \'zyx\'')
+
+        # Read file, indexOrder should equal 'zyx'
+        test_read = PFData(('test_write_index_order.pfb'))
+        test_read.loadHeader()
+        test_read.loadData()
+        self.assertEqual(test.getIndexOrder(), 'zyx', 'indexOrder should equal \'zyx\'')
+
+        test.close()
+        test_read.close()
+        os.remove(('test_write_index_order.pfb'))
 
     def test_read_write_data(self):
         test = PFData(('press.init.pfb'))

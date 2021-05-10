@@ -7,9 +7,6 @@
 #include <string>
 #include <cstdlib>
 
-
-
-
 class PFData_test : public ::testing::Test {
 
 protected:
@@ -405,53 +402,6 @@ TEST_F(PFData_test, loadDataAbs) {
     test.close();
 }
 
-//TEST_F(PFData_test, readWrite){
-//    char buf1[1024];
-//    char buf2[1024];
-//
-//    PFData test("tests/inputs/press.init.pfb");
-//    int retval = test.loadHeader();
-//    ASSERT_EQ(0,retval);
-//    retval = test.loadData();
-//    ASSERT_EQ(0,retval);
-//    retval = test.writeFile("tests/press.init.pfb.tmp");
-//    ASSERT_EQ(0,retval);
-//
-//    FILE* f1 = fopen("tests/inputs/press.init.pfb","rb");
-//    FILE* f2 = fopen("tests/press.init.pfb.tmp","rb");
-//    ASSERT_NE(f1,nullptr);
-//    ASSERT_NE(f2,nullptr);
-//    int retval1 = fread(buf1,1,1024,f1);
-//    int retval2 = fread(buf2,1,1024,f2);
-//    int diff = 0;
-//    int count = 0;
-//    EXPECT_EQ(retval1,retval2);
-//    while(retval1 == retval2 && retval1 == 1024){
-//        if(memcmp(buf1,buf2,1024) != 0){
-//            diff = 1;
-//            fprintf(stderr,"Files differ at  read %d\n",count);
-//            int tstCount=1;
-//            while(memcmp(buf1,buf2,tstCount)==0){tstCount++;}
-//            fprintf(stderr,"Files differ at  byte %d\n",tstCount);
-//            fprintf(stderr,"val0: %lf val1: %lf",(double)buf1[tstCount-1],(double)buf2[tstCount-1]);
-//
-//            break;
-//        }
-//        retval1 = fread(buf1,1,1024,f1);
-//        retval2 = fread(buf2,1,1024,f2);
-//        count++;
-//    }
-//    ASSERT_EQ(0,diff);
-//    ASSERT_EQ(retval1,retval2);
-//    if(memcmp(buf1,buf2,retval1) != 0){
-//        diff = 1;
-//    }
-//    ASSERT_EQ(0,diff);
-//    fclose(f1);
-//    fclose(f2);
-//    ASSERT_EQ(0,remove("tests/press.init.pfb.tmp"));
-//
-//}
 TEST_F(PFData_test, dist_press){
     char buf1[1024];
     char buf2[1024];
@@ -641,18 +591,62 @@ TEST_F(PFData_test, setData){
     ASSERT_EQ(0,remove("tests/test_write_file_out.pfb"));
 }
 
-//TEST_F(PFData_test, readFile){
-	//std::ofstream readFile("newFile");
-	//std::string  data="";
-	//std::string test="this will show up in the file.\n";
-	//
-	//readFile << test;
-	//readFile.close();
-	//std::ifstream infile;
-    //infile.open("newFile");
-	////infile.getline(data,100);
-	//while(!infile.eof()){
-			//infile >> data;}
-	////std::cout<<data<<std::endl;
-	//EXPECT_EQ(0,data.compare(test));
-//}
+TEST_F(PFData_test, setIndexOrder) {
+    PFData test = PFData();
+    double data[24];
+    for (int i =0; i<24; i++) {
+        data[i] = (double) rand() / 1000;
+    }
+    test.setData(data);
+
+    // Should equal "zyz"
+    EXPECT_EQ(test.getIndexOrder(), "zyx");
+
+    // Should equal "xyz"
+    test.setIndexOrder("xyz");
+    EXPECT_EQ(test.getIndexOrder(), "xyz");
+
+    // Should equal "xyz"
+    test.setIndexOrder("xYz");
+    EXPECT_EQ(test.getIndexOrder(), "xyz");
+
+    // Should equal "xyz"
+    test.setIndexOrder("xYZ");
+    EXPECT_EQ(test.getIndexOrder(), "xyz");
+
+    // Should equal "xyz"
+    test.setIndexOrder("XYZ");
+    EXPECT_EQ(test.getIndexOrder(), "xyz");
+
+    // Should equal "xyz"
+    test.setIndexOrder("XYZZZZ");
+    EXPECT_EQ(test.getIndexOrder(), "xyz");
+
+    // Should not work, should still equal "xyz"
+    test.setIndexOrder("abc");
+    EXPECT_EQ(test.getIndexOrder(), "xyz");
+
+    // Should not be able to write to file when indexOrder == "xyz"
+    ASSERT_EQ(test.writeFile("tests/test_write_index_order.pfb"), 1);
+
+    // Should equal "zyx"
+    test.setIndexOrder("ZYX");
+    EXPECT_EQ(test.getIndexOrder(), "zyx");
+
+    // Should equal "zyx"
+    test.setIndexOrder("zYx");
+    EXPECT_EQ(test.getIndexOrder(), "zyx");
+
+    // Should be able to write to file
+    ASSERT_EQ(test.writeFile("tests/test_write_index_order.pfb"), 0);
+
+    // Read file, indexOrder should equal "zyx"
+    PFData test_read = PFData("tests/test_write_index_order.pfb");
+    test_read.loadHeader();
+    test_read.loadData();
+    EXPECT_EQ("zyx", test_read.getIndexOrder());
+
+    test.close();
+    test_read.close();
+    ASSERT_EQ(0, remove("tests/test_write_index_order.pfb"));
+}

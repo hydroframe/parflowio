@@ -35,6 +35,9 @@ private:
     int m_q = 1;
     int m_p = 1;
 
+    // Indicates indexing order of numpy arrays
+    std::string m_indexOrder = "zyx";
+
     //Tracks if we own m_data, and need to free it.
     bool m_dataOwner = false;
 
@@ -554,6 +557,18 @@ public:
 	 * @param int grid
 	 */
     double* getSubgridData(int grid);
+
+    /**
+    * getIndexOrder
+    * @return string
+    */
+    std::string getIndexOrder() const;
+
+    /**
+    * setIndexOrder
+    * @param string indexOrder
+    */
+    void setIndexOrder(std::string indexOrder);
 
     /**
      * getData

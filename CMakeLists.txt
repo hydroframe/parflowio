@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.15)
 
-project(parflowio VERSION 0.0.4 LANGUAGES CXX)
+project(parflowio VERSION 0.0.5 LANGUAGES CXX)
 message(STATUS "project: ${PROJECT_NAME}")
 message(STATUS "version: ${PROJECT_VERSION}")
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 11)
-set(PROJECT_VERSION 0.0.4)
+set(PROJECT_VERSION 0.0.5)
 # Only do these if this is the main project, and not if it is included through add_subdirectory
 
 set(parflowio_cmake_dir "${parflowio_SOURCE_DIR}/CMake")

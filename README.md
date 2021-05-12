@@ -15,7 +15,7 @@ pip install parflowio
 3. (Optional) Doxygen, for documentation
 
 ### Python Package
-1. All [C++ dependencies](### C++ Library)
+1. All [C++ dependencies](#c-library)
 2. Python 3, and Python 3 development files (generally the `-dev` or `-develop` package).
 3. The following python packages: numpy\*, pip, wheel
 4. SWIG 3 or newer (SWIG 4+ if Python docs are desired)
@@ -85,7 +85,7 @@ cmake --build build
 ```
 
 ## Installing Python Package
-Build the Python package, as detailed in in the [previous section](## Building Python Package)  
+Build the Python package, as detailed in in the [previous section](#building-python-package)  
 Install the built package:
 ```
 pip install build/python/parflowio/
@@ -101,4 +101,4 @@ The package can now be from python:
 ```
 
 ## Testing Python Package
-After [building the python package](## Building Python Package) and [installing it](## Installing Python Package), `cd` into the `python` directory and run `python test.py`.
+After [building the python package](#building-python-package) and [installing it](#installing-python-package), `cd` into the `python` directory and run `python test.py`.

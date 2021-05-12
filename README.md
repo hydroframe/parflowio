@@ -91,7 +91,7 @@ Install the built package:
 pip install build/python/parflowio/
 ```
 
-The package can now be from python:
+The package can now be used from python:
 ```
 >>> from parflowio.pyParflowio import PFData
 >>> pfdata = PFData('tests/inputs/press.init.pfb')

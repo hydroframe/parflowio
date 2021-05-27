@@ -1,71 +1,104 @@
 [![Build Status](https://travis-ci.com/hydroframe/parflowio.svg?branch=master)](https://travis-ci.com/hydroframe/parflowio)
 
-# parflowio
-This project is meant to replace the existing pfio code used by pftools.
-For now the project is a separate repo, but that will change.
-
-## Installation
-    git clone <this repo>    
-    mkdir parflowio-build
-    cd parflowio-build
-    cmake ../parflowio
-    make
-    make test
-    make docs
-    
-This will build a library file (libparflowio.a). To use this library you will also need the header files.
-
-The documentation can be found in docs/html/index.html
-
-
-## Building Python Package
-
-From the parflowio-build directory, created in [installation](#Installation) step:
+# `parflowio`
+This project is meant to replace the existing `pfio` code used by `pftools`.
+For now the project is a separate repo, but that will change.  
+If you just need to use the python package, you can install the latest version with `pip` from PyPi:
 ```
-cmake ../parflowio -DBUILD_PYTHON=ON
-make
+pip install parflowio
 ```
 
-## Python Installation
-Required packages:
+## Dependencies
+### C++ Library
+1. CMake 3.15 or newer
+2. A C++11 capable compiler
+3. (Optional) Doxygen, for documentation
 
-* [SWIG](http://www.swig.org/)
-* Numpy
-* pip
-* virtualenv
+### Python Package
+1. All [C++ dependencies](#c-library)
+2. Python 3, and Python 3 development files (generally the `-dev` or `-develop` package).
+3. The following python packages: numpy\*, pip, wheel
+4. SWIG 3 or newer (SWIG 4+ if Python docs are desired)
+5. (Recommended) conda or similar virtual environment.
+
+\* If you installed numpy using your system package manager (like `apt` or `pacman`) you may need to also install the development version of numpy.
+
 
 macOS users should be able to install SWIG using homebrew with the command:
 ```
 brew install swig
 ```
 
-After performing the steps from [installation](#Installation), do the following steps from the parflowio-build
- directory:
-```
-$ cd python/parflowio
-$ python setup.py install
-```
+SWIG can also be installed with conda when creating the environment.
 
-Note: Suggest using a conda or other non-system environment for this. 
-
-Create a new conda environment and activate it:
-
+## Building C++ Library
+Clone the repository:
 ```
-$ conda create -n parflowio_test ipython numpy pip virtualenv swig pydot -y
-$ conda activate parflowio_test
+git clone git@github.com:hydroframe/parflowio.git
+cd parflowio
 ```
-
-Start an ipython session and load the PFData class
+Install the required dependencies.
+Generate build files, and build the main target:
 ```
-$ ipython
-In [1]: from parflowio.pyParflowio import PFData
-In [2]: pfb_data = PFData('<path>/parflowio/tests/inputs/press.init.pfb')
-In [3]: pfb_data.loadHeader()
-In [4]: pfb_data.loadData()
-In [5]: data = pfb_data.getDataAsArray()
+cmake -S . -B build
+cmake --build build
 ```
 
-## Testing Python Module
+This will build a library file (`libparflowio.a`). To use this library you will also need the header files.
 
-After following [install](#Installation) and [python install](#Python-Installation) steps above, cd to
-parflowio/python and run `python test.py` 
+To build the docs (requires doxygen):
+```
+cmake --build build -t docs
+```
+
+The documentation can be found in `docs/html/index.html`
+
+## Testing C++ Library
+To run the C++ tests:
+```
+cmake --build build -t test
+```
+
+## Building Python Package
+
+Clone the repository, if needed:
+```
+git clone git@github.com:hydroframe/parflowio.git
+cd parflowio
+```
+
+If using conda, create a new environment:
+```
+conda create -n parflowio numpy pip wheel
+conda activate parflowio
+```
+
+Install the required dependencies. If installing SWIG with conda, ensure the created environment is active and install as shown:
+```
+conda install swig
+```
+
+Build with the python package enabled:
+```
+cmake -S . -B build -DBUILD_PYTHON=ON
+cmake --build build
+```
+
+## Installing Python Package
+Build the Python package, as detailed in in the [previous section](#building-python-package)  
+Install the built package:
+```
+pip install build/python/parflowio/
+```
+
+The package can now be used from python:
+```
+>>> from parflowio.pyParflowio import PFData
+>>> pfdata = PFData('tests/inputs/press.init.pfb')
+>>> pfdata.loadHeader()
+>>> pfdata.loadData()
+>>> data = pfdata.copyDataArray()
+```
+
+## Testing Python Package
+After [building the python package](#building-python-package) and [installing it](#installing-python-package), `cd` into the `python` directory and run `python test.py`.

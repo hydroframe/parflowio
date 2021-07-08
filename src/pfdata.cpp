@@ -651,6 +651,115 @@ int PFData::loadData() {
     return 0;
 }
 
+/**
+ * This function makes the assumption that the clipping is only in 2D and all z
+ * values will be contained
+**/
+int PFData::loadClipOfData(int clip_x, int clip_y, int extent_x, int extent_y) {
+
+    int nsg;
+    //subgrid variables
+    int x,y,z,nx,ny,nz,rx,ry,rz;
+    if(m_fp  == nullptr){
+        return 1;
+    }
+
+    if(m_data && m_dataOwner){
+        std::free(m_data);
+    }
+
+    // allocating based on size of slice.
+    m_data = (double*)std::malloc(sizeof(double)*extent_x*extent_y*m_nz);
+    m_dataOwner = true;
+
+    if(m_data == nullptr){
+        return 2;
+    }
+
+    for (nsg = 0;nsg<m_numSubgrids; nsg++){
+        // read subgrid header
+        int errcheck;
+        READINT(x,m_fp,errcheck);
+        if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
+        READINT(y,m_fp,errcheck);
+        if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
+        READINT(z,m_fp,errcheck);
+        if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
+        READINT(nx,m_fp,errcheck);
+        if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
+        READINT(ny,m_fp,errcheck);
+        if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
+        READINT(nz,m_fp,errcheck);
+        if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
+        READINT(rx,m_fp,errcheck);
+        if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
+        READINT(ry,m_fp,errcheck);
+        if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
+        READINT(rz,m_fp,errcheck);
+        if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
+
+        // is this subgrid part of our clip?
+        int x_overlap = fminl(clip_x+extent_x, x+nx) - fmaxl(clip_x,x); 
+        int y_overlap = fminl(clip_y+extent_y, y+ny) - fmaxl(clip_y,y); 
+        if(x_overlap > 0 && y_overlap >0){
+          // some of the data is in here -- will read the whole subgrid, but
+          // only save the overlap part.
+          uint64_t* buf =(uint64_t*) malloc(sizeof(uint64_t)*nx);
+
+          // read values for subgrid
+          // qq is the location of the subgrid
+          // z will always be 0
+          // qq points to the location in the destination data where the first value should
+          // be written
+          long long qq = z*extent_x*extent_y + (fmaxl(y,clip_y)-clip_y)*extent_x + (fmaxl(x,clip_x)-clip_x);
+          long long k,i,j;
+          //int index = qq;//+k*nx*ny+i*nx;
+          for (k=0; k<nz; k++){
+              for(i=0;i<ny;i++){
+                  // read full "pencil"
+                  int read_count = fread(buf,8,nx,m_fp);
+                  if(read_count != nx){
+                      perror("Error Reading Data, File Ended Unexpectedly");
+                      return 1;
+                  }
+                  // handle byte order and copy over only what we need
+                  long long index = qq+k*extent_x*extent_y+i*extent_x;
+                  // if this pencil is within our y-range
+                  if(y+i >= clip_y && y+i < clip_y+extent_y){
+                    long long index = qq+k*extent_x*extent_y+i*extent_x;
+                    int pos =0;
+                    // this loop needs to go over the portion of the pencil that is
+                    // within our clip. Sometimes our clip will be entirely contained
+                    // by this subgrid and sometimes it won't
+                    // j needs to go from 0 to nx
+                    for(j=0;j<nx;j++){
+                        if((x+j) >= clip_x && (x+j) < clip_x+extent_x){
+                          index = (z+k)*extent_y*extent_x +((y+i)-clip_y)*extent_x + (x+j)-clip_x;
+                          uint64_t tmp = buf[j];
+                          tmp = bswap64(tmp);
+                          m_data[index] = *(double*)(&tmp);
+                          pos++;
+                       }
+                    }
+                 }
+              }
+          }
+          free(buf);
+        }else{
+          // scan to the next subgrid
+          std::fseek(m_fp, 8*nx*ny*nz, SEEK_CUR);
+        }
+    }
+
+    m_X = clip_x;
+    m_Y = clip_y;
+    m_nx = extent_x;
+    m_ny = extent_y;
+    m_numSubgrids = 1;
+
+    return 0;
+}
+
 
 int PFData::emplaceSubgridFromFile(std::FILE* fp, int gridZ, int gridY, int gridX){
     //Position file

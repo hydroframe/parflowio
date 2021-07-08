@@ -283,6 +283,8 @@ public:
      */
      int loadData();
 
+     int loadClipOfData(int clip_x, int clip_y, int extent_x, int extent_y);
+
      /**
       * Performs the same functionality as loadData(), but loads the file in parallel, using the supplied number of threads.
       * \pre                loadPQR(). @@TODO maybe we want a way to enforce this in the future.

@@ -399,6 +399,62 @@ TEST_F(PFData_test, loadDataAbs) {
     EXPECT_NEAR(92.61370155558751,test(2,1,21),1E-12);
     EXPECT_NEAR(7.98008728357588,test(45,1,0),1E-12);
     EXPECT_NEAR(97.30205516102234,test(0,1,22),1E-12);
+
+    EXPECT_NEAR(95.173603867758615, test(0, 40, 40), 1E-12);
+    EXPECT_NEAR(98.006254316614971, test(0, 39, 39), 1E-12);
+    test.close();
+}
+TEST_F(PFData_test, loadClipTest1){
+
+    // this file needs to exist, and should load
+    char filename[2048];
+    getcwd(filename,2048);
+    strcat(filename,"/tests/inputs/press.init.pfb");
+    PFData test(filename);
+    int retval = test.loadHeader();
+    ASSERT_EQ(0,retval);
+    retval = test.loadClipOfData(0,0,3,3);
+    ASSERT_EQ(0,retval);
+    double* data = test.getData();
+    EXPECT_NE(nullptr, data);
+    EXPECT_NEAR(98.003604098773,test(0,0,0),1E-12);
+    EXPECT_NEAR(98.0043134691891,test(0,1,0),1E-12);
+    EXPECT_NEAR(98.00901307022781,test(0,0,1),1E-12);
+    EXPECT_NEAR(7.98008728357588,test(45,1,0),1E-12);
+    test.close();
+}
+TEST_F(PFData_test, loadClipTest2){
+
+    // this file needs to exist, and should load
+    char filename[2048];
+    getcwd(filename,2048);
+    strcat(filename,"/tests/inputs/press.init.pfb");
+    PFData test(filename);
+    int retval = test.loadHeader();
+    ASSERT_EQ(0,retval);
+    retval = test.loadClipOfData(39,39,2,2);
+    ASSERT_EQ(0,retval);
+    double* data = test.getData();
+    EXPECT_NE(nullptr, data);
+    EXPECT_NEAR(95.173603867758615, test(0, 1, 1), 1E-12);
+    EXPECT_NEAR(98.006254316614971, test(0, 0, 0), 1E-12);
+    test.close();
+}
+TEST_F(PFData_test, loadClipTest3){
+
+    // this file needs to exist, and should load
+    char filename[2048];
+    getcwd(filename,2048);
+    strcat(filename,"/tests/inputs/press.init.pfb");
+    PFData test(filename);
+    int retval = test.loadHeader();
+    ASSERT_EQ(0,retval);
+    retval = test.loadClipOfData(2,2,39,39);
+    ASSERT_EQ(0,retval);
+    double* data = test.getData();
+    EXPECT_NE(nullptr, data);
+    EXPECT_NEAR(95.173603867758615, test(0, 38, 38), 1E-12);
+    EXPECT_NEAR(98.006254316614971, test(0, 37, 37), 1E-12);
     test.close();
 }
 
@@ -650,3 +706,5 @@ TEST_F(PFData_test, setIndexOrder) {
     test_read.close();
     ASSERT_EQ(0, remove("tests/test_write_index_order.pfb"));
 }
+
+

@@ -417,6 +417,12 @@ TEST_F(PFData_test, loadClipTest1){
     ASSERT_EQ(0,retval);
     double* data = test.getData();
     EXPECT_NE(nullptr, data);
+    EXPECT_EQ(50, test.getNZ());
+    EXPECT_EQ(3, test.getNY());
+    EXPECT_EQ(3, test.getNX());
+    EXPECT_EQ(0, test.getZ());
+    EXPECT_EQ(0, test.getY());
+    EXPECT_EQ(0, test.getX());
     EXPECT_NEAR(98.003604098773,test(0,0,0),1E-12);
     EXPECT_NEAR(98.0043134691891,test(0,1,0),1E-12);
     EXPECT_NEAR(98.00901307022781,test(0,0,1),1E-12);
@@ -436,8 +442,41 @@ TEST_F(PFData_test, loadClipTest2){
     ASSERT_EQ(0,retval);
     double* data = test.getData();
     EXPECT_NE(nullptr, data);
+    EXPECT_EQ(50, test.getNZ());
+    EXPECT_EQ(2, test.getNY());
+    EXPECT_EQ(2, test.getNX());
+    EXPECT_EQ(0, test.getZ());
+    EXPECT_EQ(39, test.getY());
+    EXPECT_EQ(39, test.getX());
     EXPECT_NEAR(95.173603867758615, test(0, 1, 1), 1E-12);
     EXPECT_NEAR(98.006254316614971, test(0, 0, 0), 1E-12);
+    test.close();
+}
+TEST_F(PFData_test, loadClipTestTemp){
+
+    // this file needs to exist, and should load
+    char filename[2048];
+    getcwd(filename,2048);
+    strcat(filename,"/tests/inputs/NLDAS.Press.000001_to_000024_orig.pfb");
+    PFData test(filename);
+    int retval = test.loadHeader();
+    ASSERT_EQ(0,retval);
+    retval = test.loadClipOfData(2806,1060,10,16);
+    ASSERT_EQ(0,retval);
+    EXPECT_EQ(20, test.getDZ());
+    EXPECT_EQ(1000, test.getDY());
+    EXPECT_EQ(1000, test.getDX());
+    EXPECT_EQ(24, test.getNZ());
+    EXPECT_EQ(16, test.getNY());
+    EXPECT_EQ(10, test.getNX());
+    EXPECT_EQ(0, test.getZ());
+    EXPECT_EQ(1060, test.getY());
+    EXPECT_EQ(2806, test.getX());
+    retval = test.writeFile("tests/inputs/NLDAS.Press.000001_to_000024_clip.pfb");
+    double* data = test.getData();
+    EXPECT_NE(nullptr, data);
+    //EXPECT_NEAR(95.173603867758615, test(0, 1, 1), 1E-12);
+    //EXPECT_NEAR(98.006254316614971, test(0, 0, 0), 1E-12);
     test.close();
 }
 TEST_F(PFData_test, loadClipTest3){

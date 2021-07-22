@@ -676,6 +676,10 @@ int PFData::loadClipOfData(int clip_x, int clip_y, int extent_x, int extent_y) {
         return 2;
     }
 
+    uint64_t* buf =(uint64_t*) malloc(sizeof(uint64_t)*nx);
+    if(buf == nullptr){
+        return 3;
+    }
     for (nsg = 0;nsg<m_numSubgrids; nsg++){
         // read subgrid header
         int errcheck;
@@ -703,26 +707,56 @@ int PFData::loadClipOfData(int clip_x, int clip_y, int extent_x, int extent_y) {
         int y_overlap = fminl(clip_y+extent_y, y+ny) - fmaxl(clip_y,y); 
         if(x_overlap > 0 && y_overlap >0){
           // some of the data is in here -- will read the whole subgrid, but
-          // only save the overlap part.
-          uint64_t* buf =(uint64_t*) malloc(sizeof(uint64_t)*nx);
-
+          // only save the overlap part. There is room to optimize this later.
+          
           // read values for subgrid
           // qq is the location of the subgrid
           // z will always be 0
           // qq points to the location in the destination data where the first value should
           // be written
-          long long qq = z*extent_x*extent_y + (fmaxl(y,clip_y)-clip_y)*extent_x + (fmaxl(x,clip_x)-clip_x);
+          //long long qq = z*extent_x*extent_y + (fmaxl(y,clip_y)-clip_y)*extent_x + (fmaxl(x,clip_x)-clip_x);
           long long k,i,j;
           //int index = qq;//+k*nx*ny+i*nx;
           for (k=0; k<nz; k++){
               for(i=0;i<ny;i++){
-                  // read full "pencil"
-                  int read_count = fread(buf,8,nx,m_fp);
-                  if(read_count != nx){
-                      perror("Error Reading Data, File Ended Unexpectedly");
-                      return 1;
+                  // Determine the indices of the first element of the pencil in the
+                  // global space
+                  int gx = x;
+                  int gy = y + i;
+                  int gz = z + k;
+                  // determine the clip coordinates
+                  int cx = gx - clip_x;
+                  int cy = gy - clip_y;
+                  int cz = gz;
+ 
+                  // check to see if this pencil will be in our y-range - seek if not
+                  if(gy>=clip_y && gy<clip_y+extent_y){
+                    // read full "pencil"
+                    int read_count = fread(buf,8,nx,m_fp);
+                    if(read_count != nx){
+                        perror("Error Reading Data, File Ended Unexpectedly");
+                        return 1;
+                    }
+
+                    // iterate over every value read
+                    // the j value is in the subgrid space
+                    for(j=0;j<nx;j++){
+                      if((gx+j) >= clip_x && (gx+j) < clip_x+extent_x){
+                        // these should be valid clip coordinates
+                        int cxi = cx+j;
+                        int cyi = cy;
+                        int czi = cz;
+                        int index = czi*(extent_y*extent_x) + cyi*extent_x + cxi;
+                        uint64_t tmp = buf[j];
+                        tmp = bswap64(tmp);
+                        m_data[index] = *(double*)(&tmp);
+                      } 
+                    }
+                  }else{
+                    // seek a single pencil
+                    std::fseek(m_fp, 8*nx, SEEK_CUR);
                   }
-                  // handle byte order and copy over only what we need
+                  /*// handle byte order and copy over only what we need
                   long long index = qq+k*extent_x*extent_y+i*extent_x;
                   // if this pencil is within our y-range
                   if(y+i >= clip_y && y+i < clip_y+extent_y){
@@ -741,22 +775,23 @@ int PFData::loadClipOfData(int clip_x, int clip_y, int extent_x, int extent_y) {
                           pos++;
                        }
                     }
-                 }
+                 }*/
               }
           }
-          free(buf);
         }else{
           // scan to the next subgrid
           std::fseek(m_fp, 8*nx*ny*nz, SEEK_CUR);
         }
     }
+    free(buf);
 
-    m_X = clip_x;
-    m_Y = clip_y;
-    m_nx = extent_x;
-    m_ny = extent_y;
+    setX(clip_x);
+    setY(clip_y);
+    setNX(extent_x);
+    setNY(extent_y);
     m_numSubgrids = 1;
 
+    close();
     return 0;
 }
 

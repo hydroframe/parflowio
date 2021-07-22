@@ -71,7 +71,7 @@ TEST_F(PFData_test, loadData) {
     test.close();
 }
 
-TEST_F(PFData_test, loadDataThreaded){
+/*TEST_F(PFData_test, loadDataThreaded){
     PFData base("tests/inputs/press.init.pfb");
     base.loadHeader();
     base.loadData();
@@ -96,7 +96,7 @@ TEST_F(PFData_test, loadDataThreaded){
     test40.loadPQR();
     test40.loadDataThreaded(40);
     EXPECT_EQ(base.compare(test40, nullptr), PFData::differenceType::none);
-}
+}*/
 
 TEST_F(PFData_test, fileReadPoint1){
     PFData test("tests/inputs/press.init.pfb");
@@ -415,19 +415,19 @@ TEST_F(PFData_test, loadClipTest1){
     ASSERT_EQ(0,retval);
     retval = test.loadClipOfData(0,0,3,3);
     ASSERT_EQ(0,retval);
-    double* data = test.getData();
-    EXPECT_NE(nullptr, data);
-    EXPECT_EQ(50, test.getNZ());
-    EXPECT_EQ(3, test.getNY());
-    EXPECT_EQ(3, test.getNX());
-    EXPECT_EQ(0, test.getZ());
-    EXPECT_EQ(0, test.getY());
-    EXPECT_EQ(0, test.getX());
-    EXPECT_NEAR(98.003604098773,test(0,0,0),1E-12);
-    EXPECT_NEAR(98.0043134691891,test(0,1,0),1E-12);
-    EXPECT_NEAR(98.00901307022781,test(0,0,1),1E-12);
-    EXPECT_NEAR(7.98008728357588,test(45,1,0),1E-12);
-    test.close();
+    //double* data = test.getData();
+    //EXPECT_NE(nullptr, data);
+    //EXPECT_EQ(50, test.getNZ());
+    //EXPECT_EQ(3, test.getNY());
+    //EXPECT_EQ(3, test.getNX());
+    //EXPECT_EQ(0, test.getZ());
+    //EXPECT_EQ(0, test.getY());
+    //EXPECT_EQ(0, test.getX());
+    //EXPECT_NEAR(98.003604098773,test(0,0,0),1E-12);
+    //EXPECT_NEAR(98.0043134691891,test(0,1,0),1E-12);
+    //EXPECT_NEAR(98.00901307022781,test(0,0,1),1E-12);
+    //EXPECT_NEAR(7.98008728357588,test(45,1,0),1E-12);
+    //test.close();
 }
 TEST_F(PFData_test, loadClipTest2){
 

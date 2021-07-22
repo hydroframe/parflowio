@@ -39,12 +39,13 @@ PFData::PFData(double *data, int nz, int ny, int nx)
     : m_data{data}, m_nz{nz}, m_ny{ny}, m_nx{nx} {}
 
 PFData::~PFData(){
+std::cerr < "destruct";
     if(m_fp){
         std::fclose(m_fp);
     }
 
-    if(m_dataOwner){
-        std::free(m_data);
+    if(m_dataOwner && m_data != nullptr){
+        //std::free(m_data);
     }
 }
 
@@ -584,7 +585,7 @@ int PFData::loadData() {
     }
 
     if(m_data && m_dataOwner){
-        std::free(m_data);
+        //std::free(m_data);
     }
 
     m_data = (double*)std::malloc(sizeof(double)*m_nx*m_ny*m_nz);
@@ -676,10 +677,12 @@ int PFData::loadClipOfData(int clip_x, int clip_y, int extent_x, int extent_y) {
         return 2;
     }
 
-    uint64_t* buf =(uint64_t*) malloc(sizeof(uint64_t)*nx);
+    // this is more space than needed
+    uint64_t* buf =(uint64_t*) malloc(sizeof(uint64_t)*m_nx);
     if(buf == nullptr){
         return 3;
     }
+
     for (nsg = 0;nsg<m_numSubgrids; nsg++){
         // read subgrid header
         int errcheck;
@@ -744,9 +747,7 @@ int PFData::loadClipOfData(int clip_x, int clip_y, int extent_x, int extent_y) {
                       if((gx+j) >= clip_x && (gx+j) < clip_x+extent_x){
                         // these should be valid clip coordinates
                         int cxi = cx+j;
-                        int cyi = cy;
-                        int czi = cz;
-                        int index = czi*(extent_y*extent_x) + cyi*extent_x + cxi;
+                        int index = cz*(extent_y*extent_x) + cy*extent_x + cxi;
                         uint64_t tmp = buf[j];
                         tmp = bswap64(tmp);
                         m_data[index] = *(double*)(&tmp);
@@ -756,31 +757,11 @@ int PFData::loadClipOfData(int clip_x, int clip_y, int extent_x, int extent_y) {
                     // seek a single pencil
                     std::fseek(m_fp, 8*nx, SEEK_CUR);
                   }
-                  /*// handle byte order and copy over only what we need
-                  long long index = qq+k*extent_x*extent_y+i*extent_x;
-                  // if this pencil is within our y-range
-                  if(y+i >= clip_y && y+i < clip_y+extent_y){
-                    long long index = qq+k*extent_x*extent_y+i*extent_x;
-                    int pos =0;
-                    // this loop needs to go over the portion of the pencil that is
-                    // within our clip. Sometimes our clip will be entirely contained
-                    // by this subgrid and sometimes it won't
-                    // j needs to go from 0 to nx
-                    for(j=0;j<nx;j++){
-                        if((x+j) >= clip_x && (x+j) < clip_x+extent_x){
-                          index = (z+k)*extent_y*extent_x +((y+i)-clip_y)*extent_x + (x+j)-clip_x;
-                          uint64_t tmp = buf[j];
-                          tmp = bswap64(tmp);
-                          m_data[index] = *(double*)(&tmp);
-                          pos++;
-                       }
-                    }
-                 }*/
               }
           }
         }else{
           // scan to the next subgrid
-          std::fseek(m_fp, 8*nx*ny*nz, SEEK_CUR);
+           std::fseek(m_fp, 8*nx*ny*nz, SEEK_CUR);
         }
     }
     free(buf);
@@ -854,7 +835,7 @@ int PFData::loadDataThreaded(const int numThreads){
     };
 
     if(m_data && m_dataOwner){
-        std::free(m_data);
+        //std::free(m_data);
     }
 
     m_data = reinterpret_cast<double*>(std::malloc(sizeof(double) * m_nx * m_ny * m_nz));

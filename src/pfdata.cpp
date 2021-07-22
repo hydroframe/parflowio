@@ -39,7 +39,6 @@ PFData::PFData(double *data, int nz, int ny, int nx)
     : m_data{data}, m_nz{nz}, m_ny{ny}, m_nx{nx} {}
 
 PFData::~PFData(){
-std::cerr < "destruct";
     if(m_fp){
         std::fclose(m_fp);
     }
@@ -677,12 +676,14 @@ int PFData::loadClipOfData(int clip_x, int clip_y, int extent_x, int extent_y) {
         return 2;
     }
 
-    // this is more space than needed
+    // this is more space than needed -- but doing it here allows us to 
+    // allocate and free only one space
     uint64_t* buf =(uint64_t*) malloc(sizeof(uint64_t)*m_nx);
     if(buf == nullptr){
         return 3;
     }
 
+    // read the data one subgrid at a time.
     for (nsg = 0;nsg<m_numSubgrids; nsg++){
         // read subgrid header
         int errcheck;
@@ -713,13 +714,9 @@ int PFData::loadClipOfData(int clip_x, int clip_y, int extent_x, int extent_y) {
           // only save the overlap part. There is room to optimize this later.
           
           // read values for subgrid
-          // qq is the location of the subgrid
           // z will always be 0
-          // qq points to the location in the destination data where the first value should
-          // be written
-          //long long qq = z*extent_x*extent_y + (fmaxl(y,clip_y)-clip_y)*extent_x + (fmaxl(x,clip_x)-clip_x);
           long long k,i,j;
-          //int index = qq;//+k*nx*ny+i*nx;
+          // iterate over the y and z portions of the subgrid
           for (k=0; k<nz; k++){
               for(i=0;i<ny;i++){
                   // Determine the indices of the first element of the pencil in the
@@ -733,6 +730,7 @@ int PFData::loadClipOfData(int clip_x, int clip_y, int extent_x, int extent_y) {
                   int cz = gz;
  
                   // check to see if this pencil will be in our y-range - seek if not
+                  // this only looks at the specific y point not a range of them
                   if(gy>=clip_y && gy<clip_y+extent_y){
                     // read full "pencil"
                     int read_count = fread(buf,8,nx,m_fp);
@@ -744,6 +742,8 @@ int PFData::loadClipOfData(int clip_x, int clip_y, int extent_x, int extent_y) {
                     // iterate over every value read
                     // the j value is in the subgrid space
                     for(j=0;j<nx;j++){
+                      // if this specific y,x coordinate is within the clip
+                      // convert it and save it in the right position
                       if((gx+j) >= clip_x && (gx+j) < clip_x+extent_x){
                         // these should be valid clip coordinates
                         int cxi = cx+j;
@@ -754,12 +754,14 @@ int PFData::loadClipOfData(int clip_x, int clip_y, int extent_x, int extent_y) {
                       } 
                     }
                   }else{
+                    // this y point is not of interest - so
                     // seek a single pencil
                     std::fseek(m_fp, 8*nx, SEEK_CUR);
                   }
               }
           }
         }else{
+          // this entire subgrid does not fit into our clip, so
           // scan to the next subgrid
            std::fseek(m_fp, 8*nx*ny*nz, SEEK_CUR);
         }

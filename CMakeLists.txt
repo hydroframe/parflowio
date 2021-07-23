@@ -6,7 +6,7 @@ message(STATUS "version: ${PROJECT_VERSION}")
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 11)
-set(PROJECT_VERSION 0.0.5)
+set(PROJECT_VERSION 0.0.7)
 # Only do these if this is the main project, and not if it is included through add_subdirectory
 
 set(parflowio_cmake_dir "${parflowio_SOURCE_DIR}/CMake")

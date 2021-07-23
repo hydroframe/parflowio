@@ -461,7 +461,7 @@ TEST_F(PFData_test, loadClipTestTemp){
     PFData test(filename);
     int retval = test.loadHeader();
     ASSERT_EQ(0,retval);
-    retval = test.loadClipOfData(2806,1060,10,16);
+    retval = test.loadClipOfData(2805,1059,10,16);
     ASSERT_EQ(0,retval);
     EXPECT_EQ(20, test.getDZ());
     EXPECT_EQ(1000, test.getDY());
@@ -470,8 +470,8 @@ TEST_F(PFData_test, loadClipTestTemp){
     EXPECT_EQ(16, test.getNY());
     EXPECT_EQ(10, test.getNX());
     EXPECT_EQ(0, test.getZ());
-    EXPECT_EQ(1060, test.getY());
-    EXPECT_EQ(2806, test.getX());
+    EXPECT_EQ(1059, test.getY());
+    EXPECT_EQ(2805, test.getX());
     retval = test.writeFile("tests/inputs/NLDAS.Press.000001_to_000024_clip.pfb");
     double* data = test.getData();
     EXPECT_NE(nullptr, data);

@@ -44,7 +44,8 @@ PFData::~PFData(){
     }
 
     if(m_dataOwner && m_data != nullptr){
-        //std::free(m_data);
+        std::free(m_data);
+        m_dataOwner = false;
     }
 }
 
@@ -676,7 +677,7 @@ int PFData::loadClipOfData(int clip_x, int clip_y, int extent_x, int extent_y) {
         return 2;
     }
 
-    // this is more space than needed -- but doing it here allows us to 
+    // this is more space than needed -- but doing it here allows us to
     // allocate and free only one space
     uint64_t* buf =(uint64_t*) malloc(sizeof(uint64_t)*m_nx);
     if(buf == nullptr){
@@ -707,12 +708,12 @@ int PFData::loadClipOfData(int clip_x, int clip_y, int extent_x, int extent_y) {
         if(!errcheck){perror("Error Reading Subgrid Header"); return 1;}
 
         // is this subgrid part of our clip?
-        int x_overlap = fminl(clip_x+extent_x, x+nx) - fmaxl(clip_x,x); 
-        int y_overlap = fminl(clip_y+extent_y, y+ny) - fmaxl(clip_y,y); 
+        int x_overlap = fminl(clip_x+extent_x, x+nx) - fmaxl(clip_x,x);
+        int y_overlap = fminl(clip_y+extent_y, y+ny) - fmaxl(clip_y,y);
         if(x_overlap > 0 && y_overlap >0){
           // some of the data is in here -- will read the whole subgrid, but
           // only save the overlap part. There is room to optimize this later.
-          
+
           // read values for subgrid
           // z will always be 0
           long long k,i,j;
@@ -728,7 +729,7 @@ int PFData::loadClipOfData(int clip_x, int clip_y, int extent_x, int extent_y) {
                   int cx = gx - clip_x;
                   int cy = gy - clip_y;
                   int cz = gz;
- 
+
                   // check to see if this pencil will be in our y-range - seek if not
                   // this only looks at the specific y point not a range of them
                   if(gy>=clip_y && gy<clip_y+extent_y){
@@ -751,7 +752,7 @@ int PFData::loadClipOfData(int clip_x, int clip_y, int extent_x, int extent_y) {
                         uint64_t tmp = buf[j];
                         tmp = bswap64(tmp);
                         m_data[index] = *(double*)(&tmp);
-                      } 
+                      }
                     }
                   }else{
                     // this y point is not of interest - so

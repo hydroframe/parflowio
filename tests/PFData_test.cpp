@@ -457,7 +457,7 @@ TEST_F(PFData_test, loadClipTestTemp){
     // this file needs to exist, and should load
     char filename[2048];
     getcwd(filename,2048);
-    strcat(filename,"/tests/inputs/NLDAS.Press.000001_to_000024_orig.pfb");
+    strcat(filename,"/tests/inputs/NLDAS.APCP.000001_to_000024.pfb");
     PFData test(filename);
     int retval = test.loadHeader();
     ASSERT_EQ(0,retval);
@@ -472,7 +472,7 @@ TEST_F(PFData_test, loadClipTestTemp){
     EXPECT_EQ(0, test.getZ());
     EXPECT_EQ(1059, test.getY());
     EXPECT_EQ(2805, test.getX());
-    retval = test.writeFile("tests/inputs/NLDAS.Press.000001_to_000024_clip.pfb");
+    retval = test.writeFile("tests/inputs/NLDAS.APCP.000001_to_000024_clip.pfb");
     double* data = test.getData();
     EXPECT_NE(nullptr, data);
     //EXPECT_NEAR(95.173603867758615, test(0, 1, 1), 1E-12);

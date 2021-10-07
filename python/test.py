@@ -422,5 +422,54 @@ class PFDataClassTests(unittest.TestCase):
         self.assertTrue(np.array_equal(data, move), 'Data obtained from PFData::moveDataArray must match given data')
         self.assertIsNone(test.viewDataArray(), 'Calling PFData::moveDataArray must invalidate the internal data pointer')
 
+    def test_loadClipTest1(self):
+        test = PFData(('press.init.pfb'))
+        retval = test.loadHeader()     
+        self.assertEqual(0, retval, 'should load header of file that exists')
+        retval = test.loadClipOfData(0,0,3,3);
+        self.assertEqual(0, retval, 'should load data from valid file')
+
+    def test_loadClipTest2(self):
+        test = PFData(('press.init.pfb'))
+        retval = test.loadHeader()     
+        self.assertEqual(0, retval, 'should load header of file that exists')
+        retval = test.loadClipOfData(39,39,2,2);
+        self.assertEqual(50, test.getNZ())
+        self.assertEqual(2, test.getNY())
+        self.assertEqual(2, test.getNX())
+        self.assertEqual(0, test.getZ())
+        self.assertEqual(39, test.getY())
+        self.assertEqual(39, test.getX())
+        self.assertAlmostEqual(95.173603867758615, test(0, 1, 1), 1E-12, 'data in cell ZYX(0,0,40)')
+        self.assertAlmostEqual(98.006254316614971, test(0, 0, 0), 1E-12, 'data in cell ZYX(0, 1, 0)')
+        test.close()
+
+    def test_loadClipTestTemp(self):
+        test = PFData(('NLDAS.APCP.000001_to_000024.pfb'))
+        retval = test.loadHeader()     
+        self.assertEqual(0, retval, 'should load header of file that exists')
+        retval = test.loadClipOfData(2805,1059,10,16)
+        self.assertEqual(0, retval)
+        self.assertEqual(20, test.getDZ())
+        self.assertEqual(1000, test.getDY())
+        self.assertEqual(1000, test.getDX())
+        self.assertEqual(24, test.getNZ())
+        self.assertEqual(16, test.getNY())
+        self.assertEqual(10, test.getNX())
+        self.assertEqual(0, test.getZ())
+        self.assertEqual(1059, test.getY())
+        self.assertEqual(2805, test.getX())
+        test.close()
+
+    def test_loadClipTest3(self):
+        test = PFData(('press.init.pfb'))
+        retval = test.loadHeader()
+        self.assertEqual(0, retval, 'Bad filename should error loading header')
+        retval = test.loadClipOfData(2,2,39,39);
+        self.assertEqual(0, retval, 'should load header of file that exists')
+        self.assertAlmostEqual(95.173603867758615, test(0, 38, 38), 1E-12, 'data in cell ZYX(38,38,0)')
+        self.assertAlmostEqual(98.006254316614971, test(0, 37, 37), 1E-12, 'data in cell ZYX(37, 37, 0)')
+        test.close();
+
 if __name__ == "__main__":
     unittest.main()

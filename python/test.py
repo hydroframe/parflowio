@@ -422,6 +422,7 @@ class PFDataClassTests(unittest.TestCase):
         self.assertTrue(np.array_equal(data, move), 'Data obtained from PFData::moveDataArray must match given data')
         self.assertIsNone(test.viewDataArray(), 'Calling PFData::moveDataArray must invalidate the internal data pointer')
 
+    
     def test_loadClipTest1(self):
         test = PFData(('press.init.pfb'))
         retval = test.loadHeader()     
